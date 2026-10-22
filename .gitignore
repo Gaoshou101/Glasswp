@@ -1,0 +1,16 @@
+research/wallpaper-engine/raw/
+research/wallpaper-engine/combined-*.txt
+__pycache__/
+research/creators/raw/
+research/portrait-dashboard/raw/
+node_modules/
+dist/
+artifacts/
+**/bin/
+**/obj/
+.env*
+*.user
+*.local.json
+.tools/
+test-results/
+playwright-report/

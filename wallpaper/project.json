@@ -1,0 +1,290 @@
+{
+  "title": "竖屏动态信息壁纸",
+  "description": "额度优先 · 磨砂玻璃 · 本机数据桥接",
+  "type": "web",
+  "file": "index.html",
+  "preview": "preview.png",
+  "general": {
+    "properties": {
+      "material_mode": {
+        "type": "combo",
+        "text": "玻璃风格",
+        "value": "liquid",
+        "options": [
+          { "label": "轻量液态", "value": "liquid" },
+          { "label": "原版磨砂", "value": "frosted" }
+        ],
+        "order": -1
+      },
+      "top_enabled": {
+        "type": "bool",
+        "value": true,
+        "text": "日期与天气 · 显示",
+        "order": 0
+      },
+      "top_glass_transparency": {
+        "type": "slider",
+        "value": 75,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "text": "日期与天气 · 透明度",
+        "order": 1
+      },
+      "top_glass_blur": {
+        "type": "slider",
+        "value": 34,
+        "min": 0,
+        "max": 64,
+        "step": 1,
+        "text": "日期与天气 · 磨砂强度",
+        "order": 2
+      },
+      "top_glass_highlight": {
+        "type": "slider",
+        "value": 50,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "text": "日期与天气 · 边缘高光",
+        "order": 3
+      },
+      "top_scale": {
+        "type": "slider",
+        "value": 100,
+        "min": 80,
+        "max": 120,
+        "step": 1,
+        "text": "日期与天气 · 大小",
+        "order": 4
+      },
+      "top_x": {
+        "type": "slider",
+        "value": 0,
+        "min": -5,
+        "max": 5,
+        "step": 0.25,
+        "text": "日期与天气 · 水平位置",
+        "order": 5
+      },
+      "top_y": {
+        "type": "slider",
+        "value": 0,
+        "min": -5,
+        "max": 5,
+        "step": 0.25,
+        "text": "日期与天气 · 垂直位置",
+        "order": 6
+      },
+      "quota_enabled": {
+        "type": "bool",
+        "value": true,
+        "text": "AI 套餐余量 · 显示",
+        "order": 7
+      },
+      "quota_glass_transparency": {
+        "type": "slider",
+        "value": 75,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "text": "AI 套餐余量 · 透明度",
+        "order": 8
+      },
+      "quota_glass_blur": {
+        "type": "slider",
+        "value": 34,
+        "min": 0,
+        "max": 64,
+        "step": 1,
+        "text": "AI 套餐余量 · 磨砂强度",
+        "order": 9
+      },
+      "quota_glass_highlight": {
+        "type": "slider",
+        "value": 50,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "text": "AI 套餐余量 · 边缘高光",
+        "order": 10
+      },
+      "quota_scale": {
+        "type": "slider",
+        "value": 100,
+        "min": 80,
+        "max": 120,
+        "step": 1,
+        "text": "AI 套餐余量 · 大小",
+        "order": 11
+      },
+      "quota_x": {
+        "type": "slider",
+        "value": 0,
+        "min": -5,
+        "max": 5,
+        "step": 0.25,
+        "text": "AI 套餐余量 · 水平位置",
+        "order": 12
+      },
+      "quota_y": {
+        "type": "slider",
+        "value": 0,
+        "min": -5,
+        "max": 5,
+        "step": 0.25,
+        "text": "AI 套餐余量 · 垂直位置",
+        "order": 13
+      },
+      "hardware_enabled": {
+        "type": "bool",
+        "value": true,
+        "text": "本机性能 · 显示",
+        "order": 14
+      },
+      "hardware_glass_transparency": {
+        "type": "slider",
+        "value": 75,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "text": "本机性能 · 透明度",
+        "order": 15
+      },
+      "hardware_glass_blur": {
+        "type": "slider",
+        "value": 34,
+        "min": 0,
+        "max": 64,
+        "step": 1,
+        "text": "本机性能 · 磨砂强度",
+        "order": 16
+      },
+      "hardware_glass_highlight": {
+        "type": "slider",
+        "value": 50,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "text": "本机性能 · 边缘高光",
+        "order": 17
+      },
+      "hardware_scale": {
+        "type": "slider",
+        "value": 100,
+        "min": 80,
+        "max": 120,
+        "step": 1,
+        "text": "本机性能 · 大小",
+        "order": 18
+      },
+      "hardware_x": {
+        "type": "slider",
+        "value": 0,
+        "min": -5,
+        "max": 5,
+        "step": 0.25,
+        "text": "本机性能 · 水平位置",
+        "order": 19
+      },
+      "hardware_y": {
+        "type": "slider",
+        "value": 0,
+        "min": -5,
+        "max": 5,
+        "step": 0.25,
+        "text": "本机性能 · 垂直位置",
+        "order": 20
+      },
+      "seconds": {
+        "type": "bool",
+        "text": "显示秒",
+        "value": false,
+        "order": 21
+      },
+      "hour12": {
+        "type": "bool",
+        "text": "12 小时制",
+        "value": false,
+        "order": 22
+      },
+      "motion": {
+        "type": "bool",
+        "text": "交互动态与柔光",
+        "value": true,
+        "order": 23
+      },
+      "trends": {
+        "type": "bool",
+        "text": "硬件趋势",
+        "value": true,
+        "order": 24
+      },
+      "rotate_seconds": {
+        "type": "slider",
+        "text": "额度翻页间隔（秒，0 为手动）",
+        "value": 30,
+        "min": 0,
+        "max": 300,
+        "step": 5,
+        "order": 27
+      },
+      "safe_bottom": {
+        "type": "slider",
+        "text": "底部留白（%）",
+        "value": 3.9,
+        "min": 1,
+        "max": 10,
+        "step": 0.1,
+        "order": 28
+      },
+      "timezone": {
+        "type": "textinput",
+        "text": "时区",
+        "value": "Asia/Shanghai",
+        "order": 29
+      },
+      "bridge_url": {
+        "type": "textinput",
+        "text": "本机数据地址",
+        "value": "http://127.0.0.1:17632",
+        "order": 30
+      },
+      "bridge_token": {
+        "type": "textinput",
+        "text": "展示票据",
+        "value": "",
+        "order": 31
+      },
+      "ignore_codex_base_weekly": {
+        "type": "bool",
+        "text": "忽略 Codex 基础模型周窗口（luna-release）",
+        "value": false,
+        "order": 26
+      },
+      "ignore_codex_image_quota": {
+        "type": "bool",
+        "text": "忽略 Codex 绘图额度（imagegen）",
+        "value": false,
+        "order": 26.1
+      },
+      "quota_layout": {
+        "type": "combo",
+        "text": "额度显示方式",
+        "value": "cards",
+        "options": [
+          {
+            "label": "多账号卡片",
+            "value": "cards"
+          },
+          {
+            "label": "单账号轮播",
+            "value": "carousel"
+          }
+        ],
+        "order": 25
+      }
+    }
+  },
+  "visibility": "private"
+}

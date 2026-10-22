@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>竖屏动态信息壁纸</title>
+  
+  <script>if(!new URLSearchParams(location.search).has('studio'))document.documentElement.setAttribute('data-capture','');</script>
+</head>
+<body>
+  <div class="studio">
+  <header class="studio-heading"><h1>液态玻璃壁纸</h1><span>竖屏动态信息壁纸</span></header>
+  <div class="preview-shell">
+  <main class="wallpaper" aria-label="竖屏动态信息壁纸">
+    <img class="art" src="/design/assets/wallpaper-original.jpg" alt="用户提供的白发紫瞳角色壁纸">
+    <section class="top" aria-label="日期时间天气">
+      <div class="glass clock"><div class="time">—</div><div class="date">—</div></div>
+      <div class="glass weather">
+        <div class="weather-main"><svg class="weather-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="17" cy="16" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M17 4V1M5 16H2M8.5 7.5L6 5M25.5 7.5L28 5M29 16H32M17 28V31" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M15 37h22c5 0 8-3 8-7s-3-7-7-7c-1-6-6-9-11-7-5 1-7 5-7 9-6-1-10 2-10 6 0 3 2 6 5 6Z" fill="rgba(33,26,48,.2)" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><div class="temperature">—</div></div>
+        <div class="weather-description">—</div><div class="weather-range">—</div><div class="weather-caption">—</div>
+        <a class="weather-settings" id="weather-settings" target="_blank" rel="noopener noreferrer" aria-label="切换天气城市" title="打开本机设置，切换天气城市">切换城市</a>
+      </div>
+    </section>
+    <section class="glass quota" aria-label="AI 套餐余量与重置窗口">
+      <div class="section-heading quota-heading"><span>套餐余量</span><div class="quota-actions"><span class="secondary"></span><button id="refresh-quota" type="button" class="quota-refresh" aria-label="刷新套餐余量" title="向上游获取最新用量" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10a8 8 0 1 0-2 8M20 4v6h-6"/></svg><span aria-live="polite">刷新</span></button></div></div>
+      <div id="quota-content"></div></section>
+    <section class="hardware" aria-label="本机性能">
+      <div class="glass hardware-item"><div class="hardware-label">CPU</div><div class="hardware-value">—</div><div class="hardware-detail">—</div><div class="hardware-caption">—</div></div>
+      <div class="glass hardware-item"><div class="hardware-label">GPU</div><div class="hardware-value">—</div><div class="hardware-detail">—</div><div class="hardware-caption">—</div></div>
+      <div class="glass hardware-item"><div class="hardware-label">显存</div><div class="hardware-value">—</div><div class="hardware-detail">—</div><div class="hardware-caption">—</div></div>
+      <div class="glass hardware-item"><div class="hardware-label">RAM</div><div class="hardware-value">—</div><div class="hardware-detail">—</div><div class="hardware-caption">—</div></div>
+    </section>
+    <div class="note" role="status" hidden></div>
+  </main>
+  </div>
+  <aside class="settings" aria-label="玻璃材质调节">
+    <div class="resolution-settings">
+      <label for="screen-resolution">预览屏幕分辨率</label>
+      <select class="target-select" id="screen-resolution">
+        <option value="800x1280">800 × 1280 · 5:8</option>
+        <option value="900x1440">900 × 1440 · 5:8</option>
+        <option value="1024x1600">1024 × 1600 · 16:25</option>
+        <option value="1080x1920">1080 × 1920 · 9:16</option>
+        <option value="1200x1920">1200 × 1920 · 5:8</option>
+        <option value="1440x2560">1440 × 2560 · 9:16</option>
+        <option value="1600x2560" selected>1600 × 2560 · 你的显示屏</option>
+        <option value="2160x3840">2160 × 3840 · 9:16</option>
+        <option value="1200x1600">1200 × 1600 · 3:4</option>
+        <option value="1080x2400">1080 × 2400 · 9:20</option>
+        <option value="viewport">跟随竖屏窗口</option>
+      </select>
+      <p class="resolution-description" id="resolution-status" role="status">默认按你的 1600 × 2560 屏幕预览。</p>
+      <a class="fullscreen-link" href="?wallpaper" target="_blank" rel="noopener">打开纯壁纸视图</a>
+    </div>
+    <h2>预览玻璃质感</h2>
+    <p class="settings-description">此页仅调整浏览器预览。桌面壁纸的外观请在 Wallpaper Engine 中选中正在使用的壁纸，在右侧属性中调整。</p>
+    <p class="settings-description">透明度调节玻璃底色，文字保持清晰。磨砂强度与边缘反光可以单独调节。</p>
+    <label for="material-mode">玻璃风格</label>
+    <select id="material-mode" class="target-select"><option value="liquid">轻量液态</option><option value="frosted">原版磨砂</option></select>
+    <p class="settings-description">移到卡片上查看光泽，点击天气、账号或硬件卡片查看详情。液态风格会轻化底色与磨砂，动态仅在交互时运行。</p>
+    <label for="glass-target">调节范围</label>
+    <select class="target-select" id="glass-target"><option value="all">所有模块</option><option value="top">日期与天气</option><option value="quota">AI 套餐余量</option><option value="hardware">本机性能</option></select>
+    <div class="range-head"><label for="glass-transparency">透明度</label><output id="transparency-value" for="glass-transparency">75%</output></div>
+    <input id="glass-transparency" type="range" min="0" max="100" step="1" value="75">
+    <div class="range-labels"><span>更实</span><span>更通透</span></div>
+    <div class="range-head"><label for="glass-blur">磨砂强度</label><output id="blur-value" for="glass-blur">34 px</output></div>
+    <input id="glass-blur" type="range" min="0" max="64" step="1" value="34">
+    <div class="range-labels"><span>清晰透光</span><span>柔和雾面</span></div>
+    <div class="range-head"><label for="glass-edge">边缘高光</label><output id="edge-value" for="glass-edge">50%</output></div>
+    <input id="glass-edge" type="range" min="0" max="100" step="1" value="50">
+    <div class="presets" aria-label="材质预设"><button type="button" data-preset="liquid" aria-pressed="false">液态</button><button type="button" data-preset="clear" aria-pressed="false">清透</button><button type="button" data-preset="soft" aria-pressed="true">柔雾</button><button type="button" data-preset="deep" aria-pressed="false">深雾</button></div>
+    <p class="settings-status" id="settings-status" role="status" aria-live="polite">拖动滑块实时预览，设置仅保存在当前浏览器，不会同步到桌面壁纸。</p>
+    <button class="reset-button" type="button" id="reset-glass">恢复默认</button>
+    <details open><summary>组件与连接</summary>
+      <label class="check"><input id="widget-enabled" type="checkbox" checked>显示当前区域</label>
+      <label for="widget-scale">当前区域大小</label><input id="widget-scale" type="range" min="80" max="120" value="100">
+      <label for="widget-x">水平位置</label><input id="widget-x" type="range" min="-5" max="5" step="0.25" value="0">
+      <label for="widget-y">垂直位置</label><input id="widget-y" type="range" min="-5" max="5" step="0.25" value="0">
+      <label class="check"><input id="show-seconds" type="checkbox">显示秒</label>
+      <label class="check"><input id="hour12" type="checkbox">12 小时制</label>
+      <label class="check"><input id="motion" type="checkbox" checked>交互动态与柔光</label>
+      <label class="check"><input id="trends" type="checkbox" checked>硬件趋势</label>
+      <label for="timezone">时区</label><input id="timezone" value="Asia/Shanghai">
+      <label for="safe-bottom">底部留白 (%)</label><input id="safe-bottom" type="number" min="1" max="10" step="0.1" value="3.9">
+      <label for="quota-layout">额度显示方式</label><select class="target-select" id="quota-layout"><option value="cards">多账号卡片 · 每页最多三个账号</option><option value="carousel">单账号轮播 · 每页两个窗口</option></select>
+      <label class="check"><input id="ignore-codex-base-weekly" type="checkbox">忽略 Codex 基础模型周窗口（luna-release）</label>
+      <label class="check"><input id="ignore-codex-image-quota" type="checkbox">忽略 Codex 绘图额度（imagegen）</label>
+      <label for="rotate-seconds">额度翻页间隔 (秒，0 为手动)</label><input id="rotate-seconds" type="number" min="0" max="300" value="30">
+      <label for="bridge-url">本机数据地址</label><input id="bridge-url" value="http://127.0.0.1:17632">
+      <label for="read-token">只读展示票据</label><input id="read-token" type="password" autocomplete="off" placeholder="从本机设置复制">
+      <button type="button" id="save-connection">保存并连接</button>
+      <p id="connection-status" class="settings-status" role="status"></p>
+      <a id="admin-link" class="fullscreen-link" href="/admin/">天气、CPAMP 与传感器设置</a>
+    </details>  </aside>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
+
