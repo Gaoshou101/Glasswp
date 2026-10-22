@@ -93,6 +93,8 @@ npm run check
 ./scripts/verify.ps1
 # 附加匿名浏览器回归，Python 需可导入 Playwright
 ./scripts/verify.ps1 -Browser -Python '<python.exe 完整路径>'
+# 已构建 staging 后，附加真实桥接启动失败与恢复演练（隔离 17634 端口）
+./scripts/verify.ps1 -ReleaseRuntime
 
 # 独立更新：保留原运行方式和配置，失败恢复旧目录与运行状态
 ./scripts/update-bridge.ps1
