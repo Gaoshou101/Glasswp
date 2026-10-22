@@ -16,6 +16,15 @@ if (-not (Test-Path -LiteralPath $weExe)) { throw 'Wallpaper Engine executable n
 if ($Apply -and $Monitor -lt 0 -and -not $Location) { throw 'Applying a wallpaper requires a verified -Monitor or -Location' }
 if ($Location -and $Monitor -ge 0) { throw 'Choose one verified display selector' }
 $selector=if($Location){@('-location',$Location)}else{@('-monitor',[string]$Monitor)}
+function Invoke-WallpaperControl([string]$Command, [string]$File) {
+    $arguments=@('-control',$Command)
+    if($File){$arguments+=@('-file',$File)}
+    $arguments+=$selector
+    # Windows PowerShell does not wait or set LASTEXITCODE for GUI executables.
+    $quoted=@($arguments|ForEach-Object {'"'+$_+'"'}) -join ' '
+    $control=Start-Process -FilePath $weExe -ArgumentList $quoted -WindowStyle Hidden -PassThru -Wait
+    if($control.ExitCode -ne 0){throw ('Wallpaper '+$Command+' failed')}
+}
 if (-not $Destination) { $Destination=Join-Path $WallpaperEnginePath 'projects\myprojects\portrait-dashboard' }
 $Destination=Get-ReleasePath $Destination
 $allowedRoot=(Get-ReleasePath (Join-Path $WallpaperEnginePath 'projects\myprojects'))+'\'
@@ -43,15 +52,15 @@ $result=Invoke-ReleaseTransaction -Source $source -Destination $Destination -Bac
     $localInfo | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $candidatePath 'build-info.json') -Encoding UTF8
     Test-ReleasePackage $candidatePath @('project.json') | Out-Null
 } -BeforeSwitch {
-    if ($Apply) { & $weExe -control closeWallpaper @selector; if ($LASTEXITCODE -ne 0) { throw 'Wallpaper close failed' } }
+    if ($Apply) { Invoke-WallpaperControl 'closeWallpaper' }
 } -Verify {
     param($installed)
     Test-ReleasePackage $installed @('index.html','wallpaper.js','project.json') | Out-Null
-    if ($Apply) { & $weExe -control openWallpaper -file (Join-Path $installed 'index.html') @selector; if ($LASTEXITCODE -ne 0) { throw 'Wallpaper open failed' } }
+    if ($Apply) { Invoke-WallpaperControl 'openWallpaper' (Join-Path $installed 'index.html') }
 } -BeforeRollback {
-    if ($Apply) { & $weExe -control closeWallpaper @selector }
+    if ($Apply) { Invoke-WallpaperControl 'closeWallpaper' }
 } -Recover {
-    if ($Apply -and $previous) { & $weExe -control openWallpaper -file (Join-Path $Destination 'index.html') @selector }
+    if ($Apply -and $previous) { Invoke-WallpaperControl 'openWallpaper' (Join-Path $Destination 'index.html') }
 }
 Write-Output ('Installed wallpaper build '+$info.buildId+'; backup: '+$result.backup)
 $result | Add-Member -NotePropertyName buildId -NotePropertyValue $info.buildId
