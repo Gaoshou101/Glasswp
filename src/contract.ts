@@ -23,5 +23,5 @@ export interface WeatherData {
   low: number | null; high: number | null; code: number | null; isDay: boolean; message: string;
   hourly?: WeatherHour[] | null; timezone?: string | null;
 }
-export interface Snapshot { schemaVersion: 1; generatedAt: string; hardware: HardwareData; quota: QuotaData; weather: WeatherData }
+export interface Snapshot { schemaVersion: 1; generatedAt: string; hardware: HardwareData; quota: QuotaData; weather: WeatherData; revisions?: { epoch: string; hardware: number; quota: number; weather: number } }
 export interface City { id: string; name: string; latitude: number; longitude: number; timezone: string }

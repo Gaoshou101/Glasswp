@@ -1,41 +1,62 @@
 ﻿param(
     [string]$WallpaperEnginePath = 'F:\SteamLibrary\steamapps\common\wallpaper_engine',
+    [string]$Destination,
     [switch]$Apply,
     [int]$Monitor = -1,
+    [string]$Location,
     [switch]$PreviewWindow
 )
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'release-common.ps1')
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $source = Join-Path $repoRoot 'dist'
-if (-not (Test-Path -LiteralPath (Join-Path $source 'project.json'))) { throw '请先运行 npm run build' }
+$info = Test-ReleasePackage $source @('index.html','wallpaper.js','wallpaper.css','project.json')
 $weExe = Join-Path $WallpaperEnginePath 'wallpaper32.exe'
-if (-not (Test-Path -LiteralPath $weExe)) { throw 'Wallpaper Engine 路径无效' }
-$destination = Join-Path $WallpaperEnginePath 'projects\myprojects\portrait-dashboard'
-New-Item -ItemType Directory -Path $destination -Force | Out-Null
-if (Test-Path -LiteralPath (Join-Path $destination 'project.json')) {
-    $backup = Join-Path $env:LOCALAPPDATA ('WallpaperDashboard\backups\project-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.json')
-    New-Item -ItemType Directory -Path (Split-Path -Parent $backup) -Force | Out-Null
-    Copy-Item -LiteralPath (Join-Path $destination 'project.json') -Destination $backup
-}
-Get-ChildItem -LiteralPath $source | Copy-Item -Destination $destination -Recurse -Force
-$tokenPath = Join-Path $env:LOCALAPPDATA 'WallpaperDashboard\private\read-token.txt'
-$displayToken = $null
+if (-not (Test-Path -LiteralPath $weExe)) { throw 'Wallpaper Engine executable not found' }
+if ($Apply -and $Monitor -lt 0 -and -not $Location) { throw 'Applying a wallpaper requires a verified -Monitor or -Location' }
+if ($Location -and $Monitor -ge 0) { throw 'Choose one verified display selector' }
+$selector=if($Location){@('-location',$Location)}else{@('-monitor',[string]$Monitor)}
+if (-not $Destination) { $Destination=Join-Path $WallpaperEnginePath 'projects\myprojects\portrait-dashboard' }
+$Destination=Get-ReleasePath $Destination
+$allowedRoot=(Get-ReleasePath (Join-Path $WallpaperEnginePath 'projects\myprojects'))+'\'
+if (-not $Destination.StartsWith($allowedRoot,[StringComparison]::OrdinalIgnoreCase)) { throw 'Destination must be a local Wallpaper Engine project under myprojects' }
+$previous=$null
+if (Test-Path -LiteralPath (Join-Path $Destination 'project.json')) { $previous=Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $Destination 'project.json') | ConvertFrom-Json }
+$displayToken=$null
 try {
-    # A packaged Codex process and an external terminal can see different AppData overlays.
-    # Pair to the running bridge rather than selecting an old file from either overlay.
-    $bridgeOrigin = 'http://127.0.0.1:17632'
-    $setupSession = (Invoke-RestMethod -Uri ($bridgeOrigin + '/v1/setup/session') -Method Post -Headers @{ Origin = $bridgeOrigin; 'X-Wallpaper-Setup' = '1' } -ContentType 'application/json' -Body '{}' -TimeoutSec 3).session
-    $bridgeConfig = Invoke-RestMethod -Uri ($bridgeOrigin + '/v1/setup/config/read') -Method Post -Headers @{ Origin = $bridgeOrigin; 'X-Wallpaper-Admin' = $setupSession } -ContentType 'application/json' -Body '{}' -TimeoutSec 3
-    $displayToken = $bridgeConfig.readToken
+    $origin='http://127.0.0.1:17632'
+    $session=(Invoke-RestMethod -Uri ($origin+'/v1/setup/session') -Method Post -Headers @{Origin=$origin;'X-Wallpaper-Setup'='1'} -ContentType 'application/json' -Body '{}' -TimeoutSec 3).session
+    $cfg=Invoke-RestMethod -Uri ($origin+'/v1/setup/config/read') -Method Post -Headers @{Origin=$origin;'X-Wallpaper-Admin'=$session} -ContentType 'application/json' -Body '{}' -TimeoutSec 3
+    $displayToken=$cfg.readToken
 } catch { }
-if (-not $displayToken -and (Test-Path -LiteralPath $tokenPath)) { $displayToken = (Get-Content -Raw -LiteralPath $tokenPath).Trim() }
-if (-not $displayToken) { throw '请先运行本机桥接，再安装壁纸' }
-$project = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $destination 'project.json') | ConvertFrom-Json
-$project.general.properties.bridge_token.value = $displayToken
-$project | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath (Join-Path $destination 'project.json') -Encoding UTF8
-Write-Output ('已安装：' + $destination)
-if ($Apply) {
-    if ($Monitor -lt 0) { throw '应用到桌面时需要指定经过确认的 -Monitor 索引' }
-    & $weExe -control openWallpaper -file (Join-Path $destination 'project.json') -monitor $Monitor
+if (-not $displayToken -and $previous) { $displayToken=$previous.general.properties.bridge_token.value }
+if (-not $displayToken) { throw 'Start the local bridge before installing a paired wallpaper' }
+$result=Invoke-ReleaseTransaction -Source $source -Destination $Destination -BackupRoot (Join-Path $WallpaperEnginePath 'projects\dashboard-backups') -Prepare {
+    param($candidatePath)
+    $candidate=Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $candidatePath 'project.json') | ConvertFrom-Json
+    $merged=Merge-WallpaperProject $candidate $previous
+    $merged.general.properties.bridge_token.value=$displayToken
+    $merged | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $candidatePath 'project.json') -Encoding UTF8
+    # Local pairing intentionally changes project.json; regenerate only this installed copy's checksum.
+    $localInfo=Get-Content -Raw -LiteralPath (Join-Path $candidatePath 'build-info.json') | ConvertFrom-Json
+    $localInfo.files.'project.json'=(Get-FileHash -LiteralPath (Join-Path $candidatePath 'project.json') -Algorithm SHA256).Hash.ToLowerInvariant()
+    $localInfo | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $candidatePath 'build-info.json') -Encoding UTF8
+    Test-ReleasePackage $candidatePath @('project.json') | Out-Null
+} -BeforeSwitch {
+    if ($Apply) { & $weExe -control closeWallpaper @selector; if ($LASTEXITCODE -ne 0) { throw 'Wallpaper close failed' } }
+} -Verify {
+    param($installed)
+    Test-ReleasePackage $installed @('index.html','wallpaper.js','project.json') | Out-Null
+    if ($Apply) { & $weExe -control openWallpaper -file (Join-Path $installed 'index.html') @selector; if ($LASTEXITCODE -ne 0) { throw 'Wallpaper open failed' } }
+} -BeforeRollback {
+    if ($Apply) { & $weExe -control closeWallpaper @selector }
+} -Recover {
+    if ($Apply -and $previous) { & $weExe -control openWallpaper -file (Join-Path $Destination 'index.html') @selector }
 }
-if ($PreviewWindow) { & $weExe -control openWallpaper -file (Join-Path $destination 'project.json') -playInWindow 'Portrait Dashboard Preview' -width 800 -height 1280 }
+Write-Output ('Installed wallpaper build '+$info.buildId+'; backup: '+$result.backup)
+$result | Add-Member -NotePropertyName buildId -NotePropertyValue $info.buildId
+$result | Add-Member -NotePropertyName physicalInputVerified -NotePropertyValue $false
+$reportPath=Join-Path $repoRoot 'artifacts\validation\wallpaper-update.json'
+New-Item -ItemType Directory -Path (Split-Path -Parent $reportPath) -Force | Out-Null
+$result | ConvertTo-Json | Set-Content -LiteralPath $reportPath -Encoding UTF8
+if ($PreviewWindow) { & $weExe -control openWallpaper -file (Join-Path $Destination 'project.json') -playInWindow 'Portrait Dashboard Preview' -width 800 -height 1280 }

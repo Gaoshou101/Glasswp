@@ -3,6 +3,7 @@ import type { Settings } from './settings';
 import { ageLabel, capacity, durationLabel, percent, resetText, temperature, weatherLabel } from './format';
 import { quotaPages, type QuotaEntry, type QuotaPage } from './quota';
 import { setCardInsight, type HardwareSample } from './insights';
+import { ClockFormats } from './clock-format';
 
 const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, value?: string): HTMLElementTagNameMap[K] => { const n = document.createElement(tag); n.className = className; if (value !== undefined) n.textContent = value; return n; };
 const text = (node: Element, value: string) => { if (node.textContent !== value) node.textContent = value; };
@@ -10,17 +11,23 @@ interface WindowView { block: HTMLElement; remaining: Text; fill: HTMLElement; t
 interface AccountView { node: HTMLElement; alias: HTMLElement; plan: HTMLElement; windows: WindowView[]; freshness: { node: HTMLElement; entry: QuotaEntry }; empty?: HTMLElement }
 export class ClockWeather {
   private weather?: WeatherData;
-  constructor(private root: HTMLElement, private settings: Settings) { }
+  private formats = new ClockFormats();
+  private time: HTMLElement;
+  private date: HTMLElement;
+  private caption: HTMLElement;
+  constructor(private root: HTMLElement, private settings: Settings) {
+    this.time = root.querySelector<HTMLElement>('.time')!;
+    this.date = root.querySelector<HTMLElement>('.date')!;
+    this.caption = root.querySelector<HTMLElement>('.weather-caption')!;
+  }
   tick() {
-    const time = this.root.querySelector<HTMLElement>('.time')!;
+    const time = this.time;
     time.dataset.seconds = String(this.settings.seconds); time.dataset.hour12 = String(this.settings.hour12);
-    text(time, new Intl.DateTimeFormat('en-GB', { timeZone: this.settings.timezone, hour: '2-digit', minute: '2-digit', ...(this.settings.seconds ? { second: '2-digit' } : {}), hour12: this.settings.hour12 }).format(new Date()));
-    const date = new Intl.DateTimeFormat('zh-CN', { timeZone: this.settings.timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).replace(/\//g, '.');
-    const day = new Intl.DateTimeFormat('zh-CN', { timeZone: this.settings.timezone, weekday: 'long' }).format(new Date());
-    text(this.root.querySelector('.date')!, `${date}　${day}`);
+    const formatted = this.formats.format(this.settings.timezone, this.settings.hour12, this.settings.seconds);
+    text(time, formatted.time); text(this.date, formatted.date);
     if (this.weather) {
       const w = this.weather, expired = w.fetchedAt && Date.now() - Date.parse(w.fetchedAt) > 1800000;
-      text(this.root.querySelector('.weather-caption')!, w.city.split(' · ')[0] + (w.status === 'ok' && !expired ? '' : ' · 上次天气'));
+      text(this.caption, w.city.split(' · ')[0] + (w.status === 'ok' && !expired ? '' : ' · 上次天气'));
     }
   }
   update(w: WeatherData) {

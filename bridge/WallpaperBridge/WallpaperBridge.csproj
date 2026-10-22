@@ -5,8 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>WallpaperBridge</AssemblyName>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <WallpaperBuildId Condition="'$(WallpaperBuildId)' == ''">development</WallpaperBuildId>
   </PropertyGroup>
   <ItemGroup>
+    <AssemblyMetadata Include="WallpaperBuildId" Value="$(WallpaperBuildId)" />
+    <InternalsVisibleTo Include="WallpaperBridge.Tests" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
   </ItemGroup>

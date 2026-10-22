@@ -4,18 +4,18 @@ using System.Text.Json;
 
 namespace WallpaperBridge;
 
-public sealed class RemoteSources(PrivateStore store, DataHub hub) : BackgroundService
+public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHandler? handler = null) : BackgroundService
 {
-    private readonly HttpClient client = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(15), MaxResponseContentBufferSize = 4 * 1024 * 1024 };
+    private readonly HttpClient client = new(handler ?? new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(15), MaxResponseContentBufferSize = 4 * 1024 * 1024 };
     private DateTimeOffset nextQuota, nextWeather;
     private long revision = store.Revision;
-    private readonly SemaphoreSlim remoteGate = new(1, 1);
+    private long refreshGeneration;
     private UpstreamQuotaRefresher? refresher;
     private LocalQuotaClassifier quotaClassifier = new();
     private UpstreamQuotaRefresher Refresher => LazyInitializer.EnsureInitialized(ref refresher, () => new(store, client));
     public QuotaRefreshReport RefreshStatus() => Refresher.Report();
     public bool QueueQuotaRefresh() => Refresher.Queue();
-    public void RefreshCachedSources() { nextQuota = nextWeather = DateTimeOffset.MinValue; }
+    public void RefreshCachedSources() => Interlocked.Increment(ref refreshGeneration);
 
     public HttpRequestMessage CpampRequest(HttpMethod method, string path, BridgeConfig? config = null)
     {
@@ -58,6 +58,9 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub) : BackgroundS
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await Task.Yield();
+        Task quotaWork = Task.CompletedTask, weatherWork = Task.CompletedTask;
+        Task<bool> upstreamWork = Task.FromResult(false);
+        long appliedGeneration = -1;
         try
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -71,23 +74,35 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub) : BackgroundS
                     hub.Weather(Empty.Weather(store.Config.City));
                     RefreshCachedSources();
                 }
-                await remoteGate.WaitAsync(stoppingToken);
-                try
+                var generation = Interlocked.Read(ref refreshGeneration);
+                if (generation != appliedGeneration)
                 {
-                    var work = new List<Task>();
-                    var upstream = Refresher.Tick(stoppingToken);
-                    work.Add(upstream);
-                    if (DateTimeOffset.UtcNow >= nextWeather) { nextWeather = DateTimeOffset.UtcNow.AddMinutes(15); work.Add(UpdateWeather(stoppingToken)); }
-                    await Task.WhenAll(work);
-                    if (await upstream || DateTimeOffset.UtcNow >= nextQuota) { nextQuota = DateTimeOffset.UtcNow.AddSeconds(60); await UpdateQuota(stoppingToken); }
+                    appliedGeneration = generation;
+                    nextQuota = nextWeather = DateTimeOffset.MinValue;
                 }
-                finally { remoteGate.Release(); }
+                // Each source has one in-flight task. Slow weather never holds quota reads.
+                if (upstreamWork.IsCompleted)
+                {
+                    if (await upstreamWork) nextQuota = DateTimeOffset.MinValue;
+                    upstreamWork = Refresher.Tick(stoppingToken);
+                }
+                if (weatherWork.IsCompleted && DateTimeOffset.UtcNow >= nextWeather)
+                { await weatherWork; nextWeather = DateTimeOffset.UtcNow.AddMinutes(15); weatherWork = UpdateWeather(stoppingToken); }
+                if (quotaWork.IsCompleted && DateTimeOffset.UtcNow >= nextQuota)
+                { await quotaWork; nextQuota = DateTimeOffset.UtcNow.AddSeconds(60); quotaWork = UpdateQuota(stoppingToken); }
                 await Task.Delay(1000, stoppingToken);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
-        finally { client.Dispose(); }
+        finally
+        {
+            try { await Task.WhenAll(quotaWork, weatherWork, upstreamWork); }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested) { }
+            client.Dispose();
+        }
     }
+    private static bool SourceFailure(Exception e) => e is HttpRequestException or JsonException or OperationCanceledException or KeyNotFoundException or InvalidOperationException or ArgumentException or FormatException or OverflowException;
+    internal Task ReadQuotaOnce(CancellationToken token) => UpdateQuota(token);
     private async Task UpdateQuota(CancellationToken token)
     {
         var cfg = store.Config;
@@ -107,38 +122,56 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub) : BackgroundS
             bool snapshotFailed = false, databaseError = false, unsupported = false;
             foreach (var selection in cfg.Accounts)
             {
-                var file = files.FirstOrDefault(f => QuotaAdapter.Text(f, "name") == selection.AuthFile && QuotaAdapter.Text(f, "provider", QuotaAdapter.Text(f, "type")).ToLowerInvariant() == selection.Provider);
-                var a = file.ValueKind == JsonValueKind.Object ? CachedHeaderAdapter.Identity(file, selection) : selection;
-                var cachedHeader = file.ValueKind == JsonValueKind.Object ? CachedHeaderAdapter.ParseCodex(file, a, DateTimeOffset.UtcNow) : new QuotaAccount(a.Id, a.Alias, a.Provider, "", []);
+                token.ThrowIfCancellationRequested();
+                var a = selection;
+                var cachedHeader = new QuotaAccount(a.Id, a.Alias, a.Provider, "", []);
                 var snapshotAccount = new QuotaAccount(a.Id, a.Alias, a.Provider, "", []);
-                // Isolate each account: one damaged database bucket must not hide other accounts.
-                using var req = CpampRequest(HttpMethod.Post, "/v0/management/quota-snapshots/query", cfg);
-                req.Content = JsonContent.Create(new { accounts = new[] { new { row_key = a.Id, provider = a.Provider, account = new { auth_file_snapshot = a.AuthFile, auth_index = a.AuthIndex, auth_account_id_snapshot = a.AccountId, auth_provider_snapshot = a.Provider, account_snapshot = a.AccountSnapshot, auth_label_snapshot = a.AuthLabel, auth_project_id_snapshot = a.ProjectId, source = a.AuthFile } } }, include_inactive = false });
-                using var response = await client.SendAsync(req, token);
-                if (response.IsSuccessStatusCode)
+                bool snapshotAvailable = false;
+                try
                 {
-                    using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
-                    var classified = await quotaClassifier.Classify(doc.RootElement, a, DateTimeOffset.UtcNow, async (query, ct) => {
-                        using var evidenceRequest = CpampRequest(HttpMethod.Post, "/v0/management/monitoring/analytics", cfg);
-                        evidenceRequest.Content = JsonContent.Create(query);
-                        using var evidenceResponse = await client.SendAsync(evidenceRequest, ct);
-                        evidenceResponse.EnsureSuccessStatusCode();
-                        using var evidence = JsonDocument.Parse(await evidenceResponse.Content.ReadAsStringAsync(ct));
-                        return evidence.RootElement.Clone();
-                    }, token);
-                    snapshotAccount = QuotaAdapter.Parse(classified, [a], DateTimeOffset.UtcNow).FirstOrDefault() ?? snapshotAccount;
+                    using var budget = CancellationTokenSource.CreateLinkedTokenSource(token);
+                    budget.CancelAfter(TimeSpan.FromSeconds(20));
+                    var accountToken = budget.Token;
+                    var file = files.FirstOrDefault(f => QuotaAdapter.Text(f, "name") == selection.AuthFile && QuotaAdapter.Text(f, "provider", QuotaAdapter.Text(f, "type")).ToLowerInvariant() == selection.Provider);
+                    a = file.ValueKind == JsonValueKind.Object ? CachedHeaderAdapter.Identity(file, selection) : selection;
+                    cachedHeader = file.ValueKind == JsonValueKind.Object ? CachedHeaderAdapter.ParseCodex(file, a, DateTimeOffset.UtcNow) : cachedHeader;
+                    // Isolate each account: one damaged database bucket must not hide other accounts.
+                    using var req = CpampRequest(HttpMethod.Post, "/v0/management/quota-snapshots/query", cfg);
+                    req.Content = JsonContent.Create(new { accounts = new[] { new { row_key = a.Id, provider = a.Provider, account = new { auth_file_snapshot = a.AuthFile, auth_index = a.AuthIndex, auth_account_id_snapshot = a.AccountId, auth_provider_snapshot = a.Provider, account_snapshot = a.AccountSnapshot, auth_label_snapshot = a.AuthLabel, auth_project_id_snapshot = a.ProjectId, source = a.AuthFile } } }, include_inactive = false });
+                    using var response = await client.SendAsync(req, accountToken);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(accountToken));
+                        var classified = await quotaClassifier.Classify(doc.RootElement, a, DateTimeOffset.UtcNow, async (query, ct) => {
+                            using var evidenceRequest = CpampRequest(HttpMethod.Post, "/v0/management/monitoring/analytics", cfg);
+                            evidenceRequest.Content = JsonContent.Create(query);
+                            using var evidenceResponse = await client.SendAsync(evidenceRequest, ct);
+                            evidenceResponse.EnsureSuccessStatusCode();
+                            using var evidence = JsonDocument.Parse(await evidenceResponse.Content.ReadAsStringAsync(ct));
+                            return evidence.RootElement.Clone();
+                        }, accountToken);
+                        snapshotAccount = QuotaAdapter.Parse(classified, [a], DateTimeOffset.UtcNow).FirstOrDefault() ?? snapshotAccount;
+                        snapshotAvailable = true;
+                    }
+                    else
+                    {
+                        snapshotFailed = true;
+                        unsupported |= response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.MethodNotAllowed;
+                        // Recognize this known production failure without exposing arbitrary response bodies.
+                        var body = await response.Content.ReadAsStringAsync(accountToken);
+                        databaseError |= body.Contains("database disk image is malformed", StringComparison.OrdinalIgnoreCase);
+                        var previous = old.Accounts.FirstOrDefault(account => account.Id == a.Id);
+                        if (previous is not null) snapshotAccount = previous with { Windows = previous.Windows.Select(w => w with { Stale = true }).ToArray(), ResetCredits = previous.ResetCredits is { } credits ? credits with { Stale = true } : null };
+                    }
                 }
-                else
+                catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+                catch (Exception e) when (SourceFailure(e))
                 {
                     snapshotFailed = true;
-                    unsupported |= response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.MethodNotAllowed;
-                    // Recognize this known production failure without exposing arbitrary response bodies.
-                    var body = await response.Content.ReadAsStringAsync(token);
-                    databaseError |= body.Contains("database disk image is malformed", StringComparison.OrdinalIgnoreCase);
                     var previous = old.Accounts.FirstOrDefault(account => account.Id == a.Id);
-                    if (previous is not null) snapshotAccount = previous with { Windows = previous.Windows.Select(w => w with { Stale = true }).ToArray(), ResetCredits = previous.ResetCredits is { } credits ? credits with { Stale = true } : null };
+                    if (previous is not null) snapshotAccount = previous with { Alias = a.Alias, Windows = previous.Windows.Select(w => w with { Stale = true }).ToArray(), ResetCredits = previous.ResetCredits is { } credits ? credits with { Stale = true } : null };
                 }
-                accountsList.Add(CachedHeaderAdapter.Merge(snapshotAccount, cachedHeader, snapshotAvailable: response.IsSuccessStatusCode));
+                accountsList.Add(CachedHeaderAdapter.Merge(snapshotAccount, cachedHeader, snapshotAvailable));
             }
             var accounts = accountsList.ToArray();
             var any = accounts.Any(a => a.Windows.Length > 0);
@@ -146,9 +179,10 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub) : BackgroundS
             var message = databaseError ? "CPAMP 配额数据库读取异常；使用已有响应头证据，缺失窗口等待快照" : unsupported ? "快照接口不可用；使用已有响应头证据" : snapshotFailed ? "部分账号快照读取失败；保留已有证据" : !any ? "暂无额度快照；可在本机设置中立即刷新" : "读取额度快照与响应头证据";
             var data = new QuotaData(!any ? "empty" : stale ? "stale" : "ok", DateTimeOffset.UtcNow, message, accounts);
             if (cfg != store.Config) return;
-            hub.Quota(data); store.Write("quota-cache", data);
+            hub.Quota(data); store.WriteCache("quota-cache", data);
         }
-        catch (Exception e) when (e is HttpRequestException or JsonException or TaskCanceledException)
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+        catch (Exception e) when (SourceFailure(e))
         { if (cfg == store.Config) hub.Quota(old with { Status = old.Accounts.Length > 0 ? "stale" : "offline", Message = "CPAMP 暂不可用，保留上次快照", Accounts = old.Accounts.Select(a => a with { Windows = a.Windows.Select(w => w with { Stale = true }).ToArray(), ResetCredits = a.ResetCredits is { } credits ? credits with { Stale = true } : null }).ToArray() }); }
     }
     private async Task UpdateWeather(CancellationToken token)
@@ -164,9 +198,10 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub) : BackgroundS
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
             var data = WeatherAdapter.Parse(doc.RootElement, city, DateTimeOffset.UtcNow);
             if (cfg != store.Config) return;
-            hub.Weather(data); store.Write("weather-cache", data);
+            hub.Weather(data); store.WriteCache("weather-cache", data);
         }
-        catch (Exception e) when (e is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException)
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+        catch (Exception e) when (SourceFailure(e))
         { if (cfg == store.Config) hub.Weather(old with { Status = old.FetchedAt is null ? "offline" : "stale", Message = "天气暂不可用，保留上次数据" }); }
     }
 }

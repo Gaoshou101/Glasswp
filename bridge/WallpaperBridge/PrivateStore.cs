@@ -13,6 +13,8 @@ public sealed class PrivateStore
     public string ReadToken { get; }
     private readonly object gate = new();
     private BridgeConfig config;
+    private readonly HashSet<string> cacheFaults = [];
+    public string[] CacheFaults { get { lock (gate) return cacheFaults.ToArray(); } }
     public BridgeConfig Config { get { lock (gate) return config; } }
     public long Revision { get; private set; }
 
@@ -59,6 +61,33 @@ public sealed class PrivateStore
             var data = ProtectedData.Unprotect(File.ReadAllBytes(path), null, DataProtectionScope.CurrentUser);
             return JsonSerializer.Deserialize<T>(data, Json);
         }
+    }
+    // Only rebuildable caches use this boundary. Config and display tickets stay strict.
+    public T? ReadCache<T>(string name, Func<T, bool>? validate = null)
+    {
+        ValidateCacheName(name);
+        try
+        {
+            var value = Read<T>(name);
+            if (value is not null && validate is not null && !validate(value)) throw new JsonException("Invalid cache shape");
+            return value;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or CryptographicException or JsonException)
+        {
+            lock (gate) cacheFaults.Add(name + ":read");
+            return default;
+        }
+    }
+    public bool WriteCache<T>(string name, T value)
+    {
+        ValidateCacheName(name);
+        try { Write(name, value); lock (gate) { cacheFaults.Remove(name + ":write"); cacheFaults.Remove(name + ":read"); } return true; }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or CryptographicException)
+        { lock (gate) cacheFaults.Add(name + ":write"); return false; }
+    }
+    private static void ValidateCacheName(string name)
+    {
+        if (name is not ("quota-cache" or "weather-cache" or "quota-refresh")) throw new ArgumentException("Not a rebuildable cache");
     }
     public void Write<T>(string name, T data)
     {

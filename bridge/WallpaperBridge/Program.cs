@@ -65,7 +65,7 @@ app.Use(async (context, next) =>
     catch (Exception e) when (e is HttpRequestException or TaskCanceledException)
     { c.Response.StatusCode = 502; await c.Response.WriteAsJsonAsync(new { message = "远端请求失败，请检查地址、鉴权和实例版本" }); }
 });
-app.MapGet("/v1/health", (DesktopInputGuard input, DesktopWindowEvents windowEvents) => Results.Json(new { service = "portrait-wallpaper-bridge", version = "0.1.0", schemaVersion = 1, desktopInputAvailable = input.Available, minimizeGuardAvailable = windowEvents.Available,
+app.MapGet("/v1/health", (DesktopInputGuard input, DesktopWindowEvents windowEvents) => Results.Json(new { service = "portrait-wallpaper-bridge", version = "0.1.0", buildId = BuildIdentity.Id, schemaVersion = 1, desktopInputAvailable = input.Available, minimizeGuardAvailable = windowEvents.Available,
     elevated = new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent()).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator) }));
 app.MapGet("/v1/snapshot", (DataHub hub) => { lastSnapshotRead = DateTimeOffset.UtcNow; return Results.Json(hub.Snapshot()); });
 app.MapPost("/v1/desktop-input", async (DesktopInputPoint point, DesktopInputGuard input, CancellationToken token) => {
@@ -81,7 +81,7 @@ app.MapGet("/v1/accounts/{id}/activity", async (string id, HttpRequest request, 
 });
 app.MapPost("/v1/client", (ClientReport report) =>
 {
-    lastClient = new { at = DateTimeOffset.UtcNow, host = report.WallpaperEngine ? "wallpaper-engine" : "browser", width = Math.Clamp(report.Width, 0, 16384), height = Math.Clamp(report.Height, 0, 16384), fps = Math.Clamp(report.Fps, 0, 240), paused = report.Paused,
+    lastClient = new { at = DateTimeOffset.UtcNow, buildId = new string((report.BuildId ?? "legacy").Where(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '.').Take(80).ToArray()), host = report.WallpaperEngine ? "wallpaper-engine" : "browser", width = Math.Clamp(report.Width, 0, 16384), height = Math.Clamp(report.Height, 0, 16384), fps = Math.Clamp(report.Fps, 0, 240), paused = report.Paused,
         materials = report.Materials?.Where(p => p.Key is "top" or "quota" or "hardware").ToDictionary(p => p.Key, p => p.Value.Take(3).Select(v => double.IsFinite(v) ? Math.Clamp(v, 0, 100) : 0).ToArray()) };
     return Results.NoContent();
 });
@@ -107,7 +107,7 @@ app.MapPost("/v1/setup/config/read", (RemoteSources remote, DesktopInputGuard in
     cpampUrl = store.Config.CpampUrl, managementConfigured = !string.IsNullOrEmpty(store.Config.ManagementKey),
     city = store.Config.City, accounts = store.Config.Accounts.Select(a => new { a.Id, a.Alias, a.Provider }), sensors = store.Config.Sensors,
     quotaRefreshEnabled = store.Config.QuotaRefreshEnabled, quotaRefreshMinutes = store.Config.QuotaRefreshMinutes, quotaRefresh = remote.RefreshStatus(),
-    bridgeUrl = $"http://127.0.0.1:{port}", readToken = store.ReadToken, diagnostics = new { lastClient, lastSnapshotRead, desktopInput = input.LastCheck, lastMinimize = windowEvents.LastMinimize }
+    bridgeUrl = $"http://127.0.0.1:{port}", readToken = store.ReadToken, diagnostics = new { lastClient, lastSnapshotRead, cacheFaults = store.CacheFaults, desktopInput = input.LastCheck, lastMinimize = windowEvents.LastMinimize }
 }));
 app.MapPost("/v1/setup/config", (SetupInput input, RemoteSources remote) =>
 {
@@ -161,4 +161,4 @@ await app.RunAsync();
 public sealed record SetupInput(string? CpampUrl = null, string? ManagementKey = null, bool ClearManagementKey = false, City? City = null, SelectionInput[]? Accounts = null, SensorSelection? Sensors = null, bool? QuotaRefreshEnabled = null, int? QuotaRefreshMinutes = null);
 public sealed record SelectionInput(string Id, string Alias);
 public sealed record CityQuery(string Query);
-public sealed record ClientReport(bool WallpaperEngine, int Width, int Height, double Fps, bool Paused, Dictionary<string, double[]>? Materials = null);
+public sealed record ClientReport(bool WallpaperEngine, int Width, int Height, double Fps, bool Paused, Dictionary<string, double[]>? Materials = null, string? BuildId = null);

@@ -20,9 +20,12 @@ export class CardDetails {
   private activity = new AccountActivityControl(() => { this.signature = ''; this.sync(); });
   private activitySignature = '';
   private keyboardNavigation = false;
+  private placementDirty = true;
   constructor(private root: HTMLElement, private bridgeUrl: () => string, private readToken: () => string) {
     this.layer = el('div', 'detail-layer'); root.append(this.layer);
-    new ResizeObserver(() => this.place()).observe(root);
+    new ResizeObserver(() => { this.invalidatePlacement(); this.place(); }).observe(root);
+    const regionObserver = new ResizeObserver(() => { this.invalidatePlacement(); this.place(); });
+    root.querySelectorAll<HTMLElement>('.top,.quota,.hardware').forEach(region => regionObserver.observe(region));
     root.addEventListener('quota-layout-change', () => { if (this.target?.closest('.quota')) this.close(false); });
     // WE may forward only mouseup; do not let CEF's focus-visible heuristic
     // mistake that mouse activation for keyboard navigation.
@@ -45,7 +48,7 @@ export class CardDetails {
     const model = cardInsights.get(this.target);
     if (!model) { this.close(false); return; }
     const now = Date.now();
-    this.place();
+    if (this.placementDirty) this.place();
     if (model.kind === 'quota') this.activity.configure(model.accountId, this.bridgeUrl(), this.readToken(), this.root.dataset.paused !== 'true');
     if (this.root.dataset.dynamic !== 'true') {
       this.animations.forEach(animation => animation.cancel()); this.animations = [];
@@ -105,7 +108,7 @@ export class CardDetails {
     } else if (model.kind === 'weather') {
       this.settingsLink = el('a', 'details-action', '切换城市'); this.settingsLink.target = '_blank'; this.settingsLink.rel = 'noopener noreferrer'; header.insertBefore(this.settingsLink, close);
     }
-    this.layer.append(panel); this.panel = panel; this.sync(); close.focus({ preventScroll: true });
+    this.layer.append(panel); this.panel = panel; this.placementDirty = true; this.sync(); close.focus({ preventScroll: true });
     let lightAt = 0;
     panel.addEventListener('pointermove', event => {
       if (this.root.dataset.dynamic !== 'true' || performance.now() - lightAt < 1000 / 30) return;
@@ -123,8 +126,10 @@ export class CardDetails {
       ];
     }
   }
+  invalidatePlacement() { this.placementDirty = true; }
   private place() {
     if (!this.panel || !this.region?.isConnected) return;
+    this.placementDirty = false;
     const root = this.root.getBoundingClientRect(), region = this.region.getBoundingClientRect(), sx = this.root.clientWidth / Math.max(1, root.width), sy = this.root.clientHeight / Math.max(1, root.height);
     const u = parseFloat(getComputedStyle(this.root).getPropertyValue('--u')) || 1;
     const material = getComputedStyle(this.region);

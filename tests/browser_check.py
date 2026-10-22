@@ -57,6 +57,7 @@ with sync_playwright() as p:
                 {'id': 'short', 'label': '5 小时窗口', 'remainingPercent': 0, 'usedValue': None, 'limitValue': None, 'quotaUnit': '', 'resetAt': iso(now_ms + 3000), 'durationSeconds': 18000, 'mode': 'fixed', 'accuracy': 'exact', 'observedAt': iso(now_ms), 'stale': False},
                 {'id': 'week', 'label': '周窗口', 'remainingPercent': None, 'usedValue': None, 'limitValue': None, 'quotaUnit': '', 'resetAt': iso(now_ms + 86400000), 'durationSeconds': 604800, 'mode': 'rolling', 'accuracy': 'estimated', 'observedAt': iso(now_ms - 3600000), 'stale': True}]}]}
     fixture = copy.deepcopy(snapshot)
+    fixture.pop('revisions', None)
     fixture['quota'] = quota
     def route_snapshot(route): route.fulfill(json=fixture)
     page.route('**/v1/snapshot', route_snapshot)

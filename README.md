@@ -36,12 +36,15 @@ Windows / Wallpaper Engine Web 壁纸，沿用已确认的 [v3 玻璃设计](des
 
 本机设置的「用量自动刷新」默认开启，每 **10 分钟**向上游获取关注账号的新用量。间隔可设为 **1–10080 分钟**，支持关闭自动刷新或点击「立即刷新用量」。页面显示上次尝试、最近成功、下次时间及逐账号结果；修改间隔后按最近一次刷新完成时间重新计算。
 
-默认 Wallpaper Engine 安装路径为本机已检测的位置 `F:\SteamLibrary\steamapps\common\wallpaper_engine`。安装脚本只复制构建后的壁纸目录，自动填入展示票据。重新安装前保留旧 `project.json` 备份。
+默认 Wallpaper Engine 安装路径为本机已检测的位置 `F:\SteamLibrary\steamapps\common\wallpaper_engine`。安装脚本校验构建清单，自动填入展示票据，按名称迁移旧属性并保留项目身份；完整旧目录备份在目标盘的 `projects/dashboard-backups`。备份可能含本机展示票据，仅供本地回退。
 
 若需要应用到桌面，先在 WE 确认显示器索引（从 0 开始），再运行：
 
 ```powershell
 ./scripts/install-wallpaper.ps1 -Apply -Monitor <已确认的索引>
+
+# 更新当前使用的另一个本地项目；同一路径会先关闭再打开
+./scripts/install-wallpaper.ps1 -Destination 'F:\SteamLibrary\steamapps\common\wallpaper_engine\projects\myprojects\portrait-dashboard-workshop' -Apply -Location '<已确认的显示器 Location>'
 ```
 
 WE 属性中提供三个组件的材质、显示、大小、水平与垂直位置、时区、12/24 小时、秒、柔光动态、趋势、额度显示方式、翻页间隔及底部留白。可用底部留白避让任务栏。桌面外观在 Wallpaper Engine 中选中正在使用的壁纸后，通过右侧属性调整并由宿主保存。Studio 仅用于浏览器预览，设置只保存在当前浏览器，不会同步到 Wallpaper Engine；WE 的属性也不会自动回填 Studio。天气、账号和传感器等共享数据仍在本机数据设置页管理。多账号卡片默认启用，超过三个账号或两个额度窗口时分页，所有账号与窗口均可访问。
@@ -83,7 +86,26 @@ npm run check
 ./scripts/build.ps1
 ```
 
-构建脚本先发布到 staging，再更新运行目录。若桥接正在以管理员模式运行，请在管理员 PowerShell 构建或执行 `scripts/update-bridge.ps1`；更新后按需重新启动桥接并重新安装壁纸。
+构建只生成 `dist/` 和 `artifacts/staging/` 候选包，不停止或覆盖运行桥接。`build-info.json` 记录构建 ID、源码提交、源码是否有未提交变更及文件 SHA256；健康接口和宿主报告分别提供桥接与前端构建 ID。
+
+```powershell
+# 只验证，不安装；22 项前端测试、桥接检查、更新回退检查
+./scripts/verify.ps1
+# 附加匿名浏览器回归，Python 需可导入 Playwright
+./scripts/verify.ps1 -Browser -Python '<python.exe 完整路径>'
+
+# 独立更新：保留原运行方式和配置，失败恢复旧目录与运行状态
+./scripts/update-bridge.ps1
+# 原桥接未运行时，如需安装后启动
+./scripts/update-bridge.ps1 -Start
+
+# 只读资源观察；记录采样口径，不能直接当作受控 A/B
+./scripts/measure-resources.ps1 -Samples 120 -IntervalSeconds 5 -Label after-optimization
+# 24 小时只读稳定性观察；按分钟留存匿名状态和进程内存
+./scripts/observe-stability.ps1
+```
+
+更新正在运行的管理员桥接时，更新脚本会弹出一次 UAC，在原用户的管理员上下文恢复计划任务；无需在构建时提升权限。候选桥接须通过健康、构建 ID、配置保留及首个硬件样本检查。旧发布目录保存在 `artifacts/backups/bridge-releases`。更新记录位于 `artifacts/validation/bridge-update.json` 和 `wallpaper-update.json`，程序验证与真实桌面点击分别记录。新安装时先启动桥接以生成配对票据。
 
 后端源码：`bridge/WallpaperBridge/`；三组件与数据契约：`src/`；宿主属性：`wallpaper/project.json`。前端输出为经典 IIFE，避免本地文件 ES module 的跨域问题，所有背景与样式随壁纸打包。
 

@@ -14,7 +14,8 @@ public sealed record QuotaData(string Status, DateTimeOffset? FetchedAt, string 
 public sealed record WeatherHour(DateTimeOffset Time, double? Temperature, double? PrecipitationProbability, double? PrecipitationMm, int? Code);
 public sealed record WeatherData(string Status, DateTimeOffset? FetchedAt, DateTimeOffset? ObservedAt, string City,
     double? Temperature, double? Low, double? High, int? Code, bool IsDay, string Message, WeatherHour[]? Hourly = null, string? Timezone = null);
-public sealed record Snapshot(int SchemaVersion, DateTimeOffset GeneratedAt, HardwareData Hardware, QuotaData Quota, WeatherData Weather);
+public sealed record SnapshotRevisions(string Epoch, long Hardware, long Quota, long Weather);
+public sealed record Snapshot(int SchemaVersion, DateTimeOffset GeneratedAt, HardwareData Hardware, QuotaData Quota, WeatherData Weather, SnapshotRevisions? Revisions = null);
 public sealed record City(string Id, string Name, double Latitude, double Longitude, string Timezone);
 public sealed record AccountSelection(string Id, string Alias, string Provider, string AuthFile, string AuthIndex, string AccountId,
     string AccountSnapshot = "", string AuthLabel = "", string ProjectId = "");

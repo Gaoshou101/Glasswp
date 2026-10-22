@@ -6,6 +6,8 @@ import { authorizeDesktopInput, installDesktopInput } from './desktop-input';
 import type { Snapshot } from './contract';
 import { ClockWeather, HardwareComponent, QuotaComponent } from './components';
 import { QuotaRefreshControl } from './quota-refresh';
+import { CurrentRequest, SnapshotChanges } from './snapshot-control';
+declare const __BUILD_ID__: string;
 import { clamp, defaultMaterial, groups, loadSettings, loopbackUrl, saveSettings, type Group, type Material } from './settings';
 
 declare global {
@@ -20,9 +22,10 @@ const fullView = !new URLSearchParams(location.search).has('studio');
 if (fullView) document.documentElement.setAttribute('data-capture', '');
 const clock = new ClockWeather(root, settings), quota = new QuotaComponent(root, settings), hardware = new HardwareComponent(root, settings);
 const liquid = new LiquidInteraction(root), details = new CardDetails(root, () => settings.bridgeUrl, () => settings.readToken);
-let paused = false, engine = false, fps = 30, lastFetch = 0, lastSuccess = 0, pending = false, connected = false, errors = 0;
+let paused = false, engine = false, fps = 30, lastFetch = 0, lastSuccess = 0, connected = false, errors = 0;
+const requests = new CurrentRequest(), changes = new SnapshotChanges();
 const desktopInput = installDesktopInput(root, () => engine, point => authorizeDesktopInput(settings.bridgeUrl, settings.readToken, point), () => !paused);
-let tickTimer = 0, pollTimer = 0, ambientTimer = 0, reportedAt = 0, request: AbortController | undefined;
+let tickTimer = 0, ambientTimer = 0, reportedAt = 0;
 let lastSnapshot: Snapshot | undefined;
 const quotaRefresh = new QuotaRefreshControl($<HTMLButtonElement>('refresh-quota'), () => settings, () => { lastFetch = 0; void poll(); });
 const nodes: Record<Group, HTMLElement> = { top: root.querySelector('.top')!, quota: root.querySelector('.quota')!, hardware: root.querySelector('.hardware')! };
@@ -48,7 +51,16 @@ function applyAppearance() {
   // Keep quota anchored above the active bottom component, preserving the face gap.
   nodes.quota.style.bottom = settings.widgets.hardware.enabled ? '' : 'var(--safe-bottom)';
   clock.tick();
-  liquid.invalidate(); details.sync();
+  liquid.invalidate(); details.invalidatePlacement();
+  if (lastSnapshot) renderSnapshot(lastSnapshot);
+  details.sync();
+}
+function renderSnapshot(data: Snapshot) {
+  const appearance = JSON.stringify([settings.timezone, settings.trends, settings.quotaLayout, settings.ignoreCodexBaseWeekly, settings.ignoreCodexImageQuota]);
+  const changed = changes.changed(data, appearance);
+  if (changed.weather) clock.update(data.weather);
+  if (changed.quota) quota.update(data.quota);
+  if (changed.hardware) hardware.update(data.hardware);
 }
 function controls() {
   const group = selected()[0], m = settings.material[group], w = settings.widgets[group];
@@ -76,7 +88,7 @@ $('reset-glass').onclick = () => { selected().forEach(g => settings.material[g] 
 for (const [key, id] of [['enabled', 'widget-enabled'], ['scale', 'widget-scale'], ['x', 'widget-x'], ['y', 'widget-y']] as const) {
   $(id).addEventListener('input', () => { const input = $<HTMLInputElement>(id); for (const group of selected()) { if (key === 'enabled') settings.widgets[group].enabled = input.checked; else settings.widgets[group][key] = Number(input.value) / (key === 'scale' ? 100 : 1); } applyAppearance(); store(); });
 }
-for (const [key, id] of [['seconds', 'show-seconds'], ['hour12', 'hour12'], ['motion', 'motion'], ['trends', 'trends']] as const) $(id).addEventListener('change', () => { settings[key] = $<HTMLInputElement>(id).checked; applyAppearance(); if (lastSnapshot) hardware.update(lastSnapshot.hardware); lifecycle(); store(); });
+for (const [key, id] of [['seconds', 'show-seconds'], ['hour12', 'hour12'], ['motion', 'motion'], ['trends', 'trends']] as const) $(id).addEventListener('change', () => { settings[key] = $<HTMLInputElement>(id).checked; applyAppearance(); lifecycle(); store(); });
 $('timezone').addEventListener('change', () => { const tz = $<HTMLInputElement>('timezone').value; try { new Intl.DateTimeFormat('zh-CN', { timeZone: tz }); settings.timezone = tz; clock.tick(); store(); } catch { $('settings-status').textContent = '请输入有效时区，例如 Asia/Shanghai。'; } });
 $('safe-bottom').addEventListener('change', () => { settings.safeBottom = clamp(Number($<HTMLInputElement>('safe-bottom').value), 1, 10, 3.9); applyAppearance(); store(); });
 $('rotate-seconds').addEventListener('change', () => { settings.rotateSeconds = clamp(Number($<HTMLInputElement>('rotate-seconds').value), 0, 300, 30); store(); });
@@ -86,7 +98,7 @@ $('ignore-codex-image-quota').addEventListener('change', () => { settings.ignore
 $('save-connection').onclick = () => {
   const url = loopbackUrl($<HTMLInputElement>('bridge-url').value);
   if (!url) { $('connection-status').textContent = '本机数据地址需使用 http://127.0.0.1:端口。'; return; }
-  settings.bridgeUrl = url; settings.readToken = $<HTMLInputElement>('read-token').value.trim(); request?.abort(); pending = false; lastSuccess = lastFetch = 0; connected = false; errors = 0; controls(); store(); void poll();
+  settings.bridgeUrl = url; settings.readToken = $<HTMLInputElement>('read-token').value.trim(); requests.cancel(); changes.reset(); lastSuccess = lastFetch = 0; connected = false; errors = 0; controls(); store(); void poll();
 };
 
 const shell = document.querySelector<HTMLElement>('.preview-shell')!;
@@ -118,35 +130,35 @@ function updateNote() {
 async function report() {
   if (!settings.readToken || !connected || Date.now() - reportedAt < 5000) return;
   reportedAt = Date.now();
-    try { await fetch(settings.bridgeUrl + '/v1/client', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Wallpaper-Token': settings.readToken }, body: JSON.stringify({ wallpaperEngine: engine, width: root.clientWidth, height: root.clientHeight, fps, paused, materials: Object.fromEntries(groups.map(g => [g, [settings.material[g].transparency, settings.material[g].blur, settings.material[g].edge]])) }), cache: 'no-store' }); } catch { }
+    try { await fetch(settings.bridgeUrl + '/v1/client', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Wallpaper-Token': settings.readToken }, body: JSON.stringify({ buildId: typeof __BUILD_ID__ === 'undefined' ? 'development' : __BUILD_ID__, wallpaperEngine: engine, width: root.clientWidth, height: root.clientHeight, fps, paused, materials: Object.fromEntries(groups.map(g => [g, [settings.material[g].transparency, settings.material[g].blur, settings.material[g].edge]])) }), cache: 'no-store' }); } catch { }
 }
 async function poll() {
-  if (paused || pending || !settings.readToken) { updateNote(); return; }
+  if (paused || requests.pending || !settings.readToken) return;
   const now = Date.now();
   if (now - lastFetch < Math.min(30000, 2000 * 2 ** Math.min(errors, 4))) return;
-  lastFetch = now; pending = true; const controller = new AbortController(); request = controller;
+  lastFetch = now; const controller = requests.begin();
   const timeout = setTimeout(() => controller.abort(), 8000);
   try {
     const response = await fetch(settings.bridgeUrl + '/v1/snapshot', { headers: { 'X-Wallpaper-Token': settings.readToken }, signal: controller.signal, cache: 'no-store' });
     if (!response.ok) throw new Error(response.status === 401 ? '展示票据无效，请从本机设置重新复制。' : '本机数据暂不可用。');
     const data: Snapshot = await response.json();
+    if (!requests.current(controller) || paused) return;
     if (data.schemaVersion !== 1 || !data.hardware || !Array.isArray(data.quota?.accounts) || !data.weather) throw new Error('桥接数据版本不兼容。');
     lastSnapshot = data; lastSuccess = Date.now(); errors = 0; connected = true;
-    clock.update(data.weather); quota.update(data.quota); hardware.update(data.hardware); details.sync(); $('connection-status').textContent = '本机数据已连接。';
+    renderSnapshot(data); details.sync(); $('connection-status').textContent = '本机数据已连接。';
     void report(); void quotaRefresh.sync();
-  } catch (e) { connected = false; errors++; $('connection-status').textContent = e instanceof Error && e.name !== 'AbortError' ? e.message : '连接超时，正在重试。'; }
-  finally { clearTimeout(timeout); pending = false; updateNote(); }
+  } catch (e) { if (requests.owns(controller) && !paused) { connected = false; errors++; $('connection-status').textContent = e instanceof Error && e.name !== 'AbortError' ? e.message : '连接超时，正在重试。'; } }
+  finally { clearTimeout(timeout); if (requests.owns(controller)) { requests.finish(controller); updateNote(); } }
 }
 function lifecycle() {
-  clearInterval(tickTimer); clearInterval(pollTimer); clearInterval(ambientTimer);
+  clearInterval(tickTimer); clearInterval(ambientTimer);
   root.dataset.paused = String(paused); ambient.hidden = !settings.motion || reduced.matches || settings.materialMode === 'liquid';
   liquid.configure(!paused && settings.motion && !reduced.matches && settings.materialMode === 'liquid', fps);
   if (root.dataset.dynamic !== 'true') root.getAnimations({ subtree: true }).forEach(animation => { if (!(animation instanceof CSSAnimation || animation instanceof CSSTransition)) animation.cancel(); });
   details.sync();
-  if (paused) { desktopInput.cancel(); request?.abort(); quotaRefresh.stop(); return; }
+  if (paused) { desktopInput.cancel(); requests.cancel(); quotaRefresh.stop(); return; }
   clock.tick(); quota.tick(); updateNote();
-  tickTimer = window.setInterval(() => { clock.tick(); quota.tick(); details.sync(); quotaRefresh.tick(); updateNote(); }, 1000);
-  pollTimer = window.setInterval(() => { void poll(); }, 1000);
+  tickTimer = window.setInterval(() => { clock.tick(); quota.tick(); details.sync(); quotaRefresh.tick(); updateNote(); void poll(); }, 1000);
   if (!ambient.hidden) ambientTimer = window.setInterval(() => { const phase = Date.now() / 18000; ambient.style.opacity = String(.45 + Math.sin(phase) * .35); ambient.style.transform = `translate(${Math.sin(phase) * 1.5}%, ${Math.cos(phase) * 1.2}%)`; }, Math.max(100, 1000 / Math.max(1, fps)));
   lastFetch = 0; void poll();
 }
@@ -156,6 +168,7 @@ addEventListener('pageshow', () => { lastFetch = 0; lifecycle(); });
 window.wallpaperPropertyListener = {
   applyUserProperties(properties) {
     engine = true;
+    const oldConnection = settings.bridgeUrl + ':' + settings.readToken;
     for (const group of groups) {
       for (const [name, key, max] of [['transparency', 'transparency', 100], ['blur', 'blur', 64], ['highlight', 'edge', 100]] as const) {
         const value = properties[`${group}_glass_${name}`] ?? properties[`glass_${name}`];
@@ -175,6 +188,7 @@ window.wallpaperPropertyListener = {
     if (properties.ignore_codex_image_quota) { settings.ignoreCodexImageQuota = properties.ignore_codex_image_quota.value === true; quota.refreshLayout(); }
     if (properties.safe_bottom) settings.safeBottom = clamp(Number(properties.safe_bottom.value), 1, 10, 3.9);
     if (properties.timezone) try { new Intl.DateTimeFormat('zh-CN', { timeZone: String(properties.timezone.value) }); settings.timezone = String(properties.timezone.value); } catch { }
+    if (oldConnection !== settings.bridgeUrl + ':' + settings.readToken) { requests.cancel(); changes.reset(); }
     applyAppearance(); controls(); saveSettings(settings); lastFetch = reportedAt = 0; lifecycle();
   },
   applyGeneralProperties(properties) { engine = true; if (properties.fps) fps = clamp(properties.fps, 1, 240, 30); lifecycle(); },

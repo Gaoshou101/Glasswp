@@ -10,7 +10,6 @@ sys.path.insert(0, str(ROOT / '.tools/python'))
 from playwright.sync_api import sync_playwright
 
 BASE = 'http://127.0.0.1:17633'
-LIVE = 'http://127.0.0.1:17632'
 OUT = ROOT / 'artifacts/validation'
 results, errors = {}, []
 iso = lambda value: time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(value))
@@ -20,10 +19,16 @@ with sync_playwright() as p:
     context = browser.new_context(viewport={'width': 1600, 'height': 2560})
     page = context.new_page()
     page.on('pageerror', lambda e: errors.append(str(e)))
-    page.goto(LIVE + '/admin/', wait_until='networkidle')
+    page.goto(BASE + '/admin/', wait_until='networkidle')
     page.wait_for_function("document.querySelector('#status').textContent.includes('已连接')")
     public_config = page.evaluate("async () => await api('config/read')")
-    live_snapshot = context.request.get(LIVE + '/v1/snapshot', headers={'X-Wallpaper-Token': public_config['readToken']}).json()
+    live_snapshot = context.request.get(BASE + '/v1/snapshot', headers={'X-Wallpaper-Token': public_config['readToken']}).json()
+    # Deterministic display fixtures; the real user's selected account count may change.
+    public_config['accounts'] = [dict(id=f'test-{i}', alias=f'Example {i}', provider='codex') for i in range(3)]
+    now = time.time()
+    sample_window = dict(id='main', label='5 小时窗口', remainingPercent=80, usedValue=None, limitValue=None,
+        quotaUnit='', resetAt=iso(now+3600), durationSeconds=18000, mode='fixed', accuracy='exact', observedAt=iso(now), stale=False)
+    live_snapshot['quota'] = dict(status='ok', fetchedAt=iso(now), message='Example', accounts=[dict(a, plan='Pro', windows=[dict(sample_window)]) for a in public_config['accounts']])
 
     page.goto(BASE + '/admin/', wait_until='networkidle')
     page.wait_for_function("document.querySelector('#status').textContent.includes('已连接')")
@@ -76,6 +81,7 @@ with sync_playwright() as p:
     page.locator('#account-order-heading').locator('..').screenshot(path=str(OUT / 'account-order-settings.png'))
 
     fixture = copy.deepcopy(live_snapshot)
+    fixture.pop('revisions', None)
     by_id = {a['id']: a for a in fixture['quota']['accounts']}
     fixture['quota']['accounts'] = [by_id[a] for a in expected]
     page.route('**/v1/snapshot', lambda route: route.fulfill(json=fixture))

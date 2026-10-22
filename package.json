@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build && node scripts/package-wallpaper.mjs",
-    "test": "tsx --test tests/frontend.test.ts",
+    "build": "node scripts/build-info.mjs && tsc --noEmit && vite build && node scripts/package-wallpaper.mjs",
+    "test": "tsx --test tests/*.test.ts",
     "check": "npm run test && npm run build"
   },
   "devDependencies": {

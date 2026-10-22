@@ -25,8 +25,8 @@ public sealed class UpstreamQuotaRefresher
     {
         this.store = store; this.client = client; this.clock = clock ?? (() => DateTimeOffset.UtcNow);
         sourceKey = SourceKey(store.Config);
-        var saved = store.Read<QuotaRefreshCheckpoint>("quota-refresh");
-        state = saved?.SourceKey == sourceKey ? saved.State : new();
+        var saved = store.ReadCache<QuotaRefreshCheckpoint>("quota-refresh", checkpoint => checkpoint.State is not null && checkpoint.State.Accounts is not null);
+        state = saved?.SourceKey == sourceKey ? saved.State : store.CacheFaults.Contains("quota-refresh:read") ? new() { LastAttemptAt = this.clock(), LastFinishedAt = this.clock(), Status = "interrupted", Message = "刷新记录不可读取，按设定间隔重试" } : new();
         if (state.Status is "running" or "queued") state = state with { Status = "interrupted", Message = "上次刷新已中断，将按设定间隔继续" };
     }
 
@@ -40,7 +40,7 @@ public sealed class UpstreamQuotaRefresher
         sourceKey = key; state = new(); queued = false;
         Persist();
     }
-    private void Persist() => store.Write("quota-refresh", new QuotaRefreshCheckpoint(sourceKey, state));
+    private bool Persist() => store.WriteCache("quota-refresh", new QuotaRefreshCheckpoint(sourceKey, state));
     public QuotaRefreshReport Report()
     {
         lock (stateGate)
@@ -83,7 +83,10 @@ public sealed class UpstreamQuotaRefresher
                 queued = false; key = sourceKey;
                 state = state with { LastAttemptAt = clock(), Status = "running", Message = "正在向上游获取用量", Accounts = [] };
                 // Save before sending so a crash or restart cannot repeatedly query upstream.
-                Persist();
+                if (!Persist()) {
+                    state = state with { LastFinishedAt = clock(), Status = "failed", Message = "刷新记录无法保存，等待下次尝试" };
+                    return false;
+                }
             }
             var results = new List<RefreshAccountResult>();
             try

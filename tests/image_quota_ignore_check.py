@@ -33,6 +33,7 @@ with sync_playwright() as p:
     image = dict(short, id='imagegen-premium-0-window-1d-0', label='日窗口 · 绘图（Premium）', durationSeconds=86400, observedAt=iso(now-86400), stale=True)
     base = dict(week, id='luna-release-weekly-0', label='周窗口 · 基础模型', observedAt=iso(now-86400), stale=True)
     fixture = copy.deepcopy(snapshot)
+    fixture.pop('revisions', None)
     fixture['quota'] = dict(status='stale', fetchedAt=iso(now), message='过滤验证数据', accounts=[
         dict(id='first', alias='测试账号 A', provider='codex', plan='Plus', windows=[short, week, image]),
         dict(id='second', alias='测试账号 B', provider='codex', plan='Team', windows=[short, week]),

@@ -27,6 +27,7 @@ with sync_playwright() as p:
     week = dict(short, id='weekly', label='周窗口', durationSeconds=604800)
     base = dict(week, id='gpt-reserve-weekly-0', label='周窗口 · 基础模型', observedAt=iso(now-86400), stale=True)
     fixture = copy.deepcopy(snapshot)
+    fixture.pop('revisions', None)
     fixture['quota'] = dict(status='stale', fetchedAt=iso(now), message='过滤验证数据', accounts=[
         dict(id='first', alias='测试账号 A', provider='codex', plan='Plus', windows=[short, week, base]),
         dict(id='second', alias='测试账号 B', provider='codex', plan='Team', windows=[week]),

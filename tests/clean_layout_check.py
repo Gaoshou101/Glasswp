@@ -46,6 +46,7 @@ with sync_playwright() as p:
     weekly = dict(short, id='weekly', label='周窗口', remainingPercent=81, resetAt=iso(now+400000), durationSeconds=604800, accuracy='exact')
     base = dict(weekly, id='gpt-reserve-weekly-0', label='周窗口 · 基础模型', observedAt=iso(now-90000), stale=True)
     fixture = copy.deepcopy(live)
+    fixture.pop('revisions', None)  # Mutable legacy fixture must not carry frozen live revision IDs.
     fixture['quota'] = dict(status='ok', fetchedAt=iso(now), message='布局验证数据', accounts=[
         dict(id='first', alias='测试账号 A', provider='codex', plan='team', windows=[short, weekly, base]),
         dict(id='second', alias='这是一个用于验证省略与提示的很长账号别名', provider='codex', plan='team', windows=[weekly]),

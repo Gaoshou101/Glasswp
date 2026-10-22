@@ -46,7 +46,9 @@ with sync_playwright() as p:
     page = context.new_page()
     page.on('pageerror', lambda e: errors.append(str(e)))
     def respond(route):
-        if route.request.url.endswith('/v1/snapshot'):
+        if route.request.url.endswith('/v1/desktop-input'):
+            route.fulfill(json=dict(available=True, allowed=True))
+        elif route.request.url.endswith('/v1/snapshot'):
             route.fulfill(json=fixture)
         elif '/v1/accounts/' in route.request.url and urlsplit(route.request.url).path.endswith('/activity'):
             url=urlsplit(route.request.url)
@@ -366,7 +368,7 @@ with sync_playwright() as p:
     nav = page.locator('.quota-nav').bounding_box()
     page.mouse.move(nav['x'], nav['y'])
     page.get_by_role('button', name='下一页额度', exact=True).click()
-    assert page.get_by_role('button', name='下一页额度', exact=True).evaluate('n=>n===document.activeElement')
+    page.wait_for_function('document.querySelector("[aria-label=下一页额度]")===document.activeElement')
     assert page.locator('.quota-card').count() == 1
     assert page.locator('.quota-card').first.get_attribute('data-account-id') == 'extra'
     assert page.evaluate('document.querySelector("#quota-content").getAnimations().length') > 0

@@ -376,6 +376,7 @@ Check((int)UpstreamQuotaAdapter.Windows(resetUsage.RootElement, activityNow)[0][
 using var legacyAccountDoc = JsonDocument.Parse("""{"id":"a","alias":"A","provider":"codex","plan":"Pro","windows":[]}""");
 Check(JsonSerializer.Deserialize<QuotaAccount>(legacyAccountDoc.RootElement, PrivateStore.Json)?.ResetCredits is null, "legacy quota cache without reset credit fields stays compatible");
 
+await ResilienceChecks.Run(Check);
 Console.WriteLine($"{checks} bridge checks passed");
 
 sealed class StubHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler

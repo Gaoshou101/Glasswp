@@ -10,7 +10,8 @@ if ($health -and $Elevated -and -not $health.elevated) {
     $health = $null
 }
 if (-not $health) {
-    $argsList = @{ FilePath = $exePath; WorkingDirectory = (Split-Path -Parent $exePath); WindowStyle = 'Hidden'; PassThru = $true }
+    $dataDirectory = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'WallpaperDashboard\private'
+    $argsList = @{ FilePath = $exePath; ArgumentList = ('--data-dir "'+$dataDirectory+'"'); WorkingDirectory = (Split-Path -Parent $exePath); WindowStyle = 'Hidden'; PassThru = $true }
     if ($Elevated) { $argsList.Verb = 'RunAs' }
     $bridgeProcess = Start-Process @argsList
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
