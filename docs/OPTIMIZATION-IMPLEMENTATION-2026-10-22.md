@@ -56,7 +56,7 @@ Windows PowerShell 5.1 调用 WE 图形程序时不会自动设置 `$LASTEXITCOD
 ### 资源与长期观察
 
 - 更新前观察已完成：22:30–22:41，120 样本，Web 全部 CEF 进程 CPU 均值 0.384%、GPU 3D 均值 0.293%、私有提交中位数 422.64 MiB；桥接 CPU 均值 0.058%、私有提交中位数 56.96 MiB。期间包含构建与浏览器活动，只能作为使用观察。原始记录：`artifacts/analysis/optimization-before.json`。
-- 更新后同口径观察于 22:46 启动，记录在 `artifacts/analysis/optimization-after.json`（完成前为 `.json.jsonl`）。包含本轮浏览器检查，仍不是固定条件 A/B。
+- 更新后同口径观察已完成：22:46–22:58，120 样本；Web CPU 均值 0.343%、GPU 3D 均值 0.344%、私有提交中位数 424.14 MiB；桥接 CPU 均值 0.059%、私有提交中位数 53.36 MiB。Web 私有工作集中位数由 101.16 增至 205.30 MiB，需同条件复核。记录在 `artifacts/analysis/optimization-after.json`，两轮比较及限制见 [资源观察报告](OPTIMIZATION-RESOURCE-OBSERVATION-2026-10-22.md)。包含本轮浏览器检查，仍不是固定条件 A/B。
 - 完整资源验收仍需同条件预热、闲置/固定交互、前后交替各三轮及暂停恢复。尚无可报告的占用下降百分比。
 - 24 小时只读观察已启动：2026-10-22 22:45 至 10-23 22:45，PID 31428，每分钟记录健康、数据状态、构建/启动代次及进程内存，五分钟读取一次有限诊断；没有安装计划任务或更改系统配置。记录为 `artifacts/analysis/stability-20261022/status.json` 和 `samples.jsonl`，状态 completed 只代表采集结束，仍需分析。关机或退出该进程会中断观察。
 - 当前未完成 24 小时观察，也未主动注入断网、睡眠唤醒场景；自然发生的长采样间隔不自动解释为故障。暂不据此扩大到 D。
