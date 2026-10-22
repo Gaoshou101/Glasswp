@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / '.tools/python'))
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 BASE = 'http://127.0.0.1:17632'
 errors = []
@@ -34,6 +34,8 @@ with sync_playwright() as p:
         dict(id='third', alias='测试账号 C', provider='codex', plan='Plus', windows=[short, week]),
         dict(id='base-only', alias='测试账号 D', provider='codex', plan='Plus', windows=[base])])
     page.route('**/v1/snapshot', lambda route: route.fulfill(json=fixture))
+    # This browser has no physical desktop gesture when simulating WE properties.
+    page.route('**/v1/desktop-input', lambda route: route.fulfill(json={'available': True, 'allowed': True}))
     page.goto(BASE + '/?studio', wait_until='networkidle')
     page.wait_for_selector('.quota-card')
     page.locator('#rotate-seconds').fill('0')
@@ -41,7 +43,7 @@ with sync_playwright() as p:
     assert not page.locator('#ignore-codex-base-weekly').is_checked()
     assert page.locator('.quota-nav span').inner_text() == '1 / 3'
     page.get_by_role('button', name='下一页额度').click()
-    assert '基础模型' in page.locator('.window-title').first.inner_text()
+    expect(page.locator('.window-title').first).to_contain_text('基础模型')
     assert '数据已过期' in page.locator('.card-freshness').first.inner_text()
     results['default_preserves_base_weekly'] = True
 
@@ -70,7 +72,7 @@ with sync_playwright() as p:
     assert not page.locator('#ignore-codex-base-weekly').is_checked()
     assert page.locator('.quota-nav span').inner_text() == '1 / 3'
     page.get_by_role('button', name='下一页额度').click()
-    assert '基础模型' in page.locator('.window-title').first.inner_text()
+    expect(page.locator('.window-title').first).to_contain_text('基础模型')
     page.evaluate("window.wallpaperPropertyListener.applyUserProperties({ignore_codex_base_weekly:{value:true}})")
     assert page.locator('#ignore-codex-base-weekly').is_checked()
     assert page.locator('.quota-nav span').inner_text() == '1 / 2'

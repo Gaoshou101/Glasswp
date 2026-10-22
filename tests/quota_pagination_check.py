@@ -39,10 +39,14 @@ with sync_playwright() as p:
     })) + ');')
     # Freeze one real snapshot so a live refresh cannot alter the pages mid-check.
     context.route('**/v1/snapshot', lambda route: route.fulfill(json=live))
+    # Simulated WE mode needs an approved host-input response; native guard has its own checks.
+    context.route('**/v1/desktop-input', lambda route: route.fulfill(json={'available': True, 'allowed': True}))
     page.goto(BASE + '/?wallpaper', wait_until='networkidle')
     page.wait_for_selector('.quota-card')
     def cards():
         return page.locator('.quota-card').evaluate_all("nodes => nodes.map(n => ({id:n.dataset.accountId,labels:[...n.querySelectorAll('.window-title')].map(w=>w.textContent)}))")
+    def wait_cards(expected_cards):
+        page.wait_for_function("expected => JSON.stringify([...document.querySelectorAll('.quota-card')].map(n => ({id:n.dataset.accountId,labels:[...n.querySelectorAll('.window-title')].map(w=>w.textContent)}))) === JSON.stringify(expected)", arg=expected_cards)
     displayed_pages = []
     for index, expected_cards in enumerate(expected):
         if index:
@@ -63,9 +67,11 @@ with sync_playwright() as p:
     if len(expected) > 1:
         for expected_cards in reversed(expected[:-1]):
             page.get_by_role('button', name='上一页额度').click()
+            wait_cards(expected_cards)
             assert cards() == expected_cards
         for expected_cards in expected[1:]:
             page.get_by_role('button', name='下一页额度').click()
+            wait_cards(expected_cards)
             assert cards() == expected_cards
     else:
         assert page.locator('.quota-nav').count() == 0

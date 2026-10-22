@@ -6,15 +6,19 @@
 
 | 路径 | 方法 | 访问 |
 | --- | --- | --- |
-| `/v1/health` | GET | 仅服务名、版本、是否管理员 |
+| `/v1/health` | GET | 服务名、版本、构建 ID、契约版本、是否管理员及输入保护可用状态 |
 | `/v1/snapshot` | GET | `X-Wallpaper-Token` 展示票据 |
 | `/v1/accounts/{id}/activity` | GET | 同一展示票据，只读取已配置关注账号；默认 7 天，可切换 CPAMP 全部时间范围，每页 20 条脱敏请求 |
-| `/v1/client` | POST | 同一展示票据，有限的壁纸尺寸/FPS/暂停/材质诊断 |
+| `/v1/client` | POST | 同一展示票据，有限的前端构建 ID、壁纸尺寸/FPS/暂停/材质诊断 |
 | `/v1/desktop-input` | POST | 同一展示票据，输入 `{x,y,width,height}`，返回 `{available,allowed}`；验证鼠标位置是否命中未被遮挡的桌面 |
 | `/v1/quota-refresh/status` | GET | 同一展示票据，只读刷新状态及最新快照时间 |
 | `/v1/quota-refresh` | POST | 同一展示票据，只能对已保存关注账号排队固定用量刷新 |
 
 `snapshot` 顶层：`schemaVersion:1`、`generatedAt`、`hardware`、`quota`、`weather`。时间采用含时区的 ISO 8601，客户端以配置时区格式化；倒计时按绝对时间计算。
+
+可选 `revisions:{epoch,hardware,quota,weather}` 用于跳过未变化模块的派生计算：`epoch` 在每次桥接启动时生成，三个整数随对应模块写入递增，包含状态变化。`generatedAt` 是整份快照的读取时间，不能作为模块是否更新的依据。旧桥接缺少修订号时，前端比较模块内容；倒计时、过期判断与自动翻页仍按本地时钟执行。此扩展保持 v1 兼容。
+
+`health.buildId` 是编译进桥接的构建标识；`client.buildId` 是嵌入前端产物的标识，仅允许字母、数字、点与短横线，最多 80 字符。二者可与发布清单交叉核对；宿主报告本身不证明物理点击已通过。`config/read.diagnostics.cacheFaults` 仅含允许的可重建缓存名及 `read/write` 故障码，不含异常正文；配置和票据读取保持严格保护。
 
 `desktop-input` 在收到点击时调用 Windows `GetCursorPos/WindowFromPoint`，命中桌面所在的 Explorer `Progman/WorkerW` 根窗口才允许点击。不注册全局输入钩子，不轮询；只在内存保留最近一次检查，不记录窗口标题、应用内容或历史点击。坐标按显示器归一化以兼容混合 DPI 和负坐标。网页在 WE 内对孤立 `mouseup` 和原生鼠标 `click` 都调用检查，审批前抑制按压反馈；浏览器预览和键盘点击保持原行为。桥接不可用或未升级时禁止 WE 鼠标点击。
 
