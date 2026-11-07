@@ -17,10 +17,53 @@ $started=[DateTimeOffset]::UtcNow
 $deadline=$started.AddMinutes($DurationMinutes)
 $readToken=$null; $nextDiagnostics=$started; $diagnostics=$null
 $count=0; $unavailable=0; $gaps=0; $previousAt=$started
+# Quota windows are recorded per window: the aggregate quota status turns stale whenever any single
+# window is older than 15 minutes, so it cannot show which window expired or what it last said.
+# The states follow the wallpaper (src/quota.ts): a used-up window is 'exhausted' until its reset,
+# however old its sample, and only otherwise does an old or flagged sample count as 'expired'.
+$quotaStaleAfter=[TimeSpan]::FromMinutes(15)
+$firstSeenExpired=@{}; $latestQuota=$null
+function ConvertTo-Offset($value) {
+    if ($null -eq $value -or [string]$value -eq '') { return $null }
+    if ($value -is [DateTimeOffset]) { return $value }
+    if ($value -is [DateTime]) { return [DateTimeOffset]$value.ToUniversalTime() }
+    return [DateTimeOffset]::Parse([string]$value, [Globalization.CultureInfo]::InvariantCulture)
+}
+function Format-Time($value) { if ($null -eq $value) { return $null }; return $value.ToLocalTime().ToString('yyyy-MM-ddTHH:mm:sszzz') }
+function Get-QuotaWindows($quota, [DateTimeOffset]$now) {
+    # Accounts are numbered by snapshot order; aliases and IDs are never recorded.
+    $windows=[Collections.Generic.List[object]]::new(); $accountNumber=0; $seen=@{}
+    foreach ($account in @($quota.accounts)) {
+        $accountNumber++
+        foreach ($window in @($account.windows)) {
+            $key="$accountNumber|$($window.id)"; $seen[$key]=$true
+            $observed=ConvertTo-Offset $window.observedAt; $reset=ConvertTo-Offset $window.resetAt
+            $sampled=$null -ne $observed -and $observed -le $now.AddMinutes(1)
+            $zero=[string]$window.mode -ne 'non_window' -and $null -ne $window.remainingPercent -and [double]$window.remainingPercent -le 0 -and $sampled
+            $boundary=if ($reset) { $reset } elseif ($sampled -and [double]$window.durationSeconds -gt 0) { $observed.AddSeconds([double]$window.durationSeconds) } else { $null }
+            $exhaustedUntil=if ($zero -and $boundary -and $boundary -gt $now) { $boundary } else { $null }
+            $state=if ($exhaustedUntil) { 'exhausted' } elseif (-not $window.stale -and $sampled -and ($now - $observed) -le $quotaStaleAfter) { 'current' } else { 'expired' }
+            $expiredSince=$null; $basis=$null
+            if ($state -eq 'expired') {
+                if ($sampled -and ($now - $observed) -gt $quotaStaleAfter) {
+                    $expiredSince=$observed.Add($quotaStaleAfter); $basis='observedAt+15m'
+                    # A used-up window only expires when its reset passes without a new sample.
+                    if ($zero -and $boundary -and $boundary -gt $expiredSince) { $expiredSince=$boundary; $basis='exhaustedUntilReset' }
+                } else { if (-not $firstSeenExpired.ContainsKey($key)) { $firstSeenExpired[$key]=$now }; $expiredSince=$firstSeenExpired[$key]; $basis='firstObservedExpired' }
+            } elseif ($firstSeenExpired.ContainsKey($key)) { $firstSeenExpired.Remove($key) }
+            $windows.Add([ordered]@{account=$accountNumber;provider=[string]$account.provider;id=[string]$window.id;label=[string]$window.label;remainingPercent=$window.remainingPercent;
+                observedAt=(Format-Time $observed);resetAt=(Format-Time $reset);mode=[string]$window.mode;bridgeStale=[bool]$window.stale;state=$state;
+                exhaustedUntil=(Format-Time $exhaustedUntil);expiredSince=(Format-Time $expiredSince);expiredBasis=$basis})
+        }
+    }
+    foreach ($key in @($firstSeenExpired.Keys)) { if (-not $seen.ContainsKey($key)) { $firstSeenExpired.Remove($key) } }
+    return ,$windows.ToArray()
+}
 function Write-State([string]$Phase) {
     @{phase=$Phase;started=$started.ToString('o');expectedEnd=$deadline.ToString('o');updated=[DateTimeOffset]::UtcNow.ToString('o');samples=$count;unavailableSamples=$unavailable;longGaps=$gaps;intervalSeconds=$IntervalSeconds;
+      latestQuota=$latestQuota;
       scope='Read-only local observation, not controlled A/B. Gaps may reflect sleep or load. Physical input and injected network failures require separate evidence.'} |
-        ConvertTo-Json | Set-Content -LiteralPath $statePath -Encoding UTF8
+        ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $statePath -Encoding UTF8
 }
 Write-State 'running'
 try {
@@ -44,6 +87,10 @@ try {
             }
             $snapshot=Invoke-RestMethod -Uri ($origin+'/v1/snapshot') -Headers @{'X-Wallpaper-Token'=$readToken} -TimeoutSec 3
             $row.data=@{hardware=$snapshot.hardware.status;hardwareObservedAt=$snapshot.hardware.observedAt;quota=$snapshot.quota.status;weather=$snapshot.weather.status;epoch=$snapshot.revisions.epoch}
+            $row.quotaWindows=Get-QuotaWindows $snapshot.quota $now
+            # status.json shows the latest sampled quota: used-up windows are marked exhausted with their reset,
+            # expired windows keep their last value and the time they expired.
+            $latestQuota=[ordered]@{at=(Format-Time $now);status=$snapshot.quota.status;windows=$row.quotaWindows.Count;exhaustedWindows=@($row.quotaWindows | Where-Object { $_.state -eq 'exhausted' }).Count;expiredWindows=@($row.quotaWindows | Where-Object { $_.state -eq 'expired' }).Count;items=$row.quotaWindows}
             $row.diagnostics=$diagnostics
         } catch {
             $row.error='Local health or data unavailable'; $unavailable++; $readToken=$null

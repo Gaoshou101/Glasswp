@@ -113,7 +113,7 @@ npm run check
 
 # 只读资源观察；记录采样口径，不能直接当作受控 A/B
 ./scripts/measure-resources.ps1 -Samples 120 -IntervalSeconds 5 -Label after-optimization
-# 24 小时只读稳定性观察；按分钟留存匿名状态和进程内存
+# 24 小时只读稳定性观察；按分钟留存匿名状态、进程内存和各额度窗口状态（当前/已用尽/过期）
 ./scripts/observe-stability.ps1
 # 分析一次观察：按进程实例分段、剔除预热，输出可用性、数据状态与内存趋势
 python scripts/analyze-stability.py artifacts/analysis/<观察目录>/samples.jsonl

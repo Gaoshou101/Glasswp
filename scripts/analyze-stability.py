@@ -5,7 +5,9 @@ Usage:
       [--output report.json] [--warmup-minutes 30] [--logical-processors 16]
 
 Process instances are separated by PID so a reinstall or restart never mixes its warm-up into a
-steady-state trend. Memory classification is descriptive: a growing trend over a few hours is a
+steady-state trend. Runs recorded with per-window quota data also list the latest sampled quota:
+used-up windows are reported as exhausted until their reset, and expired windows keep their last
+sampled value and show when they expired. Memory classification is descriptive: a growing trend over a few hours is a
 reason for a longer controlled run, not proof of a leak.
 """
 from __future__ import annotations
@@ -140,6 +142,8 @@ def main():
     parser.add_argument("--warmup-minutes", type=float, default=30)
     parser.add_argument("--logical-processors", type=int, default=os.cpu_count() or 1)
     args = parser.parse_args()
+    if not sys.stdout.isatty():
+        sys.stdout.reconfigure(encoding="utf-8")  # labels are Chinese; redirected output stays readable
     warmup = timedelta(minutes=args.warmup_minutes)
 
     raw, incomplete = [], 0
@@ -229,6 +233,7 @@ def main():
             "processes": per_process,
         }
 
+    quota_windows = summarize_quota_windows(rows)
     longest = max(web_instances, key=lambda i: len(i["rows"]))
     hourly = defaultdict(list)
     for r, ps in longest["rows"]:
@@ -273,6 +278,7 @@ def main():
         "bridgeInstances": [describe(i, "bridge") for i in bridge_instances],
         "transientBridgeProcesses": transient,
         "longestWebInstanceHourlyPrivateCommitMedian": {h: round(statistics.median(v), 1) for h, v in hourly.items()},
+        "quotaWindows": quota_windows,
     }
     output = args.output or args.samples.with_name("analysis.json")
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -291,7 +297,70 @@ def main():
               f"commit {t.get('firstSteadyHourMedian')} -> {t.get('lastHourMedian')} late {t.get('lateHalfSlopePerHour')}/h [{t.get('classification')}] "
               f"ws {w.get('firstSteadyHourMedian')} -> {w.get('lastHourMedian')} [{w.get('classification')}] "
               f"cpu {instance['cpuSystemPercentSteady'].get('mean')}% builds {instance['clientBuilds'] if instance['kind'] == 'web' else instance['bridgeBuilds']}")
+    print_quota_windows(quota_windows)
     print("saved", output)
+
+
+def summarize_quota_windows(rows):
+    """Per-window states from observers that record quotaWindows (2026-11-07 and later).
+
+    'exhausted' (used up, valid until its reset) is reported separately from 'expired' (an old or
+    flagged sample that may have changed); the wallpaper applies the same rule.
+    """
+    sampled = [r for r in rows if r.get("quotaWindows") is not None]
+    if not sampled:
+        return None
+    windows = {}
+    for row in sampled:
+        for w in row["quotaWindows"]:
+            item = windows.setdefault((w["account"], w["id"]), {"account": w["account"], "provider": w.get("provider"), "id": w["id"], "series": []})
+            item["label"] = w.get("label")
+            item["series"].append({"time": row["time"], "state": w.get("state")})
+    last = sampled[-1]
+    latest = []
+    for w in last["quotaWindows"]:
+        entry = {k: w.get(k) for k in ("account", "provider", "id", "label", "remainingPercent", "observedAt", "resetAt", "state", "exhaustedUntil", "expiredSince", "expiredBasis")}
+        if w.get("state") == "expired" and w.get("expiredSince"):
+            entry["expiredHours"] = round((last["time"] - parse_time(w["expiredSince"])).total_seconds() / 3600, 2)
+        if w.get("resetAt"):
+            entry["resetPassed"] = parse_time(w["resetAt"]) <= last["time"]
+        latest.append(entry)
+    return {
+        "samplesWithWindows": len(sampled),
+        "latestSampleAt": local(last["time"]),
+        "latest": latest,
+        "windows": [{"account": i["account"], "provider": i["provider"], "id": i["id"], "label": i["label"], "samples": len(i["series"]),
+                     "stateCounts": dict(Counter(x["state"] for x in i["series"])),
+                     "exhaustedPeriods": periods(i["series"], lambda x: x["state"] == "exhausted"),
+                     "expiredPeriods": periods(i["series"], lambda x: x["state"] == "expired")}
+                    for i in sorted(windows.values(), key=lambda i: (i["account"], i["id"]))],
+    }
+
+
+def short_time(value):
+    return (value or "-")[:16].replace("T", " ")
+
+
+def print_quota_windows(summary):
+    if not summary:
+        print("quota windows: not recorded (observer versions before 2026-11-07 only kept the aggregate status)")
+        return
+    latest = summary["latest"]
+    states = Counter(w["state"] for w in latest)
+    print(f"latest quota sample {summary['latestSampleAt']}: {len(latest)} windows, "
+          f"{states.get('exhausted', 0)} exhausted, {states.get('expired', 0)} expired")
+    for w in latest:
+        value = "unknown" if w["remainingPercent"] is None else f"{w['remainingPercent']:g}%"
+        line = f"  account {w['account']:>2} {w['provider'] or '':<11} {w['label']}: "
+        if w["state"] == "exhausted":
+            line += f"EXHAUSTED until {short_time(w['exhaustedUntil'])} (sampled {short_time(w['observedAt'])})"
+        else:
+            line += f"{value} (sampled {short_time(w['observedAt'])})"
+        if w["state"] == "expired":
+            line += f"  EXPIRED since {short_time(w['expiredSince'])} ({w.get('expiredHours')} h)"
+            if w.get("resetPassed"):
+                line += ", reset time already passed"
+        print(line)
 
 
 if __name__ == "__main__":
