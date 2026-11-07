@@ -1,5 +1,7 @@
 # 运行目录迁移验收（2026-11-04）
 
+> 2026-11-07 后续：桥接与计划任务已迁入受保护运行目录 `E:\WallpaperDashboard`，任务不再执行仓库脚本，见 [运行目录加固](RUNTIME-HARDENING-2026-11-07.md)。下文为 11 月 4 日的历史状态。
+
 本次已将实际运行目录从旧 OneDrive checkout 迁移到 `E:\Codex\repositories\wallpaper`，取代 `ADMIN-SETTINGS-2026-10-30.md` 中“尚未迁移”的历史状态。
 
 - 计划任务：`\WallpaperDashboardBridge`。Action 运行 E 盘的 `scripts\install-bridge-autostart.ps1 -Run`，WorkingDirectory 为 E 盘仓库根。

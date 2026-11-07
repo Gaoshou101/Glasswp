@@ -63,7 +63,7 @@ WE 属性或浏览器「组件与连接」中可勾选「忽略 Codex 基础模�
 
 ### 运行目录
 
-管理员计划任务只执行 `E:\WallpaperDashboard` 中的程序：`current\` 是正在运行的发布（含任务启动脚本 `run-bridge.ps1`），`backups\` 保留最近两份回退副本，`state\` 存放启动与更新记录。该目录直接位于盘符根下、不继承权限，所有者为 Administrators，只有 Administrators 和 SYSTEM 可写，普通用户只读；因此普通权限的程序无法替换管理员启动的代码，开发目录的改动、切换分支或清理也不会影响正在运行的桥接。它不在 CD2 工程同步范围内。私有配置仍固定在 `%LOCALAPPDATA%\WallpaperDashboard\private`。启动脚本先把 PowerShell 模块加载限制在系统目录，再读取配置。安装、更新和自启动注册都会核验这些权限，不符合时停止。
+管理员计划任务只执行 `E:\WallpaperDashboard` 中的程序：`current\` 是正在运行的发布（含任务启动脚本 `run-bridge.ps1`），`backups\` 保留最近两份回退副本，`state\` 存放启动与更新记录。该目录直接位于盘符根下、不继承权限，所有者为 Administrators，只有 Administrators 和 SYSTEM 可写，普通用户只读；因此普通权限的程序无法替换管理员启动的代码，开发目录的改动、切换分支或清理也不会影响正在运行的桥接。它不在 CD2 工程同步范围内。私有配置仍固定在 `%LOCALAPPDATA%\WallpaperDashboard\private`。启动脚本先把 PowerShell 模块加载限制在系统目录，再读取配置。安装、更新和自启动注册都会核验这些权限，不符合时停止。迁移过程与验证见 [运行目录加固](docs/RUNTIME-HARDENING-2026-11-07.md)。
 
 如需重启后自动恢复数据，先用 `./scripts/update-bridge.ps1` 安装桥接，再运行一次 `./scripts/install-bridge-autostart.ps1` 并接受 UAC。脚本注册 `WallpaperDashboardBridge` 计划任务，在当前用户登录 Windows 15 秒后以管理员权限隐藏执行 `E:\WallpaperDashboard\current\run-bridge.ps1`，保留 CPU 温度读取；固定原有 DPAPI 配置目录，无需保存 Windows 密码。任务允许电池供电、没有运行时限，进程异常退出后每分钟重试，最多三次。可用 `-DataDirectory <原 private 目录>` 指定已有配置。
 
