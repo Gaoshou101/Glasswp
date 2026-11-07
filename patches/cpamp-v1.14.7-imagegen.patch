@@ -1,0 +1,407 @@
+diff --git a/apps/manager-server/internal/service/quotasnapshot/evidence.go b/apps/manager-server/internal/service/quotasnapshot/evidence.go
+index 684d744..96340ca 100644
+--- a/apps/manager-server/internal/service/quotasnapshot/evidence.go
++++ b/apps/manager-server/internal/service/quotasnapshot/evidence.go
+@@ -213,6 +213,18 @@ func quotaSnapshotEntryFromUsageEvent(event usage.Event) (WriteEntry, bool) {
+ 			event.RequestedModel,
+ 			event.ResolvedModel,
+ 		)
++		// Image requests carry a separate feature budget, even when routed
++		// through a Codex credential or a user-defined coding model alias.
++		if key := imagegenHeaderScopeKey(quota.ActiveLimit, event.ResolvedModel, event.AnalyticsModel, event.RequestedModel, event.Model); key != "" {
++			quotaScope = codexquota.UsageScopeResolution{
++				Scope: codexquota.FeatureScope(key), ProviderWindowPrefix: strings.ReplaceAll(key, "_", "-"),
++			}
++			// Use the same stable identity as browser observations so stale
++			// clients can be corrected using exact evidence, not a time heuristic.
++			if usage.IsCanonicalSHA256Hex(event.EventHash) {
++				observationID = event.EventHash
++			}
++		}
+ 		windows := make([]WindowInput, 0, 2)
+ 		for index, item := range []*usage.HeaderQuotaWindow{quota.Primary, quota.Secondary} {
+ 			if window, ok := codexHeaderWindowInput(item, index, event.TimestampMS, quota.PlanType, observationID, quotaScope); ok {
+@@ -223,11 +235,15 @@ func quotaSnapshotEntryFromUsageEvent(event usage.Event) (WriteEntry, bool) {
+ 		if len(windows) == 0 {
+ 			return WriteEntry{}, false
+ 		}
++		inventoryScopeKey := "codex:rate-limits"
++		if quotaScope.Scope.Kind == "feature" && isImagegenScopeKey(quotaScope.Scope.Key) {
++			inventoryScopeKey = "codex:feature:" + quotaScope.Scope.Key
++		}
+ 		return WriteEntry{
+ 			Provider: provider, Account: account,
+ 			Observation: &ObservationInput{
+ 				Source: "response_header", SourceObservationID: observationID,
+-				ObservedAtMS: event.TimestampMS, InventoryScopeKey: "codex:rate-limits",
++				ObservedAtMS: event.TimestampMS, InventoryScopeKey: inventoryScopeKey,
+ 				InventoryMode: "partial",
+ 			},
+ 			Windows: windows,
+@@ -286,6 +302,32 @@ func quotaSnapshotEntryFromUsageEvent(event usage.Event) (WriteEntry, bool) {
+ 	}
+ }
+ 
++func isImagegenScopeKey(key string) bool {
++	return key == "imagegen" || strings.HasPrefix(key, "imagegen_")
++}
++
++func imagegenHeaderScopeKey(activeLimit string, models ...string) string {
++	key := codexquota.NormalizeFeatureKey(activeLimit)
++	if isImagegenScopeKey(key) {
++		return key
++	}
++	// An explicit non-image limit is stronger evidence than the request model.
++	if strings.TrimSpace(activeLimit) != "" {
++		return ""
++	}
++	for _, model := range models {
++		model = codexquota.NormalizeModelID(model)
++		if model == "" {
++			continue
++		}
++		if strings.HasPrefix(model, "gpt-image-") || strings.HasPrefix(model, "dall-e-") {
++			return "imagegen"
++		}
++		break // resolved model wins over aliases, matching ResolveUsageScope
++	}
++	return ""
++}
++
+ func applyCodexWindowRelationships(windows []WindowInput) {
+ 	type familyWindows struct {
+ 		fiveHourIndex int
+diff --git a/apps/manager-server/internal/service/quotasnapshot/service.go b/apps/manager-server/internal/service/quotasnapshot/service.go
+index dae8f62..a1b8e74 100644
+--- a/apps/manager-server/internal/service/quotasnapshot/service.go
++++ b/apps/manager-server/internal/service/quotasnapshot/service.go
+@@ -15,6 +15,7 @@ import (
+ 	"github.com/seakee/cpa-manager-plus/apps/manager-server/internal/model"
+ 	quotasnapshotrepo "github.com/seakee/cpa-manager-plus/apps/manager-server/internal/repository/quotasnapshot"
+ 	"github.com/seakee/cpa-manager-plus/apps/manager-server/internal/store"
++	"github.com/seakee/cpa-manager-plus/apps/manager-server/internal/usage"
+ 	"github.com/seakee/cpa-manager-plus/apps/manager-server/internal/usageidentity"
+ )
+ 
+@@ -239,6 +240,16 @@ func (s *Service) Write(ctx context.Context, req WriteRequest) (WriteResponse, e
+ 		if !ok {
+ 			return WriteResponse{}, errors.New("account identity is required")
+ 		}
++		// Already-open web clients may still submit the old main attribution.
++		// Match their observation against persisted server header evidence before
++		// accepting it, so a stale tab cannot recreate the erroneous main window.
++		if provider == "codex" {
++			var err error
++			entry, err = s.correctLegacyImageHeaderEntry(ctx, accountKey, entry)
++			if err != nil {
++				return WriteResponse{}, err
++			}
++		}
+ 		observation, err := normalizeObservationInput(accountKey, provider, entry, nowMS)
+ 		if err != nil {
+ 			return WriteResponse{}, err
+@@ -307,6 +318,57 @@ func (s *Service) Write(ctx context.Context, req WriteRequest) (WriteResponse, e
+ 	return WriteResponse{ObservedAtMS: nowMS, Items: items}, nil
+ }
+ 
++func (s *Service) correctLegacyImageHeaderEntry(ctx context.Context, accountKey string, entry WriteEntry) (WriteEntry, error) {
++	// The browser uses the canonical event hash; internal ingestion uses the
++	// provider request ID. Avoid a history lookup on the collector hot path.
++	if entry.Observation == nil || !usage.IsCanonicalSHA256Hex(entry.Observation.SourceObservationID) {
++		return entry, nil
++	}
++	needsCheck := false
++	for _, window := range entry.Windows {
++		if window.Source == "response_header" && (window.ModelScopeKind == "all" || codexquota.IsMainScope(window.ModelScopeKind, window.ModelScopeKey)) {
++			needsCheck = true
++		}
++	}
++	if !needsCheck {
++		return entry, nil
++	}
++	candidates, err := s.store.QuotaSnapshots.ListCandidates(ctx, accountKey, "codex", 0)
++	if err != nil {
++		return entry, err
++	}
++	entry.Windows = append([]WindowInput(nil), entry.Windows...)
++	for index, window := range entry.Windows {
++		if window.Source != "response_header" || (window.ModelScopeKind != "all" && !codexquota.IsMainScope(window.ModelScopeKind, window.ModelScopeKey)) {
++			continue
++		}
++		var match *model.AccountQuotaSnapshot
++		for candidateIndex := range candidates {
++			candidate := &candidates[candidateIndex]
++			if candidate.Source != "response_header" || candidate.SourceObservationID != entry.Observation.SourceObservationID || candidate.ModelScopeKind != "feature" || !isImagegenScopeKey(candidate.ModelScopeKey) || candidate.ObservedAtMS != window.ObservedAtMS || window.ObservedAtMS <= 0 || window.DurationSeconds == nil || candidate.DurationSeconds == nil || *window.DurationSeconds != *candidate.DurationSeconds {
++				continue
++			}
++			// Matching the balance as well as exact observation time and duration
++			// avoids reclassifying unrelated coding quota with a daily duration.
++			if window.UsedPercent == nil || candidate.UsedPercent == nil || *window.UsedPercent != *candidate.UsedPercent {
++				continue
++			}
++			if match != nil && (match.ModelScopeKey != candidate.ModelScopeKey || match.ProviderWindowID != candidate.ProviderWindowID) {
++				return entry, errors.New("ambiguous legacy image header evidence")
++			}
++			match = candidate
++		}
++		if match != nil {
++			entry.Windows[index].ProviderWindowID = match.ProviderWindowID
++			entry.Windows[index].ProviderWindowAliases = nil
++			entry.Windows[index].ModelScopeKind = "feature"
++			entry.Windows[index].ModelScopeKey = match.ModelScopeKey
++			entry.Windows[index].ModelIDs = nil
++		}
++	}
++	return entry, nil
++}
++
+ func normalizeObservationInput(accountKey, provider string, entry WriteEntry, nowMS int64) (model.AccountQuotaObservation, error) {
+ 	input := entry.Observation
+ 	if input == nil {
+@@ -332,6 +394,31 @@ func normalizeObservationInput(accountKey, provider string, entry WriteEntry, no
+ 	if scopeKey == "" {
+ 		return model.AccountQuotaObservation{}, errors.New("inventory_scope_key is required")
+ 	}
++	// Web header observations historically use the main inventory key for
++	// every feature. Never let complete coding inventories retire image budgets.
++	if provider == "codex" && source == "response_header" && len(entry.Windows) > 0 {
++		imageKey := ""
++		for _, window := range entry.Windows {
++			key := codexquota.NormalizeFeatureKey(window.ModelScopeKey)
++			if strings.EqualFold(strings.TrimSpace(window.ModelScopeKind), "feature") && isImagegenScopeKey(key) {
++				if imageKey != "" && imageKey != key {
++					return model.AccountQuotaObservation{}, errors.New("mixed image quota scopes")
++				}
++				imageKey = key
++			}
++		}
++		if imageKey != "" {
++			for _, window := range entry.Windows {
++				if !strings.EqualFold(strings.TrimSpace(window.ModelScopeKind), "feature") || codexquota.NormalizeFeatureKey(window.ModelScopeKey) != imageKey {
++					return model.AccountQuotaObservation{}, errors.New("mixed image and coding quota scopes")
++				}
++			}
++			if len(entry.RemovedWindows) > 0 || mode != "partial" {
++				return model.AccountQuotaObservation{}, errors.New("image response headers require partial inventory without removals")
++			}
++			scopeKey = "codex:feature:" + imageKey
++		}
++	}
+ 	observedAtMS := input.ObservedAtMS
+ 	if observedAtMS <= 0 {
+ 		observedAtMS = nowMS
+diff --git a/apps/manager-server/internal/service/quotasnapshot/service_test.go b/apps/manager-server/internal/service/quotasnapshot/service_test.go
+index 598722b..053e57f 100644
+--- a/apps/manager-server/internal/service/quotasnapshot/service_test.go
++++ b/apps/manager-server/internal/service/quotasnapshot/service_test.go
+@@ -1479,6 +1479,101 @@ func TestWriteRejectsReliableFixedWindowWithoutCompleteBoundary(t *testing.T) {
+ 	}
+ }
+ 
++func TestImagegenHeaderQuotaIsolation(t *testing.T) {
++	const observedAtMS = int64(1_780_000_000_000)
++	for _, tc := range []struct{ name, activeLimit, model, resolved, key string }{
++		{"premium", "imagegen_premium", "gpt-image-2.5-sunburst", "", "imagegen_premium"},
++		{"alias", " IMAGEGEN_PREMIUM ", "my-image", "gpt-image-2.5-sunburst", "imagegen_premium"},
++		{"limit-over-model", "imagegen_premium", "gpt-5.6-sol", "", "imagegen_premium"},
++		{"missing-limit", "", "my-image", "gpt-image-2.5-sunburst", "imagegen"},
++		{"resolved-wins", "", "gpt-image-2.5-sunburst", "gpt-5.6-sol", ""},
++		{"coding-daily", "premium", "gpt-5.6-sol", "", ""},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			service, path := newQuotaSnapshotTestServiceWithPath(t, observedAtMS+10_000)
++			used, minutes := 0.0, 1440.0
++			event := usage.Event{
++				EventHash:   strings.Repeat("a", 64),
++				TimestampMS: observedAtMS, Provider: "codex", Model: tc.model, ResolvedModel: tc.resolved,
++				AuthFileSnapshot: "codex.json", AuthProviderSnapshot: "codex", AuthIndex: "auth-1",
++				AccountSnapshot: "user@example.com", RequestID: "req-imagegen",
++				ResponseMetadata: &usage.ResponseHeaderMetadata{Quota: &usage.HeaderQuotaMetadata{
++					ActiveLimit: tc.activeLimit, Primary: &usage.HeaderQuotaWindow{
++						UsedPercent: &used, WindowMinutes: &minutes, ResetAtMS: observedAtMS + 86_400_000,
++					},
++				}},
++			}
++			if err := service.WriteUsageEvents(context.Background(), []usage.Event{event}); err != nil {
++				t.Fatal(err)
++			}
++			id, inventory := "window-1d-0", "codex:rate-limits"
++			if tc.key != "" {
++				id = strings.ReplaceAll(tc.key, "_", "-") + "-0-window-1d-0"
++				inventory = "codex:feature:" + tc.key
++			}
++			window, ok := queryQuotaLifecycleWindows(t, service, false)[id]
++			if !ok {
++				t.Fatalf("missing isolated window %s", id)
++			}
++			if window.UsedPercent == nil || *window.UsedPercent != 0 || window.DurationSeconds == nil || *window.DurationSeconds != 86400 {
++				t.Fatalf("lost zero or duration: %#v", window)
++			}
++			if tc.key != "" && (window.ModelScopeKind != "feature" || window.ModelScopeKey != tc.key) {
++				t.Fatalf("wrong image scope: %#v", window)
++			}
++			if tc.key == "" && window.ModelScopeKey != "codex_main" {
++				t.Fatalf("changed coding scope: %#v", window)
++			}
++			db, err := sql.Open("sqlite", path)
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer db.Close()
++			var actual string
++			if err := db.QueryRow(`select inventory_scope_key from account_quota_observations limit 1`).Scan(&actual); err != nil {
++				t.Fatal(err)
++			}
++			if actual != inventory {
++				t.Fatalf("inventory %q, want %q", actual, inventory)
++			}
++			if tc.key == "" {
++				return
++			}
++			// The web client writes the same feature under the legacy inventory key.
++			entry, _ := quotaSnapshotEntryFromUsageEvent(event)
++			entry.Observation.InventoryScopeKey = "codex:rate-limits"
++			if _, err := service.Write(context.Background(), WriteRequest{Entries: []WriteEntry{entry}}); err != nil {
++				t.Fatal(err)
++			}
++			// An already-open old web tab sends the same header under codex_main
++			// with an event hash instead of the backend request ID.
++			legacy := quotaLifecycleWriteEntryWithObservation("partial", "response_header", strings.Repeat("a", 64), "codex:rate-limits", observedAtMS, entry.Windows)
++			legacy.Windows[0].ModelScopeKind = "family"
++			legacy.Windows[0].ModelScopeKey = "codex_main"
++			legacy.Windows[0].ProviderWindowID = "window-1d-0"
++			legacy.Windows[0].WindowMode = "unknown"
++			legacy.Windows[0].BoundaryAccuracy = "unknown"
++			if _, err := service.Write(context.Background(), WriteRequest{Entries: []WriteEntry{legacy}}); err != nil {
++				t.Fatal(err)
++			}
++			// Repeated complete Codex inventories must not deactivate image quota.
++			for i := 1; i <= 2; i++ {
++				entry := quotaLifecycleWriteEntryWithObservation("complete", "api_query", fmt.Sprintf("main-%d", i), "codex:rate-limits", observedAtMS+int64(i)*1000, nil)
++				if _, err := service.Write(context.Background(), WriteRequest{Entries: []WriteEntry{entry}}); err != nil {
++					t.Fatal(err)
++				}
++			}
++			windows := queryQuotaLifecycleWindows(t, service, false)
++			if len(windows) != 1 || windows[id].Availability != "active" {
++				t.Fatalf("image quota duplicated or deactivated: %#v", windows)
++			}
++			if windows[id].CycleEndMS == nil || *windows[id].CycleEndMS != observedAtMS+86_400_000 {
++				t.Fatalf("legacy web replay erased image reset boundary: %#v", windows[id])
++			}
++		})
++	}
++}
++
+ func TestWriteUsageEventsPersistsCodexHeaderWindows(t *testing.T) {
+ 	const observedAtMS = int64(1_780_000_000_000)
+ 	service := newQuotaSnapshotTestService(t, observedAtMS+1_000)
+diff --git a/apps/web/src/utils/usageHeaderSnapshots.ts b/apps/web/src/utils/usageHeaderSnapshots.ts
+index 40dedd6..49c416f 100644
+--- a/apps/web/src/utils/usageHeaderSnapshots.ts
++++ b/apps/web/src/utils/usageHeaderSnapshots.ts
+@@ -522,13 +522,47 @@ export const buildObservedCodexQuotaFromHeaderSnapshot = (
+ ): ObservedCodexHeaderQuota | null => {
+   const quota = getHeaderSnapshotQuotaMetadata(snapshot);
+   if (!quota) return null;
+-  const quotaScope = resolveCodexUsageQuotaScope({
++  let quotaScope = resolveCodexUsageQuotaScope({
+     model: snapshot?.model,
+     analyticsModel: snapshot?.analytics_model,
+     requestedModel: snapshot?.requested_model,
+     resolvedModel: snapshot?.resolved_model,
+   });
+ 
++  // Feature limits are authoritative over routed model names. Only use the
++  // resolved model as a fallback when the provider omitted the active limit.
++  const limitKey = readString(quota.active_limit)
++    .toLowerCase()
++    .replace(/[^a-z0-9]+/g, '_')
++    .replace(/^_+|_+$/g, '');
++  const model =
++    [
++      snapshot?.resolved_model,
++      snapshot?.analytics_model,
++      snapshot?.requested_model,
++      snapshot?.model,
++    ]
++      .map((value) => readString(value).toLowerCase())
++      .find(Boolean) ?? '';
++  const imageKey =
++    limitKey === 'imagegen' || limitKey.startsWith('imagegen_')
++      ? limitKey
++      : !readString(quota.active_limit) && /^(gpt-image-|dall-e-)/.test(model)
++        ? 'imagegen'
++        : '';
++  if (imageKey) {
++    quotaScope = {
++      modelScope: { kind: 'feature', key: imageKey, complete: false },
++      providerWindowIdPrefix: imageKey.replace(/_/g, '-'),
++      labelName:
++        imageKey === 'imagegen_premium'
++          ? 'Image generation (Premium)'
++          : imageKey === 'imagegen'
++            ? 'Image generation'
++            : imageKey,
++    };
++  }
++
+   const planType = readString(quota.plan_type) || null;
+   const activeLimit = readString(quota.active_limit) || null;
+   const creditsBalance = readString(quota.credits_balance) || null;
+diff --git a/apps/web/src/utils/usageHeaderSnapshots.test.ts b/apps/web/src/utils/usageHeaderSnapshots.test.ts
+index 9e20c00..8efe930 100644
+--- a/apps/web/src/utils/usageHeaderSnapshots.test.ts
++++ b/apps/web/src/utils/usageHeaderSnapshots.test.ts
+@@ -19,6 +19,51 @@ import {
+ } from './usageHeaderSnapshots';
+ 
+ describe('buildObservedCodexQuotaFromHeaderSnapshot', () => {
++  it.each([
++    ['imagegen_premium', 'gpt-image-2.5-sunburst', '', 'imagegen_premium'],
++    [' IMAGEGEN_PREMIUM ', 'my-image', 'gpt-image-2.5-sunburst', 'imagegen_premium'],
++    ['imagegen_premium', 'gpt-5.6-sol', '', 'imagegen_premium'],
++    ['', 'my-image', 'gpt-image-2.5-sunburst', 'imagegen'],
++    ['', 'gpt-image-2.5-sunburst', 'gpt-5.6-sol', 'codex_main'],
++    ['premium', 'gpt-5.6-sol', '', 'codex_main'],
++  ])('isolates image headers (%s, %s, %s)', (active_limit, model, resolved_model, key) => {
++    const snapshot: UsageHeaderSnapshot = {
++      event_hash: 'imagegen-regression',
++      timestamp_ms: 1_780_000_000_000,
++      model,
++      resolved_model,
++      response_metadata: {
++        quota: {
++          active_limit,
++          primary: {
++            used_percent: 0,
++            window_minutes: 1440,
++            reset_at_ms: 1_780_086_400_000,
++          },
++        },
++      },
++    };
++    const observed = buildObservedCodexQuotaFromHeaderSnapshot(snapshot);
++    const image = key !== 'codex_main';
++    expect(observed?.quotaScope.modelScope).toMatchObject({
++      kind: image ? 'feature' : 'family',
++      key,
++    });
++    const windows = buildCodexQuotaWindowInfos(observed?.payload ?? {}, {
++      observedAtMs: snapshot.timestamp_ms,
++      source: 'response_header',
++      rateLimitScope: observed?.quotaScope,
++    });
++    expect(windows).toHaveLength(1);
++    expect(windows[0]).toMatchObject({
++      id: image ? `${key.replace(/_/g, '-')}-0-window-1d-0` : 'window-1d-0',
++      usedPercent: 0,
++      limitWindowSeconds: 86400,
++      modelScope: { kind: image ? 'feature' : 'family', key },
++    });
++    expect(JSON.stringify(snapshot.response_metadata)).toContain('1440');
++  });
++
+   it('normalizes Codex header quota metadata into usage quota windows', () => {
+     const snapshot: UsageHeaderSnapshot = {
+       event_hash: 'event-test',

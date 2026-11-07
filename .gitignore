@@ -14,3 +14,9 @@ artifacts/
 .tools/
 test-results/
 playwright-report/
+
+# Verbatim upstream CPA-Manager-Plus sources (MIT, re-fetchable from the tagged releases); kept locally, not versioned.
+research/cpamp-activity/apps/
+research/cpamp-quota-inventory/
+# Superseded first glass exploration; its HTML points at a local-only image path.
+design/frosted-glass-v1*

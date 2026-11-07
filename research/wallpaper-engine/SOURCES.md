@@ -1,0 +1,271 @@
+# Wallpaper Engine 官方资料索引
+
+抓取时间（UTC）：2026-10-10T06:12:03.996843+00:00
+
+正文获取：251/251。获取成功不等于所有段落及媒体已精读。
+
+研究总结：../../docs/WALLPAPER-ENGINE-RESEARCH.md
+
+原文位于本地 raw/；未纳入 Git。页面哈希和错误记录见 sources.json。
+
+## https://docs.wallpaperengine.io
+
+- [Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/) — raw/048ba6a40c52ae9f.txt
+- [Assets Overview  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/assets/overview.html) — raw/08b2789cec3cf305.txt
+- [Asset Creation & Sharing  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/assets/sharing.html) — raw/50d2655b3f2bcbca.txt
+- [Album Cover Integration  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/audiovisualizer/albumcover.html) — raw/a86dd0dad0ddf9a6.txt
+- [Working with Media Playback Data  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/audiovisualizer/mediainformation.html) — raw/9df74aa5276a23c9.txt
+- [Audio Visualization in Wallpaper Engine  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/audiovisualizer/overview.html) — raw/1d13cd074d5618d0.txt
+- [Bloom Effects  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/bloom.html) — raw/aff01e2de80d61f1.txt
+- [Advanced Fluid Simulation Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/advancedfluidsimulation.html) — raw/c845d6600c582ab3.txt
+- [Blend Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/blend.html) — raw/31e2fa90fa8d19c0.txt
+- [Blend Gradient Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/blendgradient.html) — raw/26a240540b4a447f.txt
+- [Blur Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/blur.html) — raw/714b7cf4de863a32.txt
+- [Blur Precise Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/blurprecise.html) — raw/27ff9777268530c8.txt
+- [Chromatic Aberration Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/chromaticaberration.html) — raw/d5c0b0179c14c336.txt
+- [Cloud Motion Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/cloudmotion.html) — raw/a88b5a97090693ad.txt
+- [Clouds Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/clouds.html) — raw/0dc8eb513c88ddbf.txt
+- [Color Key Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/colorkey.html) — raw/81e1b5f3cd7a1e07.txt
+- [Cursor Ripple Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/cursorripple.html) — raw/5617ffe8ccffd25d.txt
+- [Depth Parallax  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/depthparallax.html) — raw/e8aa182decdf5860.txt
+- [Edge Detection Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/edgedetection.html) — raw/b19d189b7eee80c7.txt
+- [Film Grain Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/filmgrain.html) — raw/22aab46487abd65b.txt
+- [Fire Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/fire.html) — raw/c45f60d30b4402e4.txt
+- [Fisheye Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/fisheye.html) — raw/e92822fa135e99cd.txt
+- [Glitter Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/glitter.html) — raw/e0abaf8f5ab578cf.txt
+- [God Rays Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/godrays.html) — raw/5eaebccf8117eaad.txt
+- [Iris Movement Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/iris.html) — raw/393d34e6961fff02.txt
+- [Light Shafts Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/lightshafts.html) — raw/df5f94617b4f02af.txt
+- [Local Contrast Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/localcontrast.html) — raw/25fb11ef8ceca037.txt
+- [Motion Blur Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/motionblur.html) — raw/b8c95ec22cd22e83.txt
+- [Nitro Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/nitro.html) — raw/bceb1316e276fa89.txt
+- [Opacity Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/opacity.html) — raw/e78d5ef17dfcf3c3.txt
+- [Perspective Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/perspective.html) — raw/28c86eacd1f8cff8.txt
+- [Pulse Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/pulse.html) — raw/c8f3daa782745758.txt
+- [Radial Blur Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/radialblur.html) — raw/af8b4481559e97d1.txt
+- [Reflection Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/reflection.html) — raw/98242f1ea29f959b.txt
+- [Refraction Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/refraction.html) — raw/04ebfbc4d77506b4.txt
+- [Scroll Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/scroll.html) — raw/271fb6e2a4de4318.txt
+- [Shake Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/shake.html) — raw/482dd1bcef475207.txt
+- [Shimmer Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/shimmer.html) — raw/704ff82e38540724.txt
+- [Shine Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/shine.html) — raw/cd5a562e627d943e.txt
+- [Skew Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/skew.html) — raw/bfdc52e0c4535ae1.txt
+- [Spin Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/spin.html) — raw/12764cfcbd20b0f6.txt
+- [Foliage Sway Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/sway.html) — raw/b9acb0576c66e0e2.txt
+- [Swing Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/swing.html) — raw/e5efcd180e6784c8.txt
+- [Tint Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/tint.html) — raw/ceb8f33e7969adb4.txt
+- [Transform Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/transform.html) — raw/d610e676320f58ea.txt
+- [Twirl Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/twirl.html) — raw/95ab63940ff9855d.txt
+- [VHS Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/vhs.html) — raw/9b6c3c1c8fa45a05.txt
+- [Water Caustics Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/watercaustics.html) — raw/14b5ce03e6e2a7e4.txt
+- [Water Flow Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/waterflow.html) — raw/0a6e4bbbd1e0f668.txt
+- [Water Ripple Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/waterripple.html) — raw/4c4d09d3f8fcf765.txt
+- [Water Waves Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/waterwaves.html) — raw/db61fd547f7d3a23.txt
+- [X-Ray Effect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/effect/xray.html) — raw/6a79315014fa9915.txt
+- [Introduction to Effects  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/introduction.html) — raw/c545c14747f929e9.txt
+- [Effects Overview  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/effects/overview.html) — raw/e836ee55ffc07013.txt
+- [Adding your first assets  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/first/assets.html) — raw/474f7e42cd61fe94.txt
+- [Adding your first effects  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/first/effects.html) — raw/9f9093bc95a2f24a.txt
+- [Getting started with your first wallpaper  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/first/gettingstarted.html) — raw/f1791daec0c8db34.txt
+- [Adding user options  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/first/properties.html) — raw/b7f3a9d421440dc1.txt
+- [Publishing a wallpaper  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/first/publishing.html) — raw/6eb7c54fe27c0765.txt
+- [Character Sheet Creation  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/image-preparation/character-sheet.html) — raw/313c45865bdede42.txt
+- [External Image Editor Quick Access  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/image-preparation/external-editor.html) — raw/f2e52babe35f7870.txt
+- [Foreground Separation  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/image-preparation/foreground-separation.html) — raw/7a19b36edb894005.txt
+- [Real-Time Lighting & Reflections  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/lighting/introduction.html) — raw/3428454bcfdb6634.txt
+- [Tips for Advanced Lighting  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/lighting/lights.html) — raw/2c8f75aa179599f7.txt
+- [Model Animation Setup  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/models/animation.html) — raw/6d059c022614e98e.txt
+- [Model Attachments  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/models/attachment.html) — raw/0465521f403e059f.txt
+- [3D Camera Setup  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/models/camera.html) — raw/656e4561d12ae2b2.txt
+- [3D Distance Fog  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/models/fog.html) — raw/457814b598ad36ea.txt
+- [Getting started with 3D Models  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/models/introduction.html) — raw/f154f528ed09ba98.txt
+- [3D Advanced Lighting  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/models/lighting.html) — raw/eff8fcf16ec992ed.txt
+- [3D Model Shaders  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/models/shader.html) — raw/ec230c491424bf30.txt
+- [Physics Simulations  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/models/simulation.html) — raw/1e35c23d44750905.txt
+- [The Wallpaper Engine Editor  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/overview.html) — raw/7b9ec24ad9f76821.txt
+- [Depth Parallax  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/parallax/depthparallax.html) — raw/e443e1b7477985c5.txt
+- [Parallax Effect in Wallpaper Engine  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/parallax/introduction.html) — raw/32ddc174b271c3c3.txt
+- [Scrolling an Oversized Image  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/parallax/oversized.html) — raw/f8cf233d63501705.txt
+- [Particle Component - Children  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/component/children.html) — raw/f69b7c19a76ed80c.txt
+- [Particle Component - Control Points  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/component/control_point.html) — raw/d2e2a30e4bfa2f4b.txt
+- [Particle Component - Emitters  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/component/emitter.html) — raw/987e8732fb44a908.txt
+- [Particle Component - General  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/component/general.html) — raw/2ff5d760f6934c95.txt
+- [Particle Component - Initalizers  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/component/initializer.html) — raw/4995d8aa57d7a98a.txt
+- [Particle Component - Operators  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/component/operator.html) — raw/973d612c15aec6c9.txt
+- [Particle Component - Renderers  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/component/renderer.html) — raw/2b2290d7777ec788.txt
+- [Particle Systems Overview  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/introduction.html) — raw/d2f1f72201d3e04f.txt
+- [Getting Started with Particle Systems  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/tutorial/getting_started.html) — raw/4d765a9d013a9fdc.txt
+- [Particle System Sprite Sheets  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/particles/tutorial/spritesheet.html) — raw/154fd2d91413164e.txt
+- [Texture Optimization  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/performance/optimization.html) — raw/51f4b9233071b23d.txt
+- [Project Resolution  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/performance/resolution.html) — raw/cf21c8b3ee0beffb.txt
+- [Texture Optimization  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/performance/texture.html) — raw/dbcf4f306f793e62.txt
+- [Multiple Animations per Puppet  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/animationmixing.html) — raw/bb5f389aebd886b9.txt
+- [Attachment Points  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/attachments.html) — raw/d503cbf31cd1dd7a.txt
+- [Blend Rules for Bones  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/blendrules.html) — raw/21a7918d83facf6c.txt
+- [Shape Animations  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/blendshapes.html) — raw/c23f055aed74400b.txt
+- [Bone Physics Simulation  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/boneconstraints.html) — raw/bdff4eea2956725d.txt
+- [Character Sheets  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/charactersheet.html) — raw/71a0c915ba7331ae.txt
+- [Clipping Masks  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/clippingmasks.html) — raw/d954cff5192857f2.txt
+- [Extending an existing Puppet Warp  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/extending.html) — raw/96d263d92d6ecd19.txt
+- [Interactive Puppet Warps  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/interactive.html) — raw/56061dcc686c9164.txt
+- [Puppet Warp Introduction  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/introduction.html) — raw/f7ea13ebcfb03b82.txt
+- [Limb Animations with Inverse Kinematics  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/inversekinematics.html) — raw/006463db16a804f9.txt
+- [3D Perspective Extrusion  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/perspective.html) — raw/4c95c37062f14f81.txt
+- [Texture Channel Animations  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/puppet-warp/texturechannels.html) — raw/62a7f0982b311a9a.txt
+- [RGB Hardware Support  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/rgb/introduction.html) — raw/cb5267a8e757a4ee.txt
+- [SceneScript Introduction  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/introduction.html) — raw/09da8ca0c1b60863.txt
+- [SceneScript Reference  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference.html) — raw/f0881d3f8c4db1e3.txt
+- [SceneScript Class AnimationEvent  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/AnimationEvent.html) — raw/254e303af06cd34b.txt
+- [SceneScript Class AudioBuffers  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/AudioBuffers.html) — raw/c997ad358da0e252.txt
+- [SceneScript Class CameraTransforms  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/CameraTransforms.html) — raw/32e64893af752ae7.txt
+- [SceneScript Class CursorEvent  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/CursorEvent.html) — raw/97dc7481d9a2b979.txt
+- [SceneScript Class IAnimation  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IAnimation.html) — raw/091ce57f0c03fc4b.txt
+- [SceneScript Class IAnimationLayer  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IAnimationLayer.html) — raw/4739c31b7e98e03d.txt
+- [SceneScript Class IAssetHandle  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IAssetHandle.html) — raw/363bbe5afe19aba8.txt
+- [SceneScript Class IConsole  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IConsole.html) — raw/804c4a0ad79c78dc.txt
+- [SceneScript Class IEffect  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IEffect.html) — raw/d23797b9fd8e6987.txt
+- [SceneScript Class IEffectLayer  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IEffectLayer.html) — raw/ed344471a19ed297.txt
+- [SceneScript Class IEngine  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IEngine.html) — raw/24ee8074d9a490b4.txt
+- [SceneScript Class IImageLayer  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IImageLayer.html) — raw/da6cde8d6e2644ca.txt
+- [SceneScript Class IInput  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IInput.html) — raw/69d58b1c90d3c3d2.txt
+- [SceneScript Class ILayer  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ILayer.html) — raw/48b65bd7542bb95d.txt
+- [SceneScript Class ILocalStorage  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ILocalStorage.html) — raw/6c6edb01f672537e.txt
+- [SceneScript Class IMaterial  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IMaterial.html) — raw/c269299386452837.txt
+- [SceneScript Class IModelData  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IModelData.html) — raw/15b176a703d551ec.txt
+- [SceneScript Class IModelLayer  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IModelLayer.html) — raw/405a14b013d7af46.txt
+- [SceneScript Class IParticleSystem  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IParticleSystem.html) — raw/ac54045e15877917.txt
+- [SceneScript Class IParticleSystemInstance  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IParticleSystemInstance.html) — raw/9b7a33b462d9ef82.txt
+- [SceneScript Class IScene  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IScene.html) — raw/faffa11181f85f61.txt
+- [SceneScript Class ISoundLayer  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ISoundLayer.html) — raw/4acf6b4f1acef842.txt
+- [SceneScript Class ITextLayer  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ITextLayer.html) — raw/c57f613f72dd6dc5.txt
+- [SceneScript Class ITextureAnimation  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ITextureAnimation.html) — raw/fc9ff5f03a33f312.txt
+- [SceneScript Class IThisPropertyObject  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IThisPropertyObject.html) — raw/d73bf7e752afacf3.txt
+- [SceneScript Class IVideoTexture  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IVideoTexture.html) — raw/5acbb79e75f9b390.txt
+- [SceneScript Class Mat3  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Mat3.html) — raw/6111059d5b8da973.txt
+- [SceneScript Class Mat4  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Mat4.html) — raw/d1420435d2722b0f.txt
+- [SceneScript Class MediaPlaybackEvent  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaPlaybackEvent.html) — raw/ba46e00bc7a45588.txt
+- [SceneScript Class MediaPropertiesEvent  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaPropertiesEvent.html) — raw/c1a9a5622e2c2e44.txt
+- [SceneScript Class MediaStatusEvent  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaStatusEvent.html) — raw/d8283083a25ac29a.txt
+- [SceneScript Class MediaThumbnailEvent  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaThumbnailEvent.html) — raw/2fd3e56c0e6aa885.txt
+- [SceneScript Class MediaTimelineEvent  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaTimelineEvent.html) — raw/eb5ecfa75b656f26.txt
+- [SceneScript Class Shared  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Shared.html) — raw/9f3682450e50dd85.txt
+- [SceneScript Class Vec2  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Vec2.html) — raw/21bf82bcef0b0ded.txt
+- [SceneScript Class Vec3  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Vec3.html) — raw/cbf4ee1e17d07580.txt
+- [SceneScript Class Vec4  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Vec4.html) — raw/1f1722ab0abc4eb2.txt
+- [SceneScript Event applyGeneralSettings  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/applyGeneralSettings.html) — raw/ec98dff87c26f0a6.txt
+- [SceneScript Event applyUserProperties  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/applyUserProperties.html) — raw/df0e7360a907f8e5.txt
+- [SceneScript Cursor Events  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/cursor.html) — raw/e8dedd65f6f1fa7a.txt
+- [SceneScript Event destroy  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/destroy.html) — raw/ff05626a9f4d5dac.txt
+- [SceneScript Event init  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/init.html) — raw/b0ec77776a5b9da2.txt
+- [SceneScript Media Integration Events  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/media.html) — raw/d72e0444c4ccaef6.txt
+- [SceneScript Event resizeScreen  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/resizeScreen.html) — raw/06f534b9098ae3e8.txt
+- [SceneScript Event update  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/update.html) — raw/38863770aff0b46d.txt
+- [SceneScript Module WEColor  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/module/WEColor.html) — raw/e8e61e501900a87a.txt
+- [SceneScript Module WEMath  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/module/WEMath.html) — raw/30c7928aafe413f2.txt
+- [SceneScript Module WEVector  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/reference/module/WEVector.html) — raw/6ca89ac432329400.txt
+- [Processing Audio Data with SceneScript  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/audio.html) — raw/7104ebdf66baecc4.txt
+- [The Basics of SceneScript  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/basics.html) — raw/4027ea9b6ff4d04f.txt
+- [Modifying Colors with SceneScript  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/colors.html) — raw/8c8d267530ed4b6f.txt
+- [Mouse Cursor Click Events with SceneScript  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/cursor.html) — raw/da42fd88bc26d374.txt
+- [Local Storage in SceneScript  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/localstorage.html) — raw/97aa71b28cf3774f.txt
+- [Custom Geometry in SceneScript  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/models.html) — raw/234ca3c9a2383484.txt
+- [Time of Day Changes with SceneScript  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/timeofday.html) — raw/0e9c3aa0aa28290f.txt
+- [SceneScript Tutorials  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/scenescript/tutorials.html) — raw/23b29228d50bfe9e.txt
+- [Shader Headers  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/shader/headers.html) — raw/6bf3157543ec39a3.txt
+- [Shaders on Mobile Devices  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/shader/mobile.html) — raw/433d0c409840c230.txt
+- [Shader Programming Overview  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/shader/overview.html) — raw/676efdf20edc3b90.txt
+- [Shader Syntax Overview  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/shader/syntax.html) — raw/304e12229c565ae2.txt
+- [Tutorial: Shader Programming Desaturation  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/shader/tutorials/desaturation.html) — raw/a7a6cacea5b089fc.txt
+- [Shader Variables & Constants  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/shader/variables.html) — raw/d2b8d4ecad986e30.txt
+- [SceneScript Events in Timeline Animations  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/timeline/animationevents.html) — raw/76d83681de990e04.txt
+- [Combined Timeline Animations  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/timeline/combined.html) — raw/9b47cf04014ecd61.txt
+- [Timeline Animation Introduction  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/timeline/introduction.html) — raw/96f614a6b8c87d90.txt
+- [Single & Mirrored Timeline Animations  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/timeline/modes.html) — raw/723e22b6ea508a5a.txt
+- [Checkbox User Property  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/checkbox.html) — raw/0718cf9b6805e371.txt
+- [Color User Property  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/color.html) — raw/8f2b289c97ff95c5.txt
+- [Combo Box User Property  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/combo.html) — raw/07f10a20f5f5a09a.txt
+- [User Properties Introduction  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/overview.html) — raw/9eafde392b9e8011.txt
+- [Slider User Property  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/slider.html) — raw/8bcd07871f04da43.txt
+- [Text Input User Property  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/text.html) — raw/6bd6a45234b701d0.txt
+- [Texture User Property  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/texture.html) — raw/1ccec7ba20408ae7.txt
+- [Texture Variants  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/texturevariant.html) — raw/e40c21c3c516b144.txt
+- [User Shortcut Property  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/scene/userproperties/usershortcut.html) — raw/7dbd3395ea6c5570.txt
+- [Additional Corsair iCUE functions  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/api/icue.html) — raw/3716cad78a870e9c.txt
+- [Reference for "wallpaperPropertyListener"  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/api/propertylistener.html) — raw/d995520ef160c105.txt
+- [RGB Hardware Support  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/api/rgb.html) — raw/de8eaa1956b72963.txt
+- [Media Integration  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/audio/media.html) — raw/ecf786bf29699776.txt
+- [Audio Visualization  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/audio/visualizer.html) — raw/35a4c3b311b52894.txt
+- [Display Conditions for Properties  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/customization/displaycondition.html) — raw/f11f216027b5c9b8.txt
+- [Property Translation  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/customization/localization.html) — raw/b108d93f3e4f849a.txt
+- [User Properties  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/customization/properties.html) — raw/07e6baea6985822f.txt
+- [Web Wallpaper Debugging  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/debug/debug.html) — raw/af9a5498dec7d6a5.txt
+- [Creating a Web Wallpaper  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/first/gettingstarted.html) — raw/2cd4b76d6592c245.txt
+- [Web Wallpaper Reference Guide  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/overview.html) — raw/09d2934dd7fd5d9d.txt
+- [FPS Limiter  /  Wallpaper Engine - Designer Documentation](https://docs.wallpaperengine.io/en/web/performance/fps.html) — raw/a3af260452fee9a0.txt
+
+## https://help.wallpaperengine.io
+
+- [Wallpaper Engine Troubleshooting Guide & FAQ  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/) — raw/945fc416d6945af7.txt
+- [Audio visualizers do not work / no sound detected  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/audio/audiodetection.html) — raw/e56d9d87c48a43b8.txt
+- [Sound / audio turns on and off intermittently  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/audio/intermittent.html) — raw/36421522852668f1.txt
+- [Limiting audio visualizers to music players  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/audio/limittomusicplayer.html) — raw/e9d798e3e81c4d06.txt
+- [Album Cover & Media Data Feature  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/audio/mediaintegration.html) — raw/926495980533a84b.txt
+- [No Sound Playing / Audio Output Problems  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/audio/noaudio.html) — raw/0dea48b4779d6dae.txt
+- [Wallpaper Engine crashing  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/crash/application.html) — raw/3b3b544178e9f327.txt
+- [BattlEye anti-cheat terminating Wallpaper Engine  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/crash/battleye.html) — raw/3b6755bccf2616c3.txt
+- ["DirectX 10 not supported" crash  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/crash/dxsupport.html) — raw/11ef30f0c8d6f10a.txt
+- [System crash / System Freeze  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/crash/system.html) — raw/711a1895f5318222.txt
+- [Contact  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/debug/contact.html) — raw/770de72dd3c6340f.txt
+- [Fully Resetting Wallpaper Engine  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/debug/reset.html) — raw/300a915d7adfc371.txt
+- [Use the Wallpaper Engine analysis tool to create a debug log  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/debug/scantool.html) — raw/fadaa1a33ab3c937.txt
+- [Use the Wallpaper Engine analysis tool to create a debug log  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/debug/scantool_support.html) — raw/30794aa6acde7fb5.txt
+- [Fix issues with specific apps or games  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/applicationrules.html) — raw/ae3bcff807d92310.txt
+- [Automatic start-up at boot  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/automaticstartup.html) — raw/f6c4282d93c2f459.txt
+- [Command Line Controls  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/cli.html) — raw/ce33c168526a514f.txt
+- [Editing Downloaded Wallpapers  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/editingwallpapers.html) — raw/2a7c444bc7276607.txt
+- [Exporting wallpapers as GIF / video  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/export.html) — raw/2f1165d10af394ea.txt
+- [Wallpaper Engine on Linux or Mac OS  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/linuxmacos.html) — raw/02d9f61a9f3388e4.txt
+- [Restoring deleted default wallpapers  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/restoredefaults.html) — raw/a2c33bf06dccd8f2.txt
+- [RGB hardware support (iCUE & Chroma)  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/rgb.html) — raw/9cae5027f3a5520c.txt
+- [Screensavers with Wallpaper Engine  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/screensaver.html) — raw/46835970dd24f468.txt
+- [Hiding the Wallpaper Engine tray icon  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/tray.html) — raw/3353186cdc451c12.txt
+- [Select wallpapers per application  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/functionality/wallpaperperapp.html) — raw/b80dc3ed4dcaf326.txt
+- [Windows 7: Aero cannot be enabled  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/general/aero.html) — raw/d9580a07cef0c164.txt
+- [32-Bit & 64-Bit Version  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/general/bits.html) — raw/f82acf3a9d9cc901.txt
+- [Hibernation / Screensavers do not work  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/general/brokensleep.html) — raw/2f3914a1f8e1b5a6.txt
+- [Reverting to an older version of Wallpaper Engine  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/general/deprecated.html) — raw/bc7c26aafd4f8b44.txt
+- [Playlist Causes focus loss / minimizes games  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/general/focusloss.html) — raw/267b5762746de18b.txt
+- [Wallpaper Engine on the Windows lock screen  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/general/lockscreen.html) — raw/ebecc354aba770b2.txt
+- [Centering wallpaper with monitors of different resolutions  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/general/multiscreencenter.html) — raw/4b222e75ff1e90f0.txt
+- [Wallpaper Engine window not displayed correctly  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/interface/broken.html) — raw/d869c7ad7d82f3a4.txt
+- [Preview images / search results not showing  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/interface/emptyresults.html) — raw/b6e946c8ef8cc983.txt
+- [Exclude certain wallpapers from the search  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/interface/exclude.html) — raw/d33d52002743b9da.txt
+- [Android - Frequent Questions and Problems  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/mobile/faq.html) — raw/63588bb7af94b1eb.txt
+- [Mobile Pairing Problem Solving  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/mobile/pairing-fixes.html) — raw/4280f4d1ee5fa196.txt
+- [Pairing Mobile Device with Windows  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/mobile/pairing.html) — raw/710df9a7770807ae.txt
+- [Setting up Wallpaper Engine on Android  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/mobile/setup.html) — raw/2d4470564bafcccf.txt
+- [Workshop Agreement Addendum  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/mobile/workshop.html) — raw/b3c7bc2b8e3063f2.txt
+- [Videos Black / Not Playing Properly  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/noshow/notplaying.html) — raw/f52aa67f57e73290.txt
+- [Wallpapers not visible  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/noshow/nowallpaper.html) — raw/c5d34dc13e0e9ff0.txt
+- [Desktops with Integrated and Dedicated GPU Perform Poorly (dwm.exe)  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/performance/dwm.html) — raw/6de448e56b7c698d.txt
+- [Performance issues / low FPS with certain games or applications  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/performance/game.html) — raw/3c12cef12188314a.txt
+- [High GPU usage misconception  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/performance/gpu.html) — raw/7d009393b91c4d6f.txt
+- [Wrong Refresh Rates of Monitors  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/performance/refresh.html) — raw/d58d705c7369e231.txt
+- [Backup Steam Workshop  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/steam/backup.html) — raw/a566622458e302da.txt
+- ["Content file locked" / Disk Write Error  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/steam/contentfile.html) — raw/f0c0cdb80804719e.txt
+- [Steam Wallpaper Download Issues  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/steam/download.html) — raw/568c2c5d5255eb49.txt
+- [Steam always shows "in-game"  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/steam/ingame.html) — raw/96e7359b6581e63c.txt
+- [Wallpaper Engine missing in Steam Library  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/steam/library.html) — raw/d956719f5d31d895.txt
+- [Steam redownloading wallpapers  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/steam/redownload.html) — raw/3afebbaab164d985.txt
+- [Steamworks is unavailable  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/steam/steamworks.html) — raw/fbd024cc9a801f48.txt
+- [Uploads get stuck at 45%  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/steam/uploads.html) — raw/1ddf232c21e033a6.txt
+- [Video wallpapers look wrong  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/videos/artifacts.html) — raw/d886bd81d531f50a.txt
+- [Using LAV and DirectShow  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/videos/lav.html) — raw/ced93758d3fed04f.txt
+- [Video freezes / stuttering / bad performance  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/videos/performance.html) — raw/251c0ceae436fb70.txt
+- [Red Line on screen  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/videos/redline.html) — raw/9ede97b69cd16ca0.txt
+- [Windows N: mfplat.dll missing  /  Wallpaper Engine - Troubleshooting & FAQ](https://help.wallpaperengine.io/en/videos/windows-n.html) — raw/47e628dd01f56c37.txt
+
+## 补充来源
+
+- [https://www.wallpaperengine.io/en](https://www.wallpaperengine.io/en) — raw/product-homepage.txt
+- [https://docs.wallpaperengine.io/reference/lib.sceneScript.d.ts](https://docs.wallpaperengine.io/reference/lib.sceneScript.d.ts) — raw/lib.sceneScript.d.ts

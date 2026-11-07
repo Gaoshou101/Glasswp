@@ -1,0 +1,2030 @@
+{
+  "retrieved_at_utc": "2026-10-10T06:12:03.996843+00:00",
+  "scope": "All English pages in both official sitemaps; includes mobile appendices",
+  "total": 251,
+  "success": 251,
+  "pages": [
+    {
+      "url": "https://docs.wallpaperengine.io/en/",
+      "title": "Wallpaper Engine - Designer Documentation",
+      "file": "raw/048ba6a40c52ae9f.txt",
+      "chars": 0,
+      "status": 200,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/assets/overview.html",
+      "title": "Assets Overview | Wallpaper Engine - Designer Documentation",
+      "file": "raw/08b2789cec3cf305.txt",
+      "chars": 1532,
+      "status": 200,
+      "sha256": "6b8e2ca487bced4c961da0197298dc137fd1ff3ecf177abd94a544f2315c70cc"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/assets/sharing.html",
+      "title": "Asset Creation & Sharing | Wallpaper Engine - Designer Documentation",
+      "file": "raw/50d2655b3f2bcbca.txt",
+      "chars": 2968,
+      "status": 200,
+      "sha256": "edbe33f385add1a80561b88b7f4246869a563113cf4e9ef53fe3b9924a80c97b"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/audiovisualizer/albumcover.html",
+      "title": "Album Cover Integration | Wallpaper Engine - Designer Documentation",
+      "file": "raw/a86dd0dad0ddf9a6.txt",
+      "chars": 6071,
+      "status": 200,
+      "sha256": "8a00e8d84bda8d98629612986164e64abc1e32ca7082657a15cfe6ca12eaa13a"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/audiovisualizer/mediainformation.html",
+      "title": "Working with Media Playback Data | Wallpaper Engine - Designer Documentation",
+      "file": "raw/9df74aa5276a23c9.txt",
+      "chars": 8583,
+      "status": 200,
+      "sha256": "a060bcd19897c00322d6ef68da6d88e833bfdca969694cafc6de41e104b02bb7"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/audiovisualizer/overview.html",
+      "title": "Audio Visualization in Wallpaper Engine | Wallpaper Engine - Designer Documentation",
+      "file": "raw/1d13cd074d5618d0.txt",
+      "chars": 307,
+      "status": 200,
+      "sha256": "328cea2b51dc7e90045558e44526ceaeaad4b84fb9e0b93464d12bf32c82daf2"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/bloom.html",
+      "title": "Bloom Effects | Wallpaper Engine - Designer Documentation",
+      "file": "raw/aff01e2de80d61f1.txt",
+      "chars": 4874,
+      "status": 200,
+      "sha256": "56ecde52affbb3379a80162e6bc1380235a6f43071a68e5deb9b00ebb1b5e78a"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/advancedfluidsimulation.html",
+      "title": "Advanced Fluid Simulation Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c845d6600c582ab3.txt",
+      "chars": 12573,
+      "status": 200,
+      "sha256": "da9bce872e7ee60521bb48acf2f1207fddf266364b5c68c55846a871ae319e2c"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/blend.html",
+      "title": "Blend Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/31e2fa90fa8d19c0.txt",
+      "chars": 2423,
+      "status": 200,
+      "sha256": "c06e530131c87fd09799c83b33dabb49bac639bc9f120fb55609e21761796be9"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/blendgradient.html",
+      "title": "Blend Gradient Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/26a240540b4a447f.txt",
+      "chars": 1447,
+      "status": 200,
+      "sha256": "298a95a97580065434ff5913eac2ae451f6c53b8745daaea169bf4e66c669790"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/blur.html",
+      "title": "Blur Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/714b7cf4de863a32.txt",
+      "chars": 1992,
+      "status": 200,
+      "sha256": "045a8ef7a9ef4c8793e4042ed3254d99a3971c3ac8c620abe4da727f25343017"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/blurprecise.html",
+      "title": "Blur Precise Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/27ff9777268530c8.txt",
+      "chars": 764,
+      "status": 200,
+      "sha256": "af228e60c6d20f3c74b2743c0202905807b1096e483a39160efe2f22a72757ec"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/chromaticaberration.html",
+      "title": "Chromatic Aberration Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d5c0b0179c14c336.txt",
+      "chars": 2254,
+      "status": 200,
+      "sha256": "486b445cdab4495644345f75f994aaa91a7661b1ac5d8a1f47a998317467a360"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/cloudmotion.html",
+      "title": "Cloud Motion Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/a88b5a97090693ad.txt",
+      "chars": 1000,
+      "status": 200,
+      "sha256": "91dfb2317c12cab21f1a50e92c026e4753e89dfb0b99d759b65f7d59e9c9b9dc"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/clouds.html",
+      "title": "Clouds Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/0dc8eb513c88ddbf.txt",
+      "chars": 2403,
+      "status": 200,
+      "sha256": "5723f44f93d038c4c88314e7f1d557be7171decb86af6bbff55dc544ac799ad8"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/colorkey.html",
+      "title": "Color Key Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/81e1b5f3cd7a1e07.txt",
+      "chars": 940,
+      "status": 200,
+      "sha256": "69ac0974428a62da2954b84e3fbd1d1afdc91e834abd97faa95563d831180066"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/cursorripple.html",
+      "title": "Cursor Ripple Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/5617ffe8ccffd25d.txt",
+      "chars": 2130,
+      "status": 200,
+      "sha256": "bce2c254b727893f86d590e358c2ea4c67147bb0f59ed0c591b43e9464a21d4c"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/depthparallax.html",
+      "title": "Depth Parallax | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e8aa182decdf5860.txt",
+      "chars": 2159,
+      "status": 200,
+      "sha256": "c5d8a5b75786fbdbff6bb196edaede7b57091e13a0b3b805c723653eca696e42"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/edgedetection.html",
+      "title": "Edge Detection Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/b19d189b7eee80c7.txt",
+      "chars": 695,
+      "status": 200,
+      "sha256": "4e0a054606a85c69273c7822307dc0c1ad3c527a6703c79b1c09682339e2a05a"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/filmgrain.html",
+      "title": "Film Grain Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/22aab46487abd65b.txt",
+      "chars": 611,
+      "status": 200,
+      "sha256": "956139516a10200fb24c093b8133ddd42efccf99f76e34c1f5778926881e6f71"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/fire.html",
+      "title": "Fire Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c45f60d30b4402e4.txt",
+      "chars": 1384,
+      "status": 200,
+      "sha256": "ea95419bd43622d67fac732275b7c9cada0459a02b78a8ecf55ea0151c1a71d8"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/fisheye.html",
+      "title": "Fisheye Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e92822fa135e99cd.txt",
+      "chars": 330,
+      "status": 200,
+      "sha256": "b1badc917cd69f9189107ace3b484454fa093887be0d45ef7812451193470db8"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/glitter.html",
+      "title": "Glitter Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e0abaf8f5ab578cf.txt",
+      "chars": 750,
+      "status": 200,
+      "sha256": "973b9c8d898a74f2e7845f29be65b4c295cd41579d64d165c917533ed60dc187"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/godrays.html",
+      "title": "God Rays Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/5eaebccf8117eaad.txt",
+      "chars": 2758,
+      "status": 200,
+      "sha256": "8d93dc056cf7b8cbdd67838c1c07430f3160bf56b8f5adf16481388056987edd"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/iris.html",
+      "title": "Iris Movement Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/393d34e6961fff02.txt",
+      "chars": 3905,
+      "status": 200,
+      "sha256": "eb278a624a4d8bbb659268c0b2e4dbd98e7e68653f009ba6509c08b1c2695005"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/lightshafts.html",
+      "title": "Light Shafts Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/df5f94617b4f02af.txt",
+      "chars": 1915,
+      "status": 200,
+      "sha256": "446fe10abcf765f7b1a92bf6635ae505263ea7ccf5c7abbfb0d1cd364ef2eaf4"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/localcontrast.html",
+      "title": "Local Contrast Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/25fb11ef8ceca037.txt",
+      "chars": 648,
+      "status": 200,
+      "sha256": "9c857f76185a381e19e11af8fbd7ec6e16864c81219a718e8eba4fa383f9e570"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/motionblur.html",
+      "title": "Motion Blur Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/b8c95ec22cd22e83.txt",
+      "chars": 1031,
+      "status": 200,
+      "sha256": "1e4a43d8f0f77248babe06ca4538641d623a0a33570b0b12cd54f5b310324979"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/nitro.html",
+      "title": "Nitro Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/bceb1316e276fa89.txt",
+      "chars": 1301,
+      "status": 200,
+      "sha256": "e1ad736e6ea031ac009428075eab53d7408cd1b828b01cea2af9c69dab106735"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/opacity.html",
+      "title": "Opacity Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e78d5ef17dfcf3c3.txt",
+      "chars": 522,
+      "status": 200,
+      "sha256": "f33e39f9f83e6c8cab77f9fb0e58bcf8c193c1b80a584858235085522a0ea45f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/perspective.html",
+      "title": "Perspective Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/28c86eacd1f8cff8.txt",
+      "chars": 1146,
+      "status": 200,
+      "sha256": "e917930b47c6c85f6d3e39091e1455b8cd9fa8e83c1e36cbc8ef4889f2d6b862"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/pulse.html",
+      "title": "Pulse Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c8f3daa782745758.txt",
+      "chars": 3677,
+      "status": 200,
+      "sha256": "8e4e9a96c3d7041da098682d8a1a4bd2fd5a1f244cc9524788c03fd6c9afe730"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/radialblur.html",
+      "title": "Radial Blur Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/af8b4481559e97d1.txt",
+      "chars": 661,
+      "status": 200,
+      "sha256": "c8c1b51f109a515c73d381756958b8ba0f9c452c626de8f04ed974772863fba5"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/reflection.html",
+      "title": "Reflection Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/98242f1ea29f959b.txt",
+      "chars": 696,
+      "status": 200,
+      "sha256": "478f531141b7a1b2fdc944e267d78884e5afdaebb6315530079a6676d3fbadc2"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/refraction.html",
+      "title": "Refraction Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/04ebfbc4d77506b4.txt",
+      "chars": 942,
+      "status": 200,
+      "sha256": "a09812103f07d28fb163fcfc4f56019c84d00e151a64c0535a830ffe39f1ff85"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/scroll.html",
+      "title": "Scroll Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/271fb6e2a4de4318.txt",
+      "chars": 861,
+      "status": 200,
+      "sha256": "cc0aa8f1362f2c3e2ed33af0b6663333b1d0dde2a644fb137506af45a4bfff2f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/shake.html",
+      "title": "Shake Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/482dd1bcef475207.txt",
+      "chars": 4614,
+      "status": 200,
+      "sha256": "a7d5fa07ac46e45c2772b970f6bcc76bf64a22eb600ebaeb57f634a260cd7463"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/shimmer.html",
+      "title": "Shimmer Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/704ff82e38540724.txt",
+      "chars": 1434,
+      "status": 200,
+      "sha256": "3f37416a4c2e47eb2430637e7ff9db9ee5de5a1dd844293da784176141b117c6"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/shine.html",
+      "title": "Shine Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/cd5a562e627d943e.txt",
+      "chars": 2657,
+      "status": 200,
+      "sha256": "7a5296fb0e3ec10e6656023b49b5cf8bad789e1fe111973293136faef2a1ce7d"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/skew.html",
+      "title": "Skew Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/bfdc52e0c4535ae1.txt",
+      "chars": 1019,
+      "status": 200,
+      "sha256": "83799ed93ebdf0b8b2fbe0e1fc961435e3ee61ee1c8f4a3de0ea2f3412c540e5"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/spin.html",
+      "title": "Spin Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/12764cfcbd20b0f6.txt",
+      "chars": 1088,
+      "status": 200,
+      "sha256": "937c4f56930457ea011f535b45bac886ff7452bb6f8be5d2509cce35f2717be7"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/sway.html",
+      "title": "Foliage Sway Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/b9acb0576c66e0e2.txt",
+      "chars": 2100,
+      "status": 200,
+      "sha256": "b817d9d5b14af8ac59d54a1e6d17a1a51d669f55d0ae510e441f49be28d633bc"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/swing.html",
+      "title": "Swing Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e5efcd180e6784c8.txt",
+      "chars": 905,
+      "status": 200,
+      "sha256": "95c83a65574e0d36e7ae32ef5f37f2d341e87e4495a0f2a3c0c8ae6ae95f9e6e"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/tint.html",
+      "title": "Tint Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/ceb8f33e7969adb4.txt",
+      "chars": 612,
+      "status": 200,
+      "sha256": "150b0175efb46a1ca60cc4ae30ee9d2834578e7c6f792b89a667b2fa88133e3f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/transform.html",
+      "title": "Transform Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d610e676320f58ea.txt",
+      "chars": 1081,
+      "status": 200,
+      "sha256": "6223eb415d0a99caec382a647842d5d130253685a429ad4e9ddfc235c6a6ce72"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/twirl.html",
+      "title": "Twirl Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/95ab63940ff9855d.txt",
+      "chars": 1340,
+      "status": 200,
+      "sha256": "780aeb9747359d07e27a5ddd4cc14c2660cac9f4078373f19db39f003c2c4abc"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/vhs.html",
+      "title": "VHS Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/9b6c3c1c8fa45a05.txt",
+      "chars": 1752,
+      "status": 200,
+      "sha256": "e23d28755301a493a008541e7b0757105d4ac2d678788650c441bdc404ca9bfd"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/watercaustics.html",
+      "title": "Water Caustics Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/14b5ce03e6e2a7e4.txt",
+      "chars": 1432,
+      "status": 200,
+      "sha256": "ed2e749fdfee9737374da459283c83c9c923f2b7433e8df3b0b65f4d63b75a90"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/waterflow.html",
+      "title": "Water Flow Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/0a6e4bbbd1e0f668.txt",
+      "chars": 893,
+      "status": 200,
+      "sha256": "74f62513c558c259d9e2bfd9f4add03b2374b671319eee16ab1f5519f7c07a7e"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/waterripple.html",
+      "title": "Water Ripple Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/4c4d09d3f8fcf765.txt",
+      "chars": 1824,
+      "status": 200,
+      "sha256": "8842843a6e6e47622945936c64bfafdbd1bbd1fb39e36f845e56f47af0b52049"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/waterwaves.html",
+      "title": "Water Waves Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/db61fd547f7d3a23.txt",
+      "chars": 1192,
+      "status": 200,
+      "sha256": "f0d5345d2a50163973ee09d294784b049957845d6ab27585f7906a96b7857be9"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/effect/xray.html",
+      "title": "X-Ray Effect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/6a79315014fa9915.txt",
+      "chars": 896,
+      "status": 200,
+      "sha256": "4804214852497cdb4cdbcf2b726498c59706560729b1d88d2a662570c017f0b6"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/introduction.html",
+      "title": "Introduction to Effects | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c545c14747f929e9.txt",
+      "chars": 825,
+      "status": 200,
+      "sha256": "a139a716027725caca4af86c71372a03b687ecc274662a0d8d4344faeb8a4bab"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/effects/overview.html",
+      "title": "Effects Overview | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e836ee55ffc07013.txt",
+      "chars": 4300,
+      "status": 200,
+      "sha256": "942327d199038d90963259731d71fbf97b053af7b5ee2aa4f3781748a45b9959"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/first/assets.html",
+      "title": "Adding your first assets | Wallpaper Engine - Designer Documentation",
+      "file": "raw/474f7e42cd61fe94.txt",
+      "chars": 4668,
+      "status": 200,
+      "sha256": "8fc45b9013cd852494d22273cbfcb4f50257cee7a62a22b71994460526421de0"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/first/effects.html",
+      "title": "Adding your first effects | Wallpaper Engine - Designer Documentation",
+      "file": "raw/9f9093bc95a2f24a.txt",
+      "chars": 6080,
+      "status": 200,
+      "sha256": "b8be2c9f05e0fe595d2fe5375c2b64304bb40fca5b51f60b2bac1bfe7bb90d23"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/first/gettingstarted.html",
+      "title": "Getting started with your first wallpaper | Wallpaper Engine - Designer Documentation",
+      "file": "raw/f1791daec0c8db34.txt",
+      "chars": 1770,
+      "status": 200,
+      "sha256": "61589754b67dcf8c1f2f7f60ab83ca666eafdaeadb21f236718335625b5640c1"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/first/properties.html",
+      "title": "Adding user options | Wallpaper Engine - Designer Documentation",
+      "file": "raw/b7f3a9d421440dc1.txt",
+      "chars": 4683,
+      "status": 200,
+      "sha256": "6427728e62699b2fd72274ccf48d9a5e004886f62b9ce98f2fbc632674b30d8c"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/first/publishing.html",
+      "title": "Publishing a wallpaper | Wallpaper Engine - Designer Documentation",
+      "file": "raw/6eb7c54fe27c0765.txt",
+      "chars": 2760,
+      "status": 200,
+      "sha256": "34a9162a719276e50255b997f687e73774133571834b5e3aa652867749606118"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/image-preparation/character-sheet.html",
+      "title": "Character Sheet Creation | Wallpaper Engine - Designer Documentation",
+      "file": "raw/313c45865bdede42.txt",
+      "chars": 6888,
+      "status": 200,
+      "sha256": "745eb0bd92b8a8c423c9e43a1f3786f9d3c277bfbf2b4a9d412ca08ffe115220"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/image-preparation/external-editor.html",
+      "title": "External Image Editor Quick Access | Wallpaper Engine - Designer Documentation",
+      "file": "raw/f2e52babe35f7870.txt",
+      "chars": 1786,
+      "status": 200,
+      "sha256": "e2ec6d1a3a3691071b9a222d065acf26e1edcf3147f3da293ad009945d7f0466"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/image-preparation/foreground-separation.html",
+      "title": "Foreground Separation | Wallpaper Engine - Designer Documentation",
+      "file": "raw/7a19b36edb894005.txt",
+      "chars": 8117,
+      "status": 200,
+      "sha256": "eedd3d183dd5a75f00ed64e2d5afdfa028ed8f630a4fbb748361b05947b36ebd"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/lighting/introduction.html",
+      "title": "Real-Time Lighting & Reflections | Wallpaper Engine - Designer Documentation",
+      "file": "raw/3428454bcfdb6634.txt",
+      "chars": 9915,
+      "status": 200,
+      "sha256": "d5af56dbbcea26d27fbe5a129b858f6352046b4dc5064d0e9e18efccc902be48"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/lighting/lights.html",
+      "title": "Tips for Advanced Lighting | Wallpaper Engine - Designer Documentation",
+      "file": "raw/2c8f75aa179599f7.txt",
+      "chars": 16339,
+      "status": 200,
+      "sha256": "783acf7fa171acac3238f00caea2754f9ded7a2654fe864880f5fe9ee8d7d268"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/models/animation.html",
+      "title": "Model Animation Setup | Wallpaper Engine - Designer Documentation",
+      "file": "raw/6d059c022614e98e.txt",
+      "chars": 3294,
+      "status": 200,
+      "sha256": "08c4faea408c1b298971d197d0c18e4393e7e784709739c9d7d404b7037aff47"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/models/attachment.html",
+      "title": "Model Attachments | Wallpaper Engine - Designer Documentation",
+      "file": "raw/0465521f403e059f.txt",
+      "chars": 1654,
+      "status": 200,
+      "sha256": "bb1b0215c64bc92466e7407aa17cd4dacaf1a3348c81c86c6f86c2a0b847a1c4"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/models/camera.html",
+      "title": "3D Camera Setup | Wallpaper Engine - Designer Documentation",
+      "file": "raw/656e4561d12ae2b2.txt",
+      "chars": 5060,
+      "status": 200,
+      "sha256": "d04e904914963ee12653f5c0ba34df0a44c214164b25dc0fb563d2f38ec30bd4"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/models/fog.html",
+      "title": "3D Distance Fog | Wallpaper Engine - Designer Documentation",
+      "file": "raw/457814b598ad36ea.txt",
+      "chars": 1930,
+      "status": 200,
+      "sha256": "6a3050b44207ad0cbfd2e7929192c75aaafe01af8abbbbd7c457d0bb9a74d0c0"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/models/introduction.html",
+      "title": "Getting started with 3D Models | Wallpaper Engine - Designer Documentation",
+      "file": "raw/f154f528ed09ba98.txt",
+      "chars": 6039,
+      "status": 200,
+      "sha256": "bcc327baf216cb89574715e7df0bcce49709f95d9681dac2743834223c69fbec"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/models/lighting.html",
+      "title": "3D Advanced Lighting | Wallpaper Engine - Designer Documentation",
+      "file": "raw/eff8fcf16ec992ed.txt",
+      "chars": 1775,
+      "status": 200,
+      "sha256": "4641bf9acc186fba36a8e3f8980e48fb9f6e96c386d92b5f6119b0548e8deef2"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/models/shader.html",
+      "title": "3D Model Shaders | Wallpaper Engine - Designer Documentation",
+      "file": "raw/ec230c491424bf30.txt",
+      "chars": 7246,
+      "status": 200,
+      "sha256": "c90eeeae606543841795674442e1041af2f998356086cb6088a4f336df7acaa7"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/models/simulation.html",
+      "title": "Physics Simulations | Wallpaper Engine - Designer Documentation",
+      "file": "raw/1e35c23d44750905.txt",
+      "chars": 1578,
+      "status": 200,
+      "sha256": "9d65981ebff955e74215ca711bfd4d9206daa9847e66fe65b285ca36e4f580a0"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/overview.html",
+      "title": "The Wallpaper Engine Editor | Wallpaper Engine - Designer Documentation",
+      "file": "raw/7b9ec24ad9f76821.txt",
+      "chars": 1694,
+      "status": 200,
+      "sha256": "58b477e8a39cf540e5efe5c15eb81440f4ca8e39a6953b7876c824f2a4f1c8e2"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/parallax/depthparallax.html",
+      "title": "Depth Parallax | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e443e1b7477985c5.txt",
+      "chars": 6029,
+      "status": 200,
+      "sha256": "21615a49a6e6901d922e9991d58b1e63caf8004ba5fa8264929cf9036654d684"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/parallax/introduction.html",
+      "title": "Parallax Effect in Wallpaper Engine | Wallpaper Engine - Designer Documentation",
+      "file": "raw/32ddc174b271c3c3.txt",
+      "chars": 3070,
+      "status": 200,
+      "sha256": "7c5aebf1ff2e09ae6205dece40a7c722b81c45392ff4afa33d032ebc8ddb14c5"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/parallax/oversized.html",
+      "title": "Scrolling an Oversized Image | Wallpaper Engine - Designer Documentation",
+      "file": "raw/f8cf233d63501705.txt",
+      "chars": 1297,
+      "status": 200,
+      "sha256": "4213c593fbbb901e673f75fc964d5f404fbed7df7d5d0d996685a4126a94c0c0"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/component/children.html",
+      "title": "Particle Component - Children | Wallpaper Engine - Designer Documentation",
+      "file": "raw/f69b7c19a76ed80c.txt",
+      "chars": 2054,
+      "status": 200,
+      "sha256": "f68cf374eed3889796327941602cde2cb70f18349d4123ffb57cf1a8df4ebddd"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/component/control_point.html",
+      "title": "Particle Component - Control Points | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d2e2a30e4bfa2f4b.txt",
+      "chars": 3609,
+      "status": 200,
+      "sha256": "b38ebda4bb796760a982e60d245ffacd8dcf64f6d2a39476614e14aad37f45af"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/component/emitter.html",
+      "title": "Particle Component - Emitters | Wallpaper Engine - Designer Documentation",
+      "file": "raw/987e8732fb44a908.txt",
+      "chars": 7787,
+      "status": 200,
+      "sha256": "600699c23e1309955d293e9a65822d7788890710c9f587ef4e0526350e80c709"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/component/general.html",
+      "title": "Particle Component - General | Wallpaper Engine - Designer Documentation",
+      "file": "raw/2ff5d760f6934c95.txt",
+      "chars": 6208,
+      "status": 200,
+      "sha256": "12a9050d23e49d84233042d8c1c557bd7bf7f1ee81164003124eabc8a1a70bdf"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/component/initializer.html",
+      "title": "Particle Component - Initalizers | Wallpaper Engine - Designer Documentation",
+      "file": "raw/4995d8aa57d7a98a.txt",
+      "chars": 16764,
+      "status": 200,
+      "sha256": "013cc70daaded2fe5578710de4c1690ecf5d55dce38463b70dff9a88e78d83c7"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/component/operator.html",
+      "title": "Particle Component - Operators | Wallpaper Engine - Designer Documentation",
+      "file": "raw/973d612c15aec6c9.txt",
+      "chars": 25044,
+      "status": 200,
+      "sha256": "8b796c48904127dd3d8689c5dde748185014bfd8a1526970a2b9bdadf6ba87be"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/component/renderer.html",
+      "title": "Particle Component - Renderers | Wallpaper Engine - Designer Documentation",
+      "file": "raw/2b2290d7777ec788.txt",
+      "chars": 4076,
+      "status": 200,
+      "sha256": "e8c118205a5fb6ba999fa70f01758d0cff8e9aa973de59816e3b596aebe12e48"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/introduction.html",
+      "title": "Particle Systems Overview | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d2f1f72201d3e04f.txt",
+      "chars": 2833,
+      "status": 200,
+      "sha256": "91e390163f246754d87d15ce62ba8042f7a46c6f728846e87d7e3adf45e64293"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/tutorial/getting_started.html",
+      "title": "Getting Started with Particle Systems | Wallpaper Engine - Designer Documentation",
+      "file": "raw/4d765a9d013a9fdc.txt",
+      "chars": 19985,
+      "status": 200,
+      "sha256": "d25ac4d94fe1fd642bdbaec43dcc62cb1eb724fcb26c980a3c37f4c170ea0595"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/particles/tutorial/spritesheet.html",
+      "title": "Particle System Sprite Sheets | Wallpaper Engine - Designer Documentation",
+      "file": "raw/154fd2d91413164e.txt",
+      "chars": 5922,
+      "status": 200,
+      "sha256": "322b286831cd40abf0c0283881b6a5ffb6986e4ca92a95abfb31b53500d84d04"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/performance/optimization.html",
+      "title": "Texture Optimization | Wallpaper Engine - Designer Documentation",
+      "file": "raw/51f4b9233071b23d.txt",
+      "chars": 881,
+      "status": 200,
+      "sha256": "4675bcd2c7bc6b028bedbd558b8cbba687e09a14d0846d8f58d3da728764e756"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/performance/resolution.html",
+      "title": "Project Resolution | Wallpaper Engine - Designer Documentation",
+      "file": "raw/cf21c8b3ee0beffb.txt",
+      "chars": 2450,
+      "status": 200,
+      "sha256": "bb5c01b0eb363e9ddb81d001ca53eaeb1d43e984cf530134b2c2230c603242af"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/performance/texture.html",
+      "title": "Texture Optimization | Wallpaper Engine - Designer Documentation",
+      "file": "raw/dbcf4f306f793e62.txt",
+      "chars": 5284,
+      "status": 200,
+      "sha256": "da1b02aefc7942daabacfcf08eb79a4175773e9de94a68c72593fa611ef4a30f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/animationmixing.html",
+      "title": "Multiple Animations per Puppet | Wallpaper Engine - Designer Documentation",
+      "file": "raw/bb5f389aebd886b9.txt",
+      "chars": 1943,
+      "status": 200,
+      "sha256": "ff701697f294e81ee653ef88268fe76e1d39540d56f431cb8395ade2c34daccb"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/attachments.html",
+      "title": "Attachment Points | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d503cbf31cd1dd7a.txt",
+      "chars": 3869,
+      "status": 200,
+      "sha256": "5078c1424602787a34e30604d1e74a85dd7ec9ef06910841d5be69fcd25e6c31"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/blendrules.html",
+      "title": "Blend Rules for Bones | Wallpaper Engine - Designer Documentation",
+      "file": "raw/21a7918d83facf6c.txt",
+      "chars": 4305,
+      "status": 200,
+      "sha256": "904c51af7e603980a6908b651baedf9d04f176c57630ebb8447e275d787d0158"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/blendshapes.html",
+      "title": "Shape Animations | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c23f055aed74400b.txt",
+      "chars": 2277,
+      "status": 200,
+      "sha256": "faabbed2b6a280a7f9358f9c9f340b4b4501587b5efca81f52c3bf994aebf72f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/boneconstraints.html",
+      "title": "Bone Physics Simulation | Wallpaper Engine - Designer Documentation",
+      "file": "raw/bdff4eea2956725d.txt",
+      "chars": 14652,
+      "status": 200,
+      "sha256": "cf13587a5cfffc6a3c95ae708ba4ed42d6f879c67b42e05a172cdbd1bd75d130"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/charactersheet.html",
+      "title": "Character Sheets | Wallpaper Engine - Designer Documentation",
+      "file": "raw/71a0c915ba7331ae.txt",
+      "chars": 5925,
+      "status": 200,
+      "sha256": "f2e8a71c60102b777f84c035529c2facaf3a72af624f9c73eff9eaf5f748003c"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/clippingmasks.html",
+      "title": "Clipping Masks | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d954cff5192857f2.txt",
+      "chars": 7321,
+      "status": 200,
+      "sha256": "b3dbac276788e2ff5b97bff5fd163335e2d13702fb68cea81000e08a14c180fa"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/extending.html",
+      "title": "Extending an existing Puppet Warp | Wallpaper Engine - Designer Documentation",
+      "file": "raw/96d263d92d6ecd19.txt",
+      "chars": 2381,
+      "status": 200,
+      "sha256": "e0c323427e7431890fb5ad626e54639c4e1f1b7ab485a8a4fb27d7e74c56c373"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/interactive.html",
+      "title": "Interactive Puppet Warps | Wallpaper Engine - Designer Documentation",
+      "file": "raw/56061dcc686c9164.txt",
+      "chars": 6988,
+      "status": 200,
+      "sha256": "5967b5daf6a871af001adcc4aea641cd88c38a9df41492eb5010d031263d9a35"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/introduction.html",
+      "title": "Puppet Warp Introduction | Wallpaper Engine - Designer Documentation",
+      "file": "raw/f7ea13ebcfb03b82.txt",
+      "chars": 13048,
+      "status": 200,
+      "sha256": "4acf1861d880cca2b3b48e4698defc7868cf64226d4df24f98bcfcc30963a53d"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/inversekinematics.html",
+      "title": "Limb Animations with Inverse Kinematics | Wallpaper Engine - Designer Documentation",
+      "file": "raw/006463db16a804f9.txt",
+      "chars": 5986,
+      "status": 200,
+      "sha256": "b1d401c70c439c3dfeb65d2f303f8e6108ec6be76827a8b0534e6b1205876126"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/perspective.html",
+      "title": "3D Perspective Extrusion | Wallpaper Engine - Designer Documentation",
+      "file": "raw/4c95c37062f14f81.txt",
+      "chars": 4650,
+      "status": 200,
+      "sha256": "83c5ec9fdfef174a90b44646d7fcef0bdce128f24bbe9d381241faba43cfbe97"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/puppet-warp/texturechannels.html",
+      "title": "Texture Channel Animations | Wallpaper Engine - Designer Documentation",
+      "file": "raw/62a7f0982b311a9a.txt",
+      "chars": 4573,
+      "status": 200,
+      "sha256": "c57eb18a2363334f9443de4145a589c80242c44e381658f67cd24b5345c752a2"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/rgb/introduction.html",
+      "title": "RGB Hardware Support | Wallpaper Engine - Designer Documentation",
+      "file": "raw/cb5267a8e757a4ee.txt",
+      "chars": 3097,
+      "status": 200,
+      "sha256": "f74d7773df57be6d4d78748d25a62c662b5708695396ae1b6a8ca652d06af0d4"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/introduction.html",
+      "title": "SceneScript Introduction | Wallpaper Engine - Designer Documentation",
+      "file": "raw/09da8ca0c1b60863.txt",
+      "chars": 2295,
+      "status": 200,
+      "sha256": "a41e9f0548a958801528492fdeaad148ca629b217cc4a79ef5d8d9c133e0cf89"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference.html",
+      "title": "SceneScript Reference | Wallpaper Engine - Designer Documentation",
+      "file": "raw/f0881d3f8c4db1e3.txt",
+      "chars": 8268,
+      "status": 200,
+      "sha256": "3dcbd3becdbb51c971acc5f5f9cc766b38b8a9097e9fd88234638878aca81a50"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/AnimationEvent.html",
+      "title": "SceneScript Class AnimationEvent | Wallpaper Engine - Designer Documentation",
+      "file": "raw/254e303af06cd34b.txt",
+      "chars": 290,
+      "status": 200,
+      "sha256": "1e30aa857fcb90ed3ca43d441514d87041d97b883805a4d8232aaf5180aa88fe"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/AudioBuffers.html",
+      "title": "SceneScript Class AudioBuffers | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c997ad358da0e252.txt",
+      "chars": 1531,
+      "status": 200,
+      "sha256": "8bb6674a7792350c832daaf918eec466d2fdf58592c2a8eb44c06ab517a8f347"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/CameraTransforms.html",
+      "title": "SceneScript Class CameraTransforms | Wallpaper Engine - Designer Documentation",
+      "file": "raw/32e64893af752ae7.txt",
+      "chars": 504,
+      "status": 200,
+      "sha256": "79517ee2e6813bf41d72f199e6b3d3b6bbacba95c2cc5585d3bd2d913236f401"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/CursorEvent.html",
+      "title": "SceneScript Class CursorEvent | Wallpaper Engine - Designer Documentation",
+      "file": "raw/97dc7481d9a2b979.txt",
+      "chars": 597,
+      "status": 200,
+      "sha256": "1222d9a876f7f9a7e172721bb68a1a36414dd19f506bb5a7eb2bc97c71ec0afa"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IAnimation.html",
+      "title": "SceneScript Class IAnimation | Wallpaper Engine - Designer Documentation",
+      "file": "raw/091ce57f0c03fc4b.txt",
+      "chars": 860,
+      "status": 200,
+      "sha256": "7cb6152bd68060c6ea0c7fb5a8a6bd67a74d93992673f852dfef8a8458e0e2f8"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IAnimationLayer.html",
+      "title": "SceneScript Class IAnimationLayer | Wallpaper Engine - Designer Documentation",
+      "file": "raw/4739c31b7e98e03d.txt",
+      "chars": 1570,
+      "status": 200,
+      "sha256": "a402fd9c9e2bcc5b4b3c2c6a19539fa61b41221c5734cf3dd7c1404f00c4b31b"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IAssetHandle.html",
+      "title": "SceneScript Class IAssetHandle | Wallpaper Engine - Designer Documentation",
+      "file": "raw/363bbe5afe19aba8.txt",
+      "chars": 149,
+      "status": 200,
+      "sha256": "42957d973fae4ec975020eb75ef74001e6384db99ca6c05953b67c6f6869f3bf"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IConsole.html",
+      "title": "SceneScript Class IConsole | Wallpaper Engine - Designer Documentation",
+      "file": "raw/804c4a0ad79c78dc.txt",
+      "chars": 449,
+      "status": 200,
+      "sha256": "c74655edb4ed3ffbfd8a4130060ec2aec30305f67bedfc07d33077399e06a8ee"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IEffect.html",
+      "title": "SceneScript Class IEffect | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d23797b9fd8e6987.txt",
+      "chars": 691,
+      "status": 200,
+      "sha256": "57a8f328bdd14890134369dacbd765bb29b131cdda3f1cf3edcf185d5e508799"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IEffectLayer.html",
+      "title": "SceneScript Class IEffectLayer | Wallpaper Engine - Designer Documentation",
+      "file": "raw/ed344471a19ed297.txt",
+      "chars": 800,
+      "status": 200,
+      "sha256": "68d111ffc29f04b361425d0f3cccb265dcb80ab85287d6d9fbf42dfb04aa3d91"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IEngine.html",
+      "title": "SceneScript Class IEngine | Wallpaper Engine - Designer Documentation",
+      "file": "raw/24ee8074d9a490b4.txt",
+      "chars": 7620,
+      "status": 200,
+      "sha256": "58bfe908752b7c2bec30e92bffd946cae488a508195205810651966a12a9b312"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IImageLayer.html",
+      "title": "SceneScript Class IImageLayer | Wallpaper Engine - Designer Documentation",
+      "file": "raw/da6cde8d6e2644ca.txt",
+      "chars": 2994,
+      "status": 200,
+      "sha256": "8a8546d88b0dd55befc98cda37d233c970c34325c02d1aba3e5206eeff842fed"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IInput.html",
+      "title": "SceneScript Class IInput | Wallpaper Engine - Designer Documentation",
+      "file": "raw/69d58b1c90d3c3d2.txt",
+      "chars": 477,
+      "status": 200,
+      "sha256": "5cf59f72d01a4cf2200aa39c66ae6dd8892a4255e9eacdba01d0c053e2be9f67"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ILayer.html",
+      "title": "SceneScript Class ILayer | Wallpaper Engine - Designer Documentation",
+      "file": "raw/48b65bd7542bb95d.txt",
+      "chars": 1857,
+      "status": 200,
+      "sha256": "651b428d40ce57098d2f59dfd3c9bea7d5b24457cd8fc652e9651b754fa6a07e"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ILocalStorage.html",
+      "title": "SceneScript Class ILocalStorage | Wallpaper Engine - Designer Documentation",
+      "file": "raw/6c6edb01f672537e.txt",
+      "chars": 2133,
+      "status": 200,
+      "sha256": "79d2d5a829cf7faf51889ecdf2322d0914122064bbdcf93d6e2ba84ab5ea4195"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IMaterial.html",
+      "title": "SceneScript Class IMaterial | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c269299386452837.txt",
+      "chars": 301,
+      "status": 200,
+      "sha256": "d5a5497dc5498495319cc653d8665a9b8a3c39e14c81170d1625e062d89258bc"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IModelData.html",
+      "title": "SceneScript Class IModelData | Wallpaper Engine - Designer Documentation",
+      "file": "raw/15b176a703d551ec.txt",
+      "chars": 2054,
+      "status": 200,
+      "sha256": "8c03937a71ef5cc3b8f3f1b0de7c868c701d3d5731585cd4bd771380f3328add"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IModelLayer.html",
+      "title": "SceneScript Class IModelLayer | Wallpaper Engine - Designer Documentation",
+      "file": "raw/405a14b013d7af46.txt",
+      "chars": 1111,
+      "status": 200,
+      "sha256": "4b19c6d35c8770e8038169bf5bc3a6bdcbf9ac919e5785a5eaba389620d7e366"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IParticleSystem.html",
+      "title": "SceneScript Class IParticleSystem | Wallpaper Engine - Designer Documentation",
+      "file": "raw/ac54045e15877917.txt",
+      "chars": 674,
+      "status": 200,
+      "sha256": "2bbd04a76abe77758b21887b80ddb81059b613c4f72c56aa780ba9ca5b866718"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IParticleSystemInstance.html",
+      "title": "SceneScript Class IParticleSystemInstance | Wallpaper Engine - Designer Documentation",
+      "file": "raw/9b7a33b462d9ef82.txt",
+      "chars": 1189,
+      "status": 200,
+      "sha256": "39f60fbb1928d04091fbd1cb03222f3a0b53c9828caf863199af4d79f41c91a6"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IScene.html",
+      "title": "SceneScript Class IScene | Wallpaper Engine - Designer Documentation",
+      "file": "raw/faffa11181f85f61.txt",
+      "chars": 6455,
+      "status": 200,
+      "sha256": "2aafdb708bcf8a9d0cc56487cd069b944466b6a3110bf79a69bc3cc2023b32db"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ISoundLayer.html",
+      "title": "SceneScript Class ISoundLayer | Wallpaper Engine - Designer Documentation",
+      "file": "raw/4acf6b4f1acef842.txt",
+      "chars": 402,
+      "status": 200,
+      "sha256": "76ce1c0d6714cf442ef514176bcd745a0b18ed4e602744356b355e0e512d9c4e"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ITextLayer.html",
+      "title": "SceneScript Class ITextLayer | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c57f613f72dd6dc5.txt",
+      "chars": 962,
+      "status": 200,
+      "sha256": "3431f64da042757e4899d63247216ef75ef4f20e69e4f928c250eae969e558c5"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/ITextureAnimation.html",
+      "title": "SceneScript Class ITextureAnimation | Wallpaper Engine - Designer Documentation",
+      "file": "raw/fc9ff5f03a33f312.txt",
+      "chars": 1066,
+      "status": 200,
+      "sha256": "e5d8f9519f39918dc749accafb1ed1ca8da08339b06bad5360c9a7f2f49d5d6c"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IThisPropertyObject.html",
+      "title": "SceneScript Class IThisPropertyObject | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d73bf7e752afacf3.txt",
+      "chars": 719,
+      "status": 200,
+      "sha256": "a308413cc8700dbfd9c2d6c3e5993eda41d180269aa5c7eda8fdacfa4b2b5c4a"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/IVideoTexture.html",
+      "title": "SceneScript Class IVideoTexture | Wallpaper Engine - Designer Documentation",
+      "file": "raw/5acbb79e75f9b390.txt",
+      "chars": 1124,
+      "status": 200,
+      "sha256": "e4f2c997ba816ba85dae60a29227c6e4c47a96279587c247b25363906ad04f65"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Mat3.html",
+      "title": "SceneScript Class Mat3 | Wallpaper Engine - Designer Documentation",
+      "file": "raw/6111059d5b8da973.txt",
+      "chars": 2360,
+      "status": 200,
+      "sha256": "d836cae106c7804a46ac65fa57165059f84a52da6c616f6126f9296f6c5a3c9b"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Mat4.html",
+      "title": "SceneScript Class Mat4 | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d1420435d2722b0f.txt",
+      "chars": 2880,
+      "status": 200,
+      "sha256": "ffe1cffc26ff42bcbf0790ac2ae7555d8e22f921a1c83060495e704f4a964456"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaPlaybackEvent.html",
+      "title": "SceneScript Class MediaPlaybackEvent | Wallpaper Engine - Designer Documentation",
+      "file": "raw/ba46e00bc7a45588.txt",
+      "chars": 643,
+      "status": 200,
+      "sha256": "cae0d5cddca3570858cb80939a36c80d89e90f1b1c39b94e3c6e30a4dfc44991"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaPropertiesEvent.html",
+      "title": "SceneScript Class MediaPropertiesEvent | Wallpaper Engine - Designer Documentation",
+      "file": "raw/c1a9a5622e2c2e44.txt",
+      "chars": 962,
+      "status": 200,
+      "sha256": "0f3045446ef11dfb9dfdff97e3764baeb5f335862a410b7464a4e82fee8126a9"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaStatusEvent.html",
+      "title": "SceneScript Class MediaStatusEvent | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d8283083a25ac29a.txt",
+      "chars": 336,
+      "status": 200,
+      "sha256": "61a6ab1a7ee19f49b24b8a2b9d88c3e0f06a01a4d6dc9671859569da82871625"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaThumbnailEvent.html",
+      "title": "SceneScript Class MediaThumbnailEvent | Wallpaper Engine - Designer Documentation",
+      "file": "raw/2fd3e56c0e6aa885.txt",
+      "chars": 758,
+      "status": 200,
+      "sha256": "074d673ec0e11e07cdb412f88c0399171fe5bd9e6f40e0c9ca47cd4d9ef586fa"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/MediaTimelineEvent.html",
+      "title": "SceneScript Class MediaTimelineEvent | Wallpaper Engine - Designer Documentation",
+      "file": "raw/eb5ecfa75b656f26.txt",
+      "chars": 307,
+      "status": 200,
+      "sha256": "d60c437a063c1c17f232a74cae70cd32eb071294b97f707da387670dc6585c08"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Shared.html",
+      "title": "SceneScript Class Shared | Wallpaper Engine - Designer Documentation",
+      "file": "raw/9f3682450e50dd85.txt",
+      "chars": 220,
+      "status": 200,
+      "sha256": "05084156fbad351b3aa483ec8cdd5765d797ca8e60f40bcdb87918348c6c9630"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Vec2.html",
+      "title": "SceneScript Class Vec2 | Wallpaper Engine - Designer Documentation",
+      "file": "raw/21bf82bcef0b0ded.txt",
+      "chars": 3412,
+      "status": 200,
+      "sha256": "cc95c3b59c39be74b5a5e8708d47c5c2ae8b6523a94cfc246d6a5a45481872bc"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Vec3.html",
+      "title": "SceneScript Class Vec3 | Wallpaper Engine - Designer Documentation",
+      "file": "raw/cbf4ee1e17d07580.txt",
+      "chars": 4375,
+      "status": 200,
+      "sha256": "12460d3b56ebf50a68f01a16305cf31d1850d009c172ae8f96aa1dcbdb9aaf5c"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/class/Vec4.html",
+      "title": "SceneScript Class Vec4 | Wallpaper Engine - Designer Documentation",
+      "file": "raw/1f1722ab0abc4eb2.txt",
+      "chars": 2875,
+      "status": 200,
+      "sha256": "7f10b1e1400e670383f60da2032ed1d2882206cfced7b74ef185af672e7b9e7f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/applyGeneralSettings.html",
+      "title": "SceneScript Event applyGeneralSettings | Wallpaper Engine - Designer Documentation",
+      "file": "raw/ec98dff87c26f0a6.txt",
+      "chars": 5744,
+      "status": 200,
+      "sha256": "902915d6de9261bf5f0cf92a882db35403566308384d06f80aafc7214c328fb4"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/applyUserProperties.html",
+      "title": "SceneScript Event applyUserProperties | Wallpaper Engine - Designer Documentation",
+      "file": "raw/df0e7360a907f8e5.txt",
+      "chars": 3237,
+      "status": 200,
+      "sha256": "0911c93b749be83edecd27233f26ba6a232eda01ff9a6f4a21eb3e47396513d2"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/cursor.html",
+      "title": "SceneScript Cursor Events | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e8dedd65f6f1fa7a.txt",
+      "chars": 1367,
+      "status": 200,
+      "sha256": "8a5a3f57c43196f583b7c9adf48c9fe1cf43fc3a6fc0d4830b1ede58db0c265e"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/destroy.html",
+      "title": "SceneScript Event destroy | Wallpaper Engine - Designer Documentation",
+      "file": "raw/ff05626a9f4d5dac.txt",
+      "chars": 149,
+      "status": 200,
+      "sha256": "6c1b595b0cba05e93321d2eef3034d0e7a9539f8cda2d80f887640f835fb2eb6"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/init.html",
+      "title": "SceneScript Event init | Wallpaper Engine - Designer Documentation",
+      "file": "raw/b0ec77776a5b9da2.txt",
+      "chars": 1626,
+      "status": 200,
+      "sha256": "6f7a97715c9bce9ad4d8a1f50a59d6a433badfc3c2d69cabb9b2e8538b0a7583"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/media.html",
+      "title": "SceneScript Media Integration Events | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d72e0444c4ccaef6.txt",
+      "chars": 3477,
+      "status": 200,
+      "sha256": "4a2fddf0058e31fea4c7fdfb01aef746701399d8b9ac5abdd6a9d30a33144542"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/resizeScreen.html",
+      "title": "SceneScript Event resizeScreen | Wallpaper Engine - Designer Documentation",
+      "file": "raw/06f534b9098ae3e8.txt",
+      "chars": 2625,
+      "status": 200,
+      "sha256": "5c0a75ac8850f59173bcf01421739c524fe28c4a08719e0920e93c5d8ded2dd2"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/event/update.html",
+      "title": "SceneScript Event update | Wallpaper Engine - Designer Documentation",
+      "file": "raw/38863770aff0b46d.txt",
+      "chars": 2137,
+      "status": 200,
+      "sha256": "d486cfa4e915c96e069e8e11fe28dd9104c8faccfbaf491c0e5b485002642379"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/module/WEColor.html",
+      "title": "SceneScript Module WEColor | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e8e61e501900a87a.txt",
+      "chars": 478,
+      "status": 200,
+      "sha256": "6257849e628c3d85395945b1517ca40aa580e04d17f0542242e373d2c718d68b"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/module/WEMath.html",
+      "title": "SceneScript Module WEMath | Wallpaper Engine - Designer Documentation",
+      "file": "raw/30c7928aafe413f2.txt",
+      "chars": 537,
+      "status": 200,
+      "sha256": "f2ead63e8dbbb85db9d96905ddc3dc76294fae66de4a937847e390886e1b268f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/reference/module/WEVector.html",
+      "title": "SceneScript Module WEVector | Wallpaper Engine - Designer Documentation",
+      "file": "raw/6ca89ac432329400.txt",
+      "chars": 337,
+      "status": 200,
+      "sha256": "a252ac5dde526d26a2bf2801f86357d69890a884856b92e7aabd48345b768666"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/audio.html",
+      "title": "Processing Audio Data with SceneScript | Wallpaper Engine - Designer Documentation",
+      "file": "raw/7104ebdf66baecc4.txt",
+      "chars": 11449,
+      "status": 200,
+      "sha256": "b0d29ac5e581876e2dcfaef11f67f8c815a6f2fe9a812d69a1fda1ffd6956186"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/basics.html",
+      "title": "The Basics of SceneScript | Wallpaper Engine - Designer Documentation",
+      "file": "raw/4027ea9b6ff4d04f.txt",
+      "chars": 11310,
+      "status": 200,
+      "sha256": "c0fd31772e70362006ae64c9793c8471c2254851cf032595032f5ad6c85f92b4"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/colors.html",
+      "title": "Modifying Colors with SceneScript | Wallpaper Engine - Designer Documentation",
+      "file": "raw/8c8d267530ed4b6f.txt",
+      "chars": 3971,
+      "status": 200,
+      "sha256": "8f4dbeb343725bf93427f616224b6640336b46f8f6aa0a634dc3c5304ba31fff"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/cursor.html",
+      "title": "Mouse Cursor Click Events with SceneScript | Wallpaper Engine - Designer Documentation",
+      "file": "raw/da42fd88bc26d374.txt",
+      "chars": 4585,
+      "status": 200,
+      "sha256": "25675f105fd1d5a5a49171f32cfe15fdf9872782733ddce23b615d2eabee099c"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/localstorage.html",
+      "title": "Local Storage in SceneScript | Wallpaper Engine - Designer Documentation",
+      "file": "raw/97aa71b28cf3774f.txt",
+      "chars": 2891,
+      "status": 200,
+      "sha256": "cf173da79217247fa4cfbe0d56a7cf692179b14c67df43948e1a6d4faa9f1527"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/models.html",
+      "title": "Custom Geometry in SceneScript | Wallpaper Engine - Designer Documentation",
+      "file": "raw/234ca3c9a2383484.txt",
+      "chars": 25898,
+      "status": 200,
+      "sha256": "04d2ff7e9edf33a923b3255f32773f51747cb7636ff522d1639b938452821dd0"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/tutorial/timeofday.html",
+      "title": "Time of Day Changes with SceneScript | Wallpaper Engine - Designer Documentation",
+      "file": "raw/0e9c3aa0aa28290f.txt",
+      "chars": 5515,
+      "status": 200,
+      "sha256": "8649bc2e59caa27d697d1ad523ad8b556cc652795201b90a920c15b8acbcb9e6"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/scenescript/tutorials.html",
+      "title": "SceneScript Tutorials | Wallpaper Engine - Designer Documentation",
+      "file": "raw/23b29228d50bfe9e.txt",
+      "chars": 1127,
+      "status": 200,
+      "sha256": "bf4e0bdc07f2f6f1fcff17795aeefc57a3a297fed6dd7a2c7e0111c94d72511a"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/shader/headers.html",
+      "title": "Shader Headers | Wallpaper Engine - Designer Documentation",
+      "file": "raw/6bf3157543ec39a3.txt",
+      "chars": 3185,
+      "status": 200,
+      "sha256": "7e1308beef12f85074331f9e47153ad1c836cc0bc641ec4dcac6efcced0021a8"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/shader/mobile.html",
+      "title": "Shaders on Mobile Devices | Wallpaper Engine - Designer Documentation",
+      "file": "raw/433d0c409840c230.txt",
+      "chars": 6302,
+      "status": 200,
+      "sha256": "208105470d74ebcfe3581555ea7ba7d3ad81f3b4c596b4a2966ddde7b5f3ff70"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/shader/overview.html",
+      "title": "Shader Programming Overview | Wallpaper Engine - Designer Documentation",
+      "file": "raw/676efdf20edc3b90.txt",
+      "chars": 1692,
+      "status": 200,
+      "sha256": "68d3caa3f20f792b5de2487094b5dd63869ff34cf3b82c8c33e6ebebabfd0cc8"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/shader/syntax.html",
+      "title": "Shader Syntax Overview | Wallpaper Engine - Designer Documentation",
+      "file": "raw/304e12229c565ae2.txt",
+      "chars": 3822,
+      "status": 200,
+      "sha256": "cc81da9bfe22a3a181d3abd3b88e2dfaed6d3c3ae6b822ad82d0730f50edad5e"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/shader/tutorials/desaturation.html",
+      "title": "Tutorial: Shader Programming Desaturation | Wallpaper Engine - Designer Documentation",
+      "file": "raw/a7a6cacea5b089fc.txt",
+      "chars": 2529,
+      "status": 200,
+      "sha256": "fbcec2bbd2cfbb45b4f2e16acc2da5c485b15ffae855fbf60f38fddf10589a6c"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/shader/variables.html",
+      "title": "Shader Variables & Constants | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d2b8d4ecad986e30.txt",
+      "chars": 15916,
+      "status": 200,
+      "sha256": "b3c43740e08b4eaf9b29a05a2105a13c17e87a16effd0b56f9d12d2dc24f7a51"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/timeline/animationevents.html",
+      "title": "SceneScript Events in Timeline Animations | Wallpaper Engine - Designer Documentation",
+      "file": "raw/76d83681de990e04.txt",
+      "chars": 3714,
+      "status": 200,
+      "sha256": "246ed756dc9a788025737b477a67d1abc15f706b78ea0c175ddc82a93dcf1038"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/timeline/combined.html",
+      "title": "Combined Timeline Animations | Wallpaper Engine - Designer Documentation",
+      "file": "raw/9b47cf04014ecd61.txt",
+      "chars": 3479,
+      "status": 200,
+      "sha256": "b725ef50e335cd69a2e8470b50c88da1a8e45d887a211af4044b85951570df4a"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/timeline/introduction.html",
+      "title": "Timeline Animation Introduction | Wallpaper Engine - Designer Documentation",
+      "file": "raw/96f614a6b8c87d90.txt",
+      "chars": 6718,
+      "status": 200,
+      "sha256": "8c61e814f8685bb783c01fdeae7720a600c357714ee10f3fdd11b815a3a13a40"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/timeline/modes.html",
+      "title": "Single & Mirrored Timeline Animations | Wallpaper Engine - Designer Documentation",
+      "file": "raw/723e22b6ea508a5a.txt",
+      "chars": 4706,
+      "status": 200,
+      "sha256": "65ffb09f8a9a1614e1bbacfb8104e3c68edea03ab79061c9f7486b5a153f0762"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/checkbox.html",
+      "title": "Checkbox User Property | Wallpaper Engine - Designer Documentation",
+      "file": "raw/0718cf9b6805e371.txt",
+      "chars": 4694,
+      "status": 200,
+      "sha256": "d1a073583dc2884bcedabe4ae9aa37dba7580fec990b8155a8c1b8085db953e4"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/color.html",
+      "title": "Color User Property | Wallpaper Engine - Designer Documentation",
+      "file": "raw/8f2b289c97ff95c5.txt",
+      "chars": 1952,
+      "status": 200,
+      "sha256": "8475fa851aa95c8daa672bb181531c2e8ced73cc6d5aa5eca9fa7b8323da339e"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/combo.html",
+      "title": "Combo Box User Property | Wallpaper Engine - Designer Documentation",
+      "file": "raw/07f10a20f5f5a09a.txt",
+      "chars": 2741,
+      "status": 200,
+      "sha256": "da969c99c9a45c3bb564e8d7e60100480667b2d25bd26c20a5eddedf111e7a55"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/overview.html",
+      "title": "User Properties Introduction | Wallpaper Engine - Designer Documentation",
+      "file": "raw/9eafde392b9e8011.txt",
+      "chars": 3598,
+      "status": 200,
+      "sha256": "0fb38fe8328b860ddea607a0f1969fbc7a0cee570e9ae5aea52bdd97b3154dac"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/slider.html",
+      "title": "Slider User Property | Wallpaper Engine - Designer Documentation",
+      "file": "raw/8bcd07871f04da43.txt",
+      "chars": 1793,
+      "status": 200,
+      "sha256": "608b0b122da34795fd5673958797692cef013be878590a4e88abe43352fe54a8"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/text.html",
+      "title": "Text Input User Property | Wallpaper Engine - Designer Documentation",
+      "file": "raw/6bd6a45234b701d0.txt",
+      "chars": 1209,
+      "status": 200,
+      "sha256": "822b8275472b3d0e23987158af67e7a44a94010f3da30bc860c7541150ef5483"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/texture.html",
+      "title": "Texture User Property | Wallpaper Engine - Designer Documentation",
+      "file": "raw/1ccec7ba20408ae7.txt",
+      "chars": 3278,
+      "status": 200,
+      "sha256": "d85bde34d0c2fd45b6e9db952b665bf6e0df8e3cf0cfd66c31592244284e7f01"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/texturevariant.html",
+      "title": "Texture Variants | Wallpaper Engine - Designer Documentation",
+      "file": "raw/e40c21c3c516b144.txt",
+      "chars": 3951,
+      "status": 200,
+      "sha256": "09611c84fd14315416084cd3fa3d414abcc1094947a0c38e874f8ab691a37c99"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/scene/userproperties/usershortcut.html",
+      "title": "User Shortcut Property | Wallpaper Engine - Designer Documentation",
+      "file": "raw/7dbd3395ea6c5570.txt",
+      "chars": 10563,
+      "status": 200,
+      "sha256": "75e53fc6b1590a9ed1599decfd7273aa6a62f273fe10bf1e37398e0931313758"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/api/icue.html",
+      "title": "Additional Corsair iCUE functions | Wallpaper Engine - Designer Documentation",
+      "file": "raw/3716cad78a870e9c.txt",
+      "chars": 3379,
+      "status": 200,
+      "sha256": "6d9140c6ae7125ca5c9a518ac0bff9da455618c669535c790f3229532cbf3065"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/api/propertylistener.html",
+      "title": "Reference for \"wallpaperPropertyListener\" | Wallpaper Engine - Designer Documentation",
+      "file": "raw/d995520ef160c105.txt",
+      "chars": 3234,
+      "status": 200,
+      "sha256": "2bc44df365cb3c45a86d3af2f090682d101d82e514c0d6bacde2aaacaee229d6"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/api/rgb.html",
+      "title": "RGB Hardware Support | Wallpaper Engine - Designer Documentation",
+      "file": "raw/de8eaa1956b72963.txt",
+      "chars": 4819,
+      "status": 200,
+      "sha256": "3c66838ae340f3d9af9627c77a42efdafe9b86ff77b764f04571cdb8023b7fac"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/audio/media.html",
+      "title": "Media Integration | Wallpaper Engine - Designer Documentation",
+      "file": "raw/ecf786bf29699776.txt",
+      "chars": 7155,
+      "status": 200,
+      "sha256": "69785876f89f0cccb465387245c0bd31cfefa67d1a9fccfd306b540589811d36"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/audio/visualizer.html",
+      "title": "Audio Visualization | Wallpaper Engine - Designer Documentation",
+      "file": "raw/35a4c3b311b52894.txt",
+      "chars": 11505,
+      "status": 200,
+      "sha256": "73586b16ca1383e0ab5a179f9cf574e6b390aff45c11ea632f3d1ab7e58a9ebf"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/customization/displaycondition.html",
+      "title": "Display Conditions for Properties | Wallpaper Engine - Designer Documentation",
+      "file": "raw/f11f216027b5c9b8.txt",
+      "chars": 1472,
+      "status": 200,
+      "sha256": "45969465044daa05b6c0fc8d8bfb7e95a4572cfbb4c4ce3ae701ed53e17e2179"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/customization/localization.html",
+      "title": "Property Translation | Wallpaper Engine - Designer Documentation",
+      "file": "raw/b108d93f3e4f849a.txt",
+      "chars": 2723,
+      "status": 200,
+      "sha256": "aeea6212718a86bb9be062865f65a95cbb899fce8a17142ccebad0acdb505fcc"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/customization/properties.html",
+      "title": "User Properties | Wallpaper Engine - Designer Documentation",
+      "file": "raw/07e6baea6985822f.txt",
+      "chars": 12055,
+      "status": 200,
+      "sha256": "b6424f94cba00cfe87f86904cf2a4f03c1ef36c8d2d8e3ef2a3a924bbac39061"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/debug/debug.html",
+      "title": "Web Wallpaper Debugging | Wallpaper Engine - Designer Documentation",
+      "file": "raw/af9a5498dec7d6a5.txt",
+      "chars": 1488,
+      "status": 200,
+      "sha256": "e57b63f916301b76f4e01c38255cd9ef44a49e5a335e67171f3b4b494d2f708f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/first/gettingstarted.html",
+      "title": "Creating a Web Wallpaper | Wallpaper Engine - Designer Documentation",
+      "file": "raw/2cd4b76d6592c245.txt",
+      "chars": 2230,
+      "status": 200,
+      "sha256": "2fbd4d53123307ab643681ebf57cb40b8629b0914255253c0012b291a956ffcd"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/overview.html",
+      "title": "Web Wallpaper Reference Guide | Wallpaper Engine - Designer Documentation",
+      "file": "raw/09d2934dd7fd5d9d.txt",
+      "chars": 962,
+      "status": 200,
+      "sha256": "5942ed8c48b969784f67cae7b3253aeabe39910e1c61b0bbf3d53cb713cdd67f"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/en/web/performance/fps.html",
+      "title": "FPS Limiter | Wallpaper Engine - Designer Documentation",
+      "file": "raw/a3af260452fee9a0.txt",
+      "chars": 3223,
+      "status": 200,
+      "sha256": "8b7fe2a49a52e01198a2b500138c5a89fdf9f771097bde653b1b50c6704122ae"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/",
+      "title": "Wallpaper Engine Troubleshooting Guide & FAQ | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/945fc416d6945af7.txt",
+      "chars": 1444,
+      "status": 200,
+      "sha256": "8126b6c89eb04aaaad2ce084ea57a356d7f66c32c4fe90774f049ccc9ba2e867"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/audio/audiodetection.html",
+      "title": "Audio visualizers do not work / no sound detected | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/e56d9d87c48a43b8.txt",
+      "chars": 3201,
+      "status": 200,
+      "sha256": "71e269805b6588be06874604551ea25c866c0fe32ef20e7832d8926a32a8052a"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/audio/intermittent.html",
+      "title": "Sound / audio turns on and off intermittently | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/36421522852668f1.txt",
+      "chars": 2356,
+      "status": 200,
+      "sha256": "d69f57cfefd17c3951f6740a25144b3614c24aab8fab99443f30d852cba00674"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/audio/limittomusicplayer.html",
+      "title": "Limiting audio visualizers to music players | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/e9d798e3e81c4d06.txt",
+      "chars": 3020,
+      "status": 200,
+      "sha256": "4169dfb86dee1ff14b95358a98a08b68f3ac8ec0c4c3a38757efe533c421e60e"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/audio/mediaintegration.html",
+      "title": "Album Cover & Media Data Feature | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/926495980533a84b.txt",
+      "chars": 2344,
+      "status": 200,
+      "sha256": "1c527b8ed7de7fc95f1e183bd19eac64c2661b171f7a9d35e3cb6fa4c65e054f"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/audio/noaudio.html",
+      "title": "No Sound Playing / Audio Output Problems | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/0dea48b4779d6dae.txt",
+      "chars": 3846,
+      "status": 200,
+      "sha256": "3d89d318b127b8ed8c2f08c427b9cf5cb1a16fcda6973470f82137887be6e4db"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/crash/application.html",
+      "title": "Wallpaper Engine crashing | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/3b3b544178e9f327.txt",
+      "chars": 9370,
+      "status": 200,
+      "sha256": "7b451e3d251f1a917bbd27aa78ad94697d336831f482680402983c60e7e279d9"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/crash/battleye.html",
+      "title": "BattlEye anti-cheat terminating Wallpaper Engine | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/3b6755bccf2616c3.txt",
+      "chars": 1669,
+      "status": 200,
+      "sha256": "c3db08a24039229e5d1f738ab28143f003ac840a24c9fc1a67c93620ff56e83e"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/crash/dxsupport.html",
+      "title": "\"DirectX 10 not supported\" crash | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/11ef30f0c8d6f10a.txt",
+      "chars": 971,
+      "status": 200,
+      "sha256": "653ab090b0ec1ba1a0916434225f365dc65d432fa97c3644555af883e2753a2d"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/crash/system.html",
+      "title": "System crash / System Freeze | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/711a1895f5318222.txt",
+      "chars": 1852,
+      "status": 200,
+      "sha256": "acb8630582fbf96280faf4087e7e1a85f12a542da0517a10320bc7442ef01858"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/debug/contact.html",
+      "title": "Contact | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/770de72dd3c6340f.txt",
+      "chars": 731,
+      "status": 200,
+      "sha256": "2d50ba37fa215603894bf3162c31a29778f0ee20f442ea35d8a8d4736bc64e8d"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/debug/reset.html",
+      "title": "Fully Resetting Wallpaper Engine | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/300a915d7adfc371.txt",
+      "chars": 3168,
+      "status": 200,
+      "sha256": "2b7f6714065b5b1ab032264eedf4181c9a2565eb3f543ef8a8953c784bd6fcd5"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/debug/scantool.html",
+      "title": "Use the Wallpaper Engine analysis tool to create a debug log | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/fadaa1a33ab3c937.txt",
+      "chars": 1233,
+      "status": 200,
+      "sha256": "7c9434d64da521e62f8cc778ccbb14bc85774f65136ce84d6bd160967d6dcab1"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/debug/scantool_support.html",
+      "title": "Use the Wallpaper Engine analysis tool to create a debug log | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/30794aa6acde7fb5.txt",
+      "chars": 1098,
+      "status": 200,
+      "sha256": "87c3394b974d7b9751db933bbb5e46e39d545e82b53280a148a5f692cfa6b256"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/applicationrules.html",
+      "title": "Fix issues with specific apps or games | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/ae3bcff807d92310.txt",
+      "chars": 2795,
+      "status": 200,
+      "sha256": "14634f7b79033bd60cac46fad12e3d75428408cd47b57e7fc1b4def80f6f1128"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/automaticstartup.html",
+      "title": "Automatic start-up at boot | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/f6c4282d93c2f459.txt",
+      "chars": 3620,
+      "status": 200,
+      "sha256": "01240d4138c96b91dc0b68978d7525c0234a627bd8d7707ba852e04c51515cd8"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/cli.html",
+      "title": "Command Line Controls | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/ce33c168526a514f.txt",
+      "chars": 8282,
+      "status": 200,
+      "sha256": "cc43e0986c22985071e2a042230cf473a7eac7936171e8949b87b2e18467754b"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/editingwallpapers.html",
+      "title": "Editing Downloaded Wallpapers | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/2a7c444bc7276607.txt",
+      "chars": 4116,
+      "status": 200,
+      "sha256": "8ab23072548e9e3cf55bcc4212e86daf31819e9fc4fb4789cb4b86d03c28e717"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/export.html",
+      "title": "Exporting wallpapers as GIF / video | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/2f1165d10af394ea.txt",
+      "chars": 1051,
+      "status": 200,
+      "sha256": "dc56b079292c9672a2ba5d883a86a12681ae6aa57e17d193d121893ca44555c2"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/linuxmacos.html",
+      "title": "Wallpaper Engine on Linux or Mac OS | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/02d9f61a9f3388e4.txt",
+      "chars": 3659,
+      "status": 200,
+      "sha256": "9780ec2165de5ddaaa9fa7165c2930786f94c9385b783e54ff1e41107f811c26"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/restoredefaults.html",
+      "title": "Restoring deleted default wallpapers | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/a2c33bf06dccd8f2.txt",
+      "chars": 1109,
+      "status": 200,
+      "sha256": "a21a14a9415fc83b0be42c25398f4aca861982f6cca59fcb7f84730b25662320"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/rgb.html",
+      "title": "RGB hardware support (iCUE & Chroma) | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/9cae5027f3a5520c.txt",
+      "chars": 5659,
+      "status": 200,
+      "sha256": "5fea4479469f86cb92fb330546e490784879f475ecf9d298ea3747dd92e5e8f1"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/screensaver.html",
+      "title": "Screensavers with Wallpaper Engine | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/46835970dd24f468.txt",
+      "chars": 4485,
+      "status": 200,
+      "sha256": "3938b69bf10fe96d25e213200122f580f45fdcd250cd2491326fdb0854dbd7e7"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/tray.html",
+      "title": "Hiding the Wallpaper Engine tray icon | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/3353186cdc451c12.txt",
+      "chars": 1434,
+      "status": 200,
+      "sha256": "d1b6491d1519bd801ae5d8f02da190c7f3f299dea6eaee2f677d6a0d62442e9b"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/functionality/wallpaperperapp.html",
+      "title": "Select wallpapers per application | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/b80dc3ed4dcaf326.txt",
+      "chars": 2574,
+      "status": 200,
+      "sha256": "5bdc27ae84b791f722ed63cf375a1685ab10f77785549178030fe5d504618140"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/general/aero.html",
+      "title": "Windows 7: Aero cannot be enabled | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/d9580a07cef0c164.txt",
+      "chars": 1151,
+      "status": 200,
+      "sha256": "26dad5b56c7b554320fc2f70ac71c51999ede6c12d44fd5dc28f0f26ea6cb677"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/general/bits.html",
+      "title": "32-Bit & 64-Bit Version | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/f82acf3a9d9cc901.txt",
+      "chars": 1682,
+      "status": 200,
+      "sha256": "f60f74e7bc7d23482e22f57fe39fa4d38177664cfaa43209a9a857b602f66279"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/general/brokensleep.html",
+      "title": "Hibernation / Screensavers do not work | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/2f3914a1f8e1b5a6.txt",
+      "chars": 2207,
+      "status": 200,
+      "sha256": "5a9a50160090b4649a4005c2a08c9af8039fb1249929a11424903c50c686b05f"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/general/deprecated.html",
+      "title": "Reverting to an older version of Wallpaper Engine | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/bc7c26aafd4f8b44.txt",
+      "chars": 976,
+      "status": 200,
+      "sha256": "65e93ac18e88c1f34ab2aeedf77607d7ee3d3999ce0a4990fdea291aed90804b"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/general/focusloss.html",
+      "title": "Playlist Causes focus loss / minimizes games | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/267b5762746de18b.txt",
+      "chars": 595,
+      "status": 200,
+      "sha256": "2b4a90a047c9170d5f7f5fc47b56e932eaf469aa567cc78b6e7ec74a14623746"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/general/lockscreen.html",
+      "title": "Wallpaper Engine on the Windows lock screen | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/ebecc354aba770b2.txt",
+      "chars": 1388,
+      "status": 200,
+      "sha256": "54ba1417491c794aba30e62a022cf668c11538a156bbd3db7cfd4ce4bcf1561e"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/general/multiscreencenter.html",
+      "title": "Centering wallpaper with monitors of different resolutions | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/4b222e75ff1e90f0.txt",
+      "chars": 893,
+      "status": 200,
+      "sha256": "7cf3686ca6b3d8787225fdf97e85e0e665401a04661c5e29dde660348ba0f350"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/interface/broken.html",
+      "title": "Wallpaper Engine window not displayed correctly | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/d869c7ad7d82f3a4.txt",
+      "chars": 3151,
+      "status": 200,
+      "sha256": "f3075b4af0b43ecaa8bf4c5e31fc0242be8344d08a53553678246e8dcfc7a1af"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/interface/emptyresults.html",
+      "title": "Preview images / search results not showing | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/b6e946c8ef8cc983.txt",
+      "chars": 1987,
+      "status": 200,
+      "sha256": "bfddcffd7cdb1e62b49606c0c50cab35036586ed4e9e65a26f5dabde81a2acb2"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/interface/exclude.html",
+      "title": "Exclude certain wallpapers from the search | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/d33d52002743b9da.txt",
+      "chars": 4281,
+      "status": 200,
+      "sha256": "becd906456368739e573b1f250363ac1a731808d8548eca993a7205c6fe98acc"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/mobile/faq.html",
+      "title": "Android - Frequent Questions and Problems | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/63588bb7af94b1eb.txt",
+      "chars": 2652,
+      "status": 200,
+      "sha256": "ad37a307caaec525a1d84642c2e3d52ffbd9d8854ce355b96d60ae87eb0000d0"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/mobile/pairing-fixes.html",
+      "title": "Mobile Pairing Problem Solving | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/4280f4d1ee5fa196.txt",
+      "chars": 4686,
+      "status": 200,
+      "sha256": "92130d52aa79d58260b128f77fad90efb40c2589f5a44622c15b85f8b656f281"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/mobile/pairing.html",
+      "title": "Pairing Mobile Device with Windows | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/710df9a7770807ae.txt",
+      "chars": 3983,
+      "status": 200,
+      "sha256": "96ef6813f3fe2af47d9b7400fecc5f0338ec2d8323ba6d039c672bd77d21ef20"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/mobile/setup.html",
+      "title": "Setting up Wallpaper Engine on Android | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/2d4470564bafcccf.txt",
+      "chars": 427,
+      "status": 200,
+      "sha256": "ae81ff527804f91ffb5c2e0c1eddd3ed50cfef6af4f881b637d9a9eb84f1a23d"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/mobile/workshop.html",
+      "title": "Workshop Agreement Addendum | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/b3c7bc2b8e3063f2.txt",
+      "chars": 1402,
+      "status": 200,
+      "sha256": "4606af3c74d8bbb519a628ae4420a04c9464d066fd401dbe8605024c3fd28ad6"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/noshow/notplaying.html",
+      "title": "Videos Black / Not Playing Properly | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/f52aa67f57e73290.txt",
+      "chars": 2098,
+      "status": 200,
+      "sha256": "751926ec3a9144f66f375b98003978569da6cd64bc05dbb46e45aa78ae977582"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/noshow/nowallpaper.html",
+      "title": "Wallpapers not visible | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/c5d34dc13e0e9ff0.txt",
+      "chars": 2756,
+      "status": 200,
+      "sha256": "fe00cdbef43beb230cae0a36f5e996d6b6e899b88f5f58078b36b10f25ce2e8e"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/performance/dwm.html",
+      "title": "Desktops with Integrated and Dedicated GPU Perform Poorly (dwm.exe) | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/6de448e56b7c698d.txt",
+      "chars": 2431,
+      "status": 200,
+      "sha256": "7b621b1a93820b4329ffb6d93bccaada0470c6a8f2fde532c593b1729e7ac31f"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/performance/game.html",
+      "title": "Performance issues / low FPS with certain games or applications | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/3c12cef12188314a.txt",
+      "chars": 1722,
+      "status": 200,
+      "sha256": "120ca3e51508273518f6d050d5543daa73098bf4135f909e63723e488fe9dd78"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/performance/gpu.html",
+      "title": "High GPU usage misconception | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/7d009393b91c4d6f.txt",
+      "chars": 1660,
+      "status": 200,
+      "sha256": "db01dff7871eee84ed0cd310d1ce7acd950571c7a49e140358e6a1f7fa8de230"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/performance/refresh.html",
+      "title": "Wrong Refresh Rates of Monitors | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/d58d705c7369e231.txt",
+      "chars": 858,
+      "status": 200,
+      "sha256": "079a0086f3f9fa581b915511d473ac64a791fa01c0190e35e57f88a583f0e298"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/steam/backup.html",
+      "title": "Backup Steam Workshop | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/a566622458e302da.txt",
+      "chars": 1909,
+      "status": 200,
+      "sha256": "331f328e543a7c91717898e5d498af75b1ed36c778bfc7289e499bbf5a7496ce"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/steam/contentfile.html",
+      "title": "\"Content file locked\" / Disk Write Error | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/f0c0cdb80804719e.txt",
+      "chars": 1365,
+      "status": 200,
+      "sha256": "010c68d572215d15449a6bafaf2a2adbd84c5379237ce10e9244544dd9b30eb7"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/steam/download.html",
+      "title": "Steam Wallpaper Download Issues | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/568c2c5d5255eb49.txt",
+      "chars": 4063,
+      "status": 200,
+      "sha256": "40b6a147dd073e2bd01b11f83f234f3ab01c5935ad36b98b9f8e270bc55621e3"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/steam/ingame.html",
+      "title": "Steam always shows \"in-game\" | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/96e7359b6581e63c.txt",
+      "chars": 1656,
+      "status": 200,
+      "sha256": "47eaeddcb9bd2ac4fde66921f03aef00d668b37665b0fcad694db08513fcd72a"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/steam/library.html",
+      "title": "Wallpaper Engine missing in Steam Library | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/d956719f5d31d895.txt",
+      "chars": 1091,
+      "status": 200,
+      "sha256": "1177408d3608264a69b6cfcc1a7ad5394f366413033481381fd8dff07fc60ec3"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/steam/redownload.html",
+      "title": "Steam redownloading wallpapers | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/3afebbaab164d985.txt",
+      "chars": 2280,
+      "status": 200,
+      "sha256": "628e12f4f75b9a206b608047761b55ed56318de7df02ae5e6e9fe79829d4dde4"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/steam/steamworks.html",
+      "title": "Steamworks is unavailable | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/fbd024cc9a801f48.txt",
+      "chars": 1830,
+      "status": 200,
+      "sha256": "08c4ac11de05949cc30c3b8da5c779381502f36600dbdc527f266ff98398b0d8"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/steam/uploads.html",
+      "title": "Uploads get stuck at 45% | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/1ddf232c21e033a6.txt",
+      "chars": 1143,
+      "status": 200,
+      "sha256": "4cad53942b17e301cd07d08e3d54ab5f2bb2139399d52b653debc8c217b360ef"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/videos/artifacts.html",
+      "title": "Video wallpapers look wrong | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/d886bd81d531f50a.txt",
+      "chars": 1829,
+      "status": 200,
+      "sha256": "90031ef58d3508242ebd4fba861573a79189818b38f78fc2f92a9aff713a3db2"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/videos/lav.html",
+      "title": "Using LAV and DirectShow | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/ced93758d3fed04f.txt",
+      "chars": 1868,
+      "status": 200,
+      "sha256": "75a5c12f4b3e86ba1d061a00c209bb3afb11ce0bb933d6a1e75a9872b44759f0"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/videos/performance.html",
+      "title": "Video freezes / stuttering / bad performance | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/251c0ceae436fb70.txt",
+      "chars": 2252,
+      "status": 200,
+      "sha256": "5dab320c7e06768d7650078a03a3f98b350aa74b692b62c0c883dec5a80aae85"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/videos/redline.html",
+      "title": "Red Line on screen | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/9ede97b69cd16ca0.txt",
+      "chars": 901,
+      "status": 200,
+      "sha256": "808a9447b745c8f562947622a23423a4b00fc191674659745968473831b77578"
+    },
+    {
+      "url": "https://help.wallpaperengine.io/en/videos/windows-n.html",
+      "title": "Windows N: mfplat.dll missing | Wallpaper Engine - Troubleshooting & FAQ",
+      "file": "raw/47e628dd01f56c37.txt",
+      "chars": 1941,
+      "status": 200,
+      "sha256": "114b4d925296886d38f7faafd4c5c59f28ab6537591bb9f15e03980c502917a6"
+    }
+  ],
+  "additional_sources": [
+    {
+      "url": "https://www.wallpaperengine.io/en",
+      "file": "raw/product-homepage.txt",
+      "bytes": 5459,
+      "sha256": "b7a3e3836bec75e4daf7d1c5147b512de44f196799f05776a0637bb2e4c69719"
+    },
+    {
+      "url": "https://docs.wallpaperengine.io/reference/lib.sceneScript.d.ts",
+      "file": "raw/lib.sceneScript.d.ts",
+      "bytes": 63481,
+      "sha256": "d9ccc5cd1383bbb91c8a589a34874833d13798d163f2b427117023ea2bfac3f4"
+    }
+  ]
+}

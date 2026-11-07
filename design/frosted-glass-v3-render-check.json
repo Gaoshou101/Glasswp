@@ -1,0 +1,1898 @@
+{
+  "passed": true,
+  "layouts": [
+    {
+      "viewport": {
+        "width": 720,
+        "height": 1280,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 720,
+        "h": 1280,
+        "right": 720,
+        "bottom": 1280
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 50.390625,
+          "y": 51.1875,
+          "w": 388.640625,
+          "h": 175.3125,
+          "right": 439.03125,
+          "bottom": 226.5,
+          "clientW": 387,
+          "scrollW": 387,
+          "clientH": 173,
+          "scrollH": 174
+        },
+        {
+          "name": "glass weather",
+          "x": 453.6875,
+          "y": 51.1875,
+          "w": 215.90625,
+          "h": 175.3125,
+          "right": 669.59375,
+          "bottom": 226.5,
+          "clientW": 214,
+          "scrollW": 215,
+          "clientH": 173,
+          "scrollH": 174
+        },
+        {
+          "name": "glass quota",
+          "x": 50.390625,
+          "y": 755.4375,
+          "w": 619.21875,
+          "h": 286.65625,
+          "right": 669.609375,
+          "bottom": 1042.09375,
+          "clientW": 617,
+          "scrollW": 618,
+          "clientH": 285,
+          "scrollH": 285
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 50.390625,
+          "y": 1075.4375,
+          "w": 147.796875,
+          "h": 154.65625,
+          "right": 198.1875,
+          "bottom": 1230.09375,
+          "clientW": 146,
+          "scrollW": 147,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 207.515625,
+          "y": 1075.4375,
+          "w": 147.8125,
+          "h": 154.65625,
+          "right": 355.328125,
+          "bottom": 1230.09375,
+          "clientW": 146,
+          "scrollW": 147,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 364.65625,
+          "y": 1075.4375,
+          "w": 147.8125,
+          "h": 154.65625,
+          "right": 512.46875,
+          "bottom": 1230.09375,
+          "clientW": 146,
+          "scrollW": 147,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 521.796875,
+          "y": 1075.4375,
+          "w": 147.8125,
+          "h": 154.65625,
+          "right": 669.609375,
+          "bottom": 1230.09375,
+          "clientW": 146,
+          "scrollW": 147,
+          "clientH": 153,
+          "scrollH": 153
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 180,
+        "y": 384,
+        "w": 424.79999999999995,
+        "h": 320
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 720,
+      "documentHeight": 1280,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 0.6666666666666666
+    },
+    {
+      "viewport": {
+        "width": 800,
+        "height": 1280,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 800,
+        "h": 1280,
+        "right": 800,
+        "bottom": 1280
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 56,
+          "y": 51.1875,
+          "w": 432.859375,
+          "h": 175.3125,
+          "right": 488.859375,
+          "bottom": 226.5,
+          "clientW": 431,
+          "scrollW": 432,
+          "clientH": 173,
+          "scrollH": 174
+        },
+        {
+          "name": "glass weather",
+          "x": 503.515625,
+          "y": 51.1875,
+          "w": 240.484375,
+          "h": 175.3125,
+          "right": 744,
+          "bottom": 226.5,
+          "clientW": 238,
+          "scrollW": 239,
+          "clientH": 173,
+          "scrollH": 174
+        },
+        {
+          "name": "glass quota",
+          "x": 56,
+          "y": 755.4375,
+          "w": 688,
+          "h": 286.65625,
+          "right": 744,
+          "bottom": 1042.09375,
+          "clientW": 686,
+          "scrollW": 687,
+          "clientH": 285,
+          "scrollH": 285
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 56,
+          "y": 1075.4375,
+          "w": 165,
+          "h": 154.65625,
+          "right": 221,
+          "bottom": 1230.09375,
+          "clientW": 163,
+          "scrollW": 164,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 230.328125,
+          "y": 1075.4375,
+          "w": 165,
+          "h": 154.65625,
+          "right": 395.328125,
+          "bottom": 1230.09375,
+          "clientW": 163,
+          "scrollW": 164,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 404.65625,
+          "y": 1075.4375,
+          "w": 165,
+          "h": 154.65625,
+          "right": 569.65625,
+          "bottom": 1230.09375,
+          "clientW": 163,
+          "scrollW": 164,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 578.984375,
+          "y": 1075.4375,
+          "w": 165.015625,
+          "h": 154.65625,
+          "right": 744,
+          "bottom": 1230.09375,
+          "clientW": 163,
+          "scrollW": 164,
+          "clientH": 153,
+          "scrollH": 153
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 200,
+        "y": 355.55555555555554,
+        "w": 472,
+        "h": 355.55555555555554
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 800,
+      "documentHeight": 1280,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 0.6666666666666666
+    },
+    {
+      "viewport": {
+        "width": 900,
+        "height": 1440,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 900,
+        "h": 1440,
+        "right": 900,
+        "bottom": 1440
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 63,
+          "y": 57.59375,
+          "w": 486.953125,
+          "h": 196.75,
+          "right": 549.953125,
+          "bottom": 254.34375,
+          "clientW": 485,
+          "scrollW": 486,
+          "clientH": 195,
+          "scrollH": 196
+        },
+        {
+          "name": "glass weather",
+          "x": 566.453125,
+          "y": 57.59375,
+          "w": 270.53125,
+          "h": 196.75,
+          "right": 836.984375,
+          "bottom": 254.34375,
+          "clientW": 269,
+          "scrollW": 269,
+          "clientH": 195,
+          "scrollH": 196
+        },
+        {
+          "name": "glass quota",
+          "x": 63,
+          "y": 849.84375,
+          "w": 774,
+          "h": 322.5,
+          "right": 837,
+          "bottom": 1172.34375,
+          "clientW": 772,
+          "scrollW": 773,
+          "clientH": 321,
+          "scrollH": 321
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 63,
+          "y": 1209.84375,
+          "w": 185.625,
+          "h": 174,
+          "right": 248.625,
+          "bottom": 1383.84375,
+          "clientW": 184,
+          "scrollW": 185,
+          "clientH": 172,
+          "scrollH": 173
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 259.125,
+          "y": 1209.84375,
+          "w": 185.625,
+          "h": 174,
+          "right": 444.75,
+          "bottom": 1383.84375,
+          "clientW": 184,
+          "scrollW": 185,
+          "clientH": 172,
+          "scrollH": 173
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 455.25,
+          "y": 1209.84375,
+          "w": 185.625,
+          "h": 174,
+          "right": 640.875,
+          "bottom": 1383.84375,
+          "clientW": 184,
+          "scrollW": 185,
+          "clientH": 172,
+          "scrollH": 173
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 651.375,
+          "y": 1209.84375,
+          "w": 185.625,
+          "h": 174,
+          "right": 837,
+          "bottom": 1383.84375,
+          "clientW": 184,
+          "scrollW": 185,
+          "clientH": 172,
+          "scrollH": 173
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 225,
+        "y": 400,
+        "w": 531,
+        "h": 400
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 900,
+      "documentHeight": 1440,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 0.75
+    },
+    {
+      "viewport": {
+        "width": 1024,
+        "height": 1600,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1024,
+        "h": 1600,
+        "right": 1024,
+        "bottom": 1600
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 71.671875,
+          "y": 64,
+          "w": 554.515625,
+          "h": 215.03125,
+          "right": 626.1875,
+          "bottom": 279.03125,
+          "clientW": 553,
+          "scrollW": 554,
+          "clientH": 213,
+          "scrollH": 214
+        },
+        {
+          "name": "glass weather",
+          "x": 644.25,
+          "y": 64,
+          "w": 308.078125,
+          "h": 215.03125,
+          "right": 952.328125,
+          "bottom": 279.03125,
+          "clientW": 306,
+          "scrollW": 307,
+          "clientH": 213,
+          "scrollH": 214
+        },
+        {
+          "name": "glass quota",
+          "x": 71.671875,
+          "y": 952.8125,
+          "w": 880.65625,
+          "h": 353.171875,
+          "right": 952.328125,
+          "bottom": 1305.984375,
+          "clientW": 879,
+          "scrollW": 880,
+          "clientH": 351,
+          "scrollH": 352
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 71.671875,
+          "y": 1347.0625,
+          "w": 211.546875,
+          "h": 190.546875,
+          "right": 283.21875,
+          "bottom": 1537.609375,
+          "clientW": 210,
+          "scrollW": 211,
+          "clientH": 189,
+          "scrollH": 190
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 294.703125,
+          "y": 1347.0625,
+          "w": 211.546875,
+          "h": 190.546875,
+          "right": 506.25,
+          "bottom": 1537.609375,
+          "clientW": 210,
+          "scrollW": 211,
+          "clientH": 189,
+          "scrollH": 190
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 517.734375,
+          "y": 1347.0625,
+          "w": 211.546875,
+          "h": 190.546875,
+          "right": 729.28125,
+          "bottom": 1537.609375,
+          "clientW": 210,
+          "scrollW": 211,
+          "clientH": 189,
+          "scrollH": 190
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 740.765625,
+          "y": 1347.0625,
+          "w": 211.5625,
+          "h": 190.546875,
+          "right": 952.328125,
+          "bottom": 1537.609375,
+          "clientW": 210,
+          "scrollW": 211,
+          "clientH": 189,
+          "scrollH": 190
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 256,
+        "y": 435.91111111111104,
+        "w": 604.16,
+        "h": 455.11111111111114
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1024,
+      "documentHeight": 1600,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 0.8213333333333334
+    },
+    {
+      "viewport": {
+        "width": 1080,
+        "height": 1920,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1080,
+        "h": 1920,
+        "right": 1080,
+        "bottom": 1920
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 75.59375,
+          "y": 76.796875,
+          "w": 582.9375,
+          "h": 262,
+          "right": 658.53125,
+          "bottom": 338.796875,
+          "clientW": 581,
+          "scrollW": 582,
+          "clientH": 260,
+          "scrollH": 261
+        },
+        {
+          "name": "glass weather",
+          "x": 680.53125,
+          "y": 76.796875,
+          "w": 323.859375,
+          "h": 262,
+          "right": 1004.390625,
+          "bottom": 338.796875,
+          "clientW": 322,
+          "scrollW": 323,
+          "clientH": 260,
+          "scrollH": 261
+        },
+        {
+          "name": "glass quota",
+          "x": 75.59375,
+          "y": 1133.125,
+          "w": 928.8125,
+          "h": 430,
+          "right": 1004.40625,
+          "bottom": 1563.125,
+          "clientW": 927,
+          "scrollW": 928,
+          "clientH": 428,
+          "scrollH": 429
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 75.59375,
+          "y": 1613.125,
+          "w": 221.703125,
+          "h": 232,
+          "right": 297.296875,
+          "bottom": 1845.125,
+          "clientW": 220,
+          "scrollW": 221,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 311.296875,
+          "y": 1613.125,
+          "w": 221.703125,
+          "h": 232,
+          "right": 533,
+          "bottom": 1845.125,
+          "clientW": 220,
+          "scrollW": 221,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 547,
+          "y": 1613.125,
+          "w": 221.703125,
+          "h": 232,
+          "right": 768.703125,
+          "bottom": 1845.125,
+          "clientW": 220,
+          "scrollW": 221,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 782.703125,
+          "y": 1613.125,
+          "w": 221.703125,
+          "h": 232,
+          "right": 1004.40625,
+          "bottom": 1845.125,
+          "clientW": 220,
+          "scrollW": 221,
+          "clientH": 230,
+          "scrollH": 231
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 270,
+        "y": 576,
+        "w": 637.1999999999999,
+        "h": 480
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1080,
+      "documentHeight": 1920,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 1
+    },
+    {
+      "viewport": {
+        "width": 1200,
+        "height": 1920,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1200,
+        "h": 1920,
+        "right": 1200,
+        "bottom": 1920
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 84,
+          "y": 76.796875,
+          "w": 649.28125,
+          "h": 262,
+          "right": 733.28125,
+          "bottom": 338.796875,
+          "clientW": 647,
+          "scrollW": 648,
+          "clientH": 260,
+          "scrollH": 261
+        },
+        {
+          "name": "glass weather",
+          "x": 755.28125,
+          "y": 76.796875,
+          "w": 360.71875,
+          "h": 262,
+          "right": 1116,
+          "bottom": 338.796875,
+          "clientW": 359,
+          "scrollW": 360,
+          "clientH": 260,
+          "scrollH": 261
+        },
+        {
+          "name": "glass quota",
+          "x": 84,
+          "y": 1133.125,
+          "w": 1032,
+          "h": 430,
+          "right": 1116,
+          "bottom": 1563.125,
+          "clientW": 1030,
+          "scrollW": 1031,
+          "clientH": 428,
+          "scrollH": 429
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 84,
+          "y": 1613.125,
+          "w": 247.5,
+          "h": 232,
+          "right": 331.5,
+          "bottom": 1845.125,
+          "clientW": 246,
+          "scrollW": 247,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 345.5,
+          "y": 1613.125,
+          "w": 247.5,
+          "h": 232,
+          "right": 593,
+          "bottom": 1845.125,
+          "clientW": 246,
+          "scrollW": 247,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 607,
+          "y": 1613.125,
+          "w": 247.5,
+          "h": 232,
+          "right": 854.5,
+          "bottom": 1845.125,
+          "clientW": 246,
+          "scrollW": 247,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 868.5,
+          "y": 1613.125,
+          "w": 247.5,
+          "h": 232,
+          "right": 1116,
+          "bottom": 1845.125,
+          "clientW": 246,
+          "scrollW": 247,
+          "clientH": 230,
+          "scrollH": 231
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 300,
+        "y": 533.3333333333333,
+        "w": 708,
+        "h": 533.3333333333334
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1200,
+      "documentHeight": 1920,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 1
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 2560,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 2560,
+        "right": 1440,
+        "bottom": 2560
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 100.796875,
+          "y": 102.390625,
+          "w": 777.25,
+          "h": 347.640625,
+          "right": 878.046875,
+          "bottom": 450.03125,
+          "clientW": 775,
+          "scrollW": 777,
+          "clientH": 346,
+          "scrollH": 347
+        },
+        {
+          "name": "glass weather",
+          "x": 907.375,
+          "y": 102.390625,
+          "w": 431.828125,
+          "h": 347.640625,
+          "right": 1339.203125,
+          "bottom": 450.03125,
+          "clientW": 430,
+          "scrollW": 431,
+          "clientH": 346,
+          "scrollH": 347
+        },
+        {
+          "name": "glass quota",
+          "x": 100.796875,
+          "y": 1510.84375,
+          "w": 1238.40625,
+          "h": 573.328125,
+          "right": 1339.203125,
+          "bottom": 2084.171875,
+          "clientW": 1236,
+          "scrollW": 1238,
+          "clientH": 571,
+          "scrollH": 573
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 100.796875,
+          "y": 2150.84375,
+          "w": 295.609375,
+          "h": 309.328125,
+          "right": 396.40625,
+          "bottom": 2460.171875,
+          "clientW": 294,
+          "scrollW": 295,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 415.0625,
+          "y": 2150.84375,
+          "w": 295.609375,
+          "h": 309.328125,
+          "right": 710.671875,
+          "bottom": 2460.171875,
+          "clientW": 294,
+          "scrollW": 295,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 729.328125,
+          "y": 2150.84375,
+          "w": 295.609375,
+          "h": 309.328125,
+          "right": 1024.9375,
+          "bottom": 2460.171875,
+          "clientW": 294,
+          "scrollW": 295,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 1043.59375,
+          "y": 2150.84375,
+          "w": 295.609375,
+          "h": 309.328125,
+          "right": 1339.203125,
+          "bottom": 2460.171875,
+          "clientW": 294,
+          "scrollW": 295,
+          "clientH": 307,
+          "scrollH": 309
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 360,
+        "y": 768,
+        "w": 849.5999999999999,
+        "h": 640
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1440,
+      "documentHeight": 2560,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 1.3333333333333333
+    },
+    {
+      "viewport": {
+        "width": 1600,
+        "height": 2560,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 2560,
+        "right": 1600,
+        "bottom": 2560
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 112,
+          "y": 102.390625,
+          "w": 865.703125,
+          "h": 347.640625,
+          "right": 977.703125,
+          "bottom": 450.03125,
+          "clientW": 864,
+          "scrollW": 865,
+          "clientH": 346,
+          "scrollH": 347
+        },
+        {
+          "name": "glass weather",
+          "x": 1007.03125,
+          "y": 102.390625,
+          "w": 480.96875,
+          "h": 347.640625,
+          "right": 1488,
+          "bottom": 450.03125,
+          "clientW": 479,
+          "scrollW": 481,
+          "clientH": 346,
+          "scrollH": 347
+        },
+        {
+          "name": "glass quota",
+          "x": 112,
+          "y": 1510.84375,
+          "w": 1376,
+          "h": 573.328125,
+          "right": 1488,
+          "bottom": 2084.171875,
+          "clientW": 1374,
+          "scrollW": 1376,
+          "clientH": 571,
+          "scrollH": 573
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 112,
+          "y": 2150.84375,
+          "w": 330,
+          "h": 309.328125,
+          "right": 442,
+          "bottom": 2460.171875,
+          "clientW": 328,
+          "scrollW": 330,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 460.65625,
+          "y": 2150.84375,
+          "w": 330.015625,
+          "h": 309.328125,
+          "right": 790.671875,
+          "bottom": 2460.171875,
+          "clientW": 328,
+          "scrollW": 330,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 809.328125,
+          "y": 2150.84375,
+          "w": 330,
+          "h": 309.328125,
+          "right": 1139.328125,
+          "bottom": 2460.171875,
+          "clientW": 328,
+          "scrollW": 330,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 1157.984375,
+          "y": 2150.84375,
+          "w": 330.015625,
+          "h": 309.328125,
+          "right": 1488,
+          "bottom": 2460.171875,
+          "clientW": 328,
+          "scrollW": 330,
+          "clientH": 307,
+          "scrollH": 309
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 400,
+        "y": 711.1111111111111,
+        "w": 944,
+        "h": 711.1111111111111
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1600,
+      "documentHeight": 2560,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 1.3333333333333333
+    },
+    {
+      "viewport": {
+        "width": 2160,
+        "height": 3840,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 2160,
+        "h": 3840,
+        "right": 2160,
+        "bottom": 3840
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 151.1875,
+          "y": 153.59375,
+          "w": 1165.890625,
+          "h": 523,
+          "right": 1317.078125,
+          "bottom": 676.59375,
+          "clientW": 1162,
+          "scrollW": 1164,
+          "clientH": 519,
+          "scrollH": 521
+        },
+        {
+          "name": "glass weather",
+          "x": 1361.078125,
+          "y": 153.59375,
+          "w": 647.71875,
+          "h": 523,
+          "right": 2008.796875,
+          "bottom": 676.59375,
+          "clientW": 644,
+          "scrollW": 646,
+          "clientH": 519,
+          "scrollH": 521
+        },
+        {
+          "name": "glass quota",
+          "x": 151.1875,
+          "y": 2266.25,
+          "w": 1857.625,
+          "h": 860,
+          "right": 2008.8125,
+          "bottom": 3126.25,
+          "clientW": 1854,
+          "scrollW": 1856,
+          "clientH": 856,
+          "scrollH": 858
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 151.1875,
+          "y": 3226.25,
+          "w": 443.40625,
+          "h": 464,
+          "right": 594.59375,
+          "bottom": 3690.25,
+          "clientW": 439,
+          "scrollW": 442,
+          "clientH": 460,
+          "scrollH": 462
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 622.59375,
+          "y": 3226.25,
+          "w": 443.40625,
+          "h": 464,
+          "right": 1066,
+          "bottom": 3690.25,
+          "clientW": 439,
+          "scrollW": 442,
+          "clientH": 460,
+          "scrollH": 462
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 1094,
+          "y": 3226.25,
+          "w": 443.40625,
+          "h": 464,
+          "right": 1537.40625,
+          "bottom": 3690.25,
+          "clientW": 439,
+          "scrollW": 442,
+          "clientH": 460,
+          "scrollH": 462
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 1565.40625,
+          "y": 3226.25,
+          "w": 443.40625,
+          "h": 464,
+          "right": 2008.8125,
+          "bottom": 3690.25,
+          "clientW": 439,
+          "scrollW": 442,
+          "clientH": 460,
+          "scrollH": 462
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 540,
+        "y": 1152,
+        "w": 1274.3999999999999,
+        "h": 960
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 2160,
+      "documentHeight": 3840,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 2
+    },
+    {
+      "viewport": {
+        "width": 1200,
+        "height": 1600,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1200,
+        "h": 1600,
+        "right": 1200,
+        "bottom": 1600
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 84,
+          "y": 64,
+          "w": 653.0625,
+          "h": 191.828125,
+          "right": 737.0625,
+          "bottom": 255.828125,
+          "clientW": 651,
+          "scrollW": 652,
+          "clientH": 190,
+          "scrollH": 191
+        },
+        {
+          "name": "glass weather",
+          "x": 753.1875,
+          "y": 64,
+          "w": 362.8125,
+          "h": 191.828125,
+          "right": 1116,
+          "bottom": 255.828125,
+          "clientW": 361,
+          "scrollW": 362,
+          "clientH": 190,
+          "scrollH": 191
+        },
+        {
+          "name": "glass quota",
+          "x": 84,
+          "y": 1015.484375,
+          "w": 1032,
+          "h": 315.328125,
+          "right": 1116,
+          "bottom": 1330.8125,
+          "clientW": 1030,
+          "scrollW": 1031,
+          "clientH": 313,
+          "scrollH": 314
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 84,
+          "y": 1367.484375,
+          "w": 250.296875,
+          "h": 170.125,
+          "right": 334.296875,
+          "bottom": 1537.609375,
+          "clientW": 248,
+          "scrollW": 249,
+          "clientH": 168,
+          "scrollH": 169
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 344.5625,
+          "y": 1367.484375,
+          "w": 250.296875,
+          "h": 170.125,
+          "right": 594.859375,
+          "bottom": 1537.609375,
+          "clientW": 248,
+          "scrollW": 249,
+          "clientH": 168,
+          "scrollH": 169
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 605.125,
+          "y": 1367.484375,
+          "w": 250.296875,
+          "h": 170.125,
+          "right": 855.421875,
+          "bottom": 1537.609375,
+          "clientW": 248,
+          "scrollW": 249,
+          "clientH": 168,
+          "scrollH": 169
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 865.6875,
+          "y": 1367.484375,
+          "w": 250.3125,
+          "h": 170.125,
+          "right": 1116,
+          "bottom": 1537.609375,
+          "clientW": 248,
+          "scrollW": 249,
+          "clientH": 168,
+          "scrollH": 169
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 300,
+        "y": 373.33333333333326,
+        "w": 708,
+        "h": 533.3333333333334
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1200,
+      "documentHeight": 1600,
+      "imageFit": "cover",
+      "aspect": "wide",
+      "scale": 0.7333333333333334
+    },
+    {
+      "viewport": {
+        "width": 1080,
+        "height": 2400,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1080,
+        "h": 2400,
+        "right": 1080,
+        "bottom": 2400
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 75.59375,
+          "y": 96,
+          "w": 582.9375,
+          "h": 262,
+          "right": 658.53125,
+          "bottom": 358,
+          "clientW": 581,
+          "scrollW": 582,
+          "clientH": 260,
+          "scrollH": 261
+        },
+        {
+          "name": "glass weather",
+          "x": 680.53125,
+          "y": 96,
+          "w": 323.859375,
+          "h": 262,
+          "right": 1004.390625,
+          "bottom": 358,
+          "clientW": 322,
+          "scrollW": 323,
+          "clientH": 260,
+          "scrollH": 261
+        },
+        {
+          "name": "glass quota",
+          "x": 75.59375,
+          "y": 1594.40625,
+          "w": 928.8125,
+          "h": 430,
+          "right": 1004.40625,
+          "bottom": 2024.40625,
+          "clientW": 927,
+          "scrollW": 928,
+          "clientH": 428,
+          "scrollH": 429
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 75.59375,
+          "y": 2074.40625,
+          "w": 221.703125,
+          "h": 232,
+          "right": 297.296875,
+          "bottom": 2306.40625,
+          "clientW": 220,
+          "scrollW": 221,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 311.296875,
+          "y": 2074.40625,
+          "w": 221.703125,
+          "h": 232,
+          "right": 533,
+          "bottom": 2306.40625,
+          "clientW": 220,
+          "scrollW": 221,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 547,
+          "y": 2074.40625,
+          "w": 221.703125,
+          "h": 232,
+          "right": 768.703125,
+          "bottom": 2306.40625,
+          "clientW": 220,
+          "scrollW": 221,
+          "clientH": 230,
+          "scrollH": 231
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 782.703125,
+          "y": 2074.40625,
+          "w": 221.703125,
+          "h": 232,
+          "right": 1004.40625,
+          "bottom": 2306.40625,
+          "clientW": 220,
+          "scrollW": 221,
+          "clientH": 230,
+          "scrollH": 231
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 202.5,
+        "y": 720,
+        "w": 796.5,
+        "h": 600
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1080,
+      "documentHeight": 2400,
+      "imageFit": "cover",
+      "aspect": "tall",
+      "scale": 1
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 3440,
+        "dpr": 1
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1440,
+        "h": 3440,
+        "right": 1440,
+        "bottom": 3440
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 100.796875,
+          "y": 137.59375,
+          "w": 777.25,
+          "h": 347.640625,
+          "right": 878.046875,
+          "bottom": 485.234375,
+          "clientW": 775,
+          "scrollW": 777,
+          "clientH": 346,
+          "scrollH": 347
+        },
+        {
+          "name": "glass weather",
+          "x": 907.375,
+          "y": 137.59375,
+          "w": 431.828125,
+          "h": 347.640625,
+          "right": 1339.203125,
+          "bottom": 485.234375,
+          "clientW": 430,
+          "scrollW": 431,
+          "clientH": 346,
+          "scrollH": 347
+        },
+        {
+          "name": "glass quota",
+          "x": 100.796875,
+          "y": 2356.515625,
+          "w": 1238.40625,
+          "h": 573.328125,
+          "right": 1339.203125,
+          "bottom": 2929.84375,
+          "clientW": 1236,
+          "scrollW": 1238,
+          "clientH": 571,
+          "scrollH": 573
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 100.796875,
+          "y": 2996.515625,
+          "w": 295.609375,
+          "h": 309.328125,
+          "right": 396.40625,
+          "bottom": 3305.84375,
+          "clientW": 294,
+          "scrollW": 295,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 415.0625,
+          "y": 2996.515625,
+          "w": 295.609375,
+          "h": 309.328125,
+          "right": 710.671875,
+          "bottom": 3305.84375,
+          "clientW": 294,
+          "scrollW": 295,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 729.328125,
+          "y": 2996.515625,
+          "w": 295.609375,
+          "h": 309.328125,
+          "right": 1024.9375,
+          "bottom": 3305.84375,
+          "clientW": 294,
+          "scrollW": 295,
+          "clientH": 307,
+          "scrollH": 309
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 1043.59375,
+          "y": 2996.515625,
+          "w": 295.609375,
+          "h": 309.328125,
+          "right": 1339.203125,
+          "bottom": 3305.84375,
+          "clientW": 294,
+          "scrollW": 295,
+          "clientH": 307,
+          "scrollH": 309
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 236.25,
+        "y": 1032,
+        "w": 1141.6499999999999,
+        "h": 860
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1440,
+      "documentHeight": 3440,
+      "imageFit": "cover",
+      "aspect": "tall",
+      "scale": 1.3333333333333333
+    }
+  ],
+  "dpiLayouts": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 2048,
+        "dpr": 1.25
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1280,
+        "h": 2048,
+        "right": 1280,
+        "bottom": 2048
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 89.59375,
+          "y": 81.90625,
+          "w": 692.578125,
+          "h": 279.515625,
+          "right": 782.171875,
+          "bottom": 361.421875,
+          "clientW": 691,
+          "scrollW": 692,
+          "clientH": 278,
+          "scrollH": 279
+        },
+        {
+          "name": "glass weather",
+          "x": 805.625,
+          "y": 81.90625,
+          "w": 384.765625,
+          "h": 279.515625,
+          "right": 1190.390625,
+          "bottom": 361.421875,
+          "clientW": 383,
+          "scrollW": 384,
+          "clientH": 278,
+          "scrollH": 279
+        },
+        {
+          "name": "glass quota",
+          "x": 89.59375,
+          "y": 1208.671875,
+          "w": 1100.8125,
+          "h": 458.65625,
+          "right": 1190.40625,
+          "bottom": 1667.328125,
+          "clientW": 1099,
+          "scrollW": 1100,
+          "clientH": 457,
+          "scrollH": 458
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 89.59375,
+          "y": 1720.6875,
+          "w": 264,
+          "h": 247.453125,
+          "right": 353.59375,
+          "bottom": 1968.140625,
+          "clientW": 262,
+          "scrollW": 263,
+          "clientH": 245,
+          "scrollH": 247
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 368.515625,
+          "y": 1720.6875,
+          "w": 264.015625,
+          "h": 247.453125,
+          "right": 632.53125,
+          "bottom": 1968.140625,
+          "clientW": 262,
+          "scrollW": 263,
+          "clientH": 245,
+          "scrollH": 247
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 647.453125,
+          "y": 1720.6875,
+          "w": 264.015625,
+          "h": 247.453125,
+          "right": 911.46875,
+          "bottom": 1968.140625,
+          "clientW": 262,
+          "scrollW": 263,
+          "clientH": 245,
+          "scrollH": 247
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 926.390625,
+          "y": 1720.6875,
+          "w": 264.015625,
+          "h": 247.453125,
+          "right": 1190.40625,
+          "bottom": 1968.140625,
+          "clientW": 262,
+          "scrollW": 263,
+          "clientH": 245,
+          "scrollH": 247
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 320,
+        "y": 568.8888888888888,
+        "w": 755.1999999999999,
+        "h": 568.8888888888889
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1280,
+      "documentHeight": 2048,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 1.0666666666666667
+    },
+    {
+      "viewport": {
+        "width": 1000,
+        "height": 1600,
+        "dpr": 1.600000023841858
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 1000,
+        "h": 1600,
+        "right": 1000,
+        "bottom": 1600
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 70,
+          "y": 64,
+          "w": 541.0625,
+          "h": 219.140625,
+          "right": 611.0625,
+          "bottom": 283.140625,
+          "clientW": 539,
+          "scrollW": 540,
+          "clientH": 217,
+          "scrollH": 218
+        },
+        {
+          "name": "glass weather",
+          "x": 629.390625,
+          "y": 64,
+          "w": 300.609375,
+          "h": 219.140625,
+          "right": 930,
+          "bottom": 283.140625,
+          "clientW": 299,
+          "scrollW": 300,
+          "clientH": 217,
+          "scrollH": 218
+        },
+        {
+          "name": "glass quota",
+          "x": 70,
+          "y": 944.28125,
+          "w": 860,
+          "h": 358.328125,
+          "right": 930,
+          "bottom": 1302.609375,
+          "clientW": 858,
+          "scrollW": 859,
+          "clientH": 356,
+          "scrollH": 357
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 70,
+          "y": 1344.28125,
+          "w": 206.25,
+          "h": 193.328125,
+          "right": 276.25,
+          "bottom": 1537.609375,
+          "clientW": 204,
+          "scrollW": 205,
+          "clientH": 191,
+          "scrollH": 192
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 287.90625,
+          "y": 1344.28125,
+          "w": 206.265625,
+          "h": 193.328125,
+          "right": 494.171875,
+          "bottom": 1537.609375,
+          "clientW": 204,
+          "scrollW": 205,
+          "clientH": 191,
+          "scrollH": 192
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 505.828125,
+          "y": 1344.28125,
+          "w": 206.25,
+          "h": 193.328125,
+          "right": 712.078125,
+          "bottom": 1537.609375,
+          "clientW": 204,
+          "scrollW": 205,
+          "clientH": 191,
+          "scrollH": 192
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 723.734375,
+          "y": 1344.28125,
+          "w": 206.265625,
+          "h": 193.328125,
+          "right": 930,
+          "bottom": 1537.609375,
+          "clientW": 204,
+          "scrollW": 205,
+          "clientH": 191,
+          "scrollH": 192
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 250,
+        "y": 444.44444444444446,
+        "w": 590,
+        "h": 444.44444444444446
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 1000,
+      "documentHeight": 1600,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 0.8333333333333334
+    },
+    {
+      "viewport": {
+        "width": 800,
+        "height": 1280,
+        "dpr": 2
+      },
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "w": 800,
+        "h": 1280,
+        "right": 800,
+        "bottom": 1280
+      },
+      "panels": [
+        {
+          "name": "glass clock",
+          "x": 56,
+          "y": 51.1875,
+          "w": 432.859375,
+          "h": 175.3125,
+          "right": 488.859375,
+          "bottom": 226.5,
+          "clientW": 431,
+          "scrollW": 432,
+          "clientH": 173,
+          "scrollH": 174
+        },
+        {
+          "name": "glass weather",
+          "x": 503.515625,
+          "y": 51.1875,
+          "w": 240.484375,
+          "h": 175.3125,
+          "right": 744,
+          "bottom": 226.5,
+          "clientW": 238,
+          "scrollW": 239,
+          "clientH": 173,
+          "scrollH": 174
+        },
+        {
+          "name": "glass quota",
+          "x": 56,
+          "y": 755.4375,
+          "w": 688,
+          "h": 286.65625,
+          "right": 744,
+          "bottom": 1042.09375,
+          "clientW": 686,
+          "scrollW": 687,
+          "clientH": 285,
+          "scrollH": 285
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 56,
+          "y": 1075.4375,
+          "w": 165,
+          "h": 154.65625,
+          "right": 221,
+          "bottom": 1230.09375,
+          "clientW": 163,
+          "scrollW": 164,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 230.328125,
+          "y": 1075.4375,
+          "w": 165,
+          "h": 154.65625,
+          "right": 395.328125,
+          "bottom": 1230.09375,
+          "clientW": 163,
+          "scrollW": 164,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 404.65625,
+          "y": 1075.4375,
+          "w": 165,
+          "h": 154.65625,
+          "right": 569.65625,
+          "bottom": 1230.09375,
+          "clientW": 163,
+          "scrollW": 164,
+          "clientH": 153,
+          "scrollH": 153
+        },
+        {
+          "name": "glass hardware-item",
+          "x": 578.984375,
+          "y": 1075.4375,
+          "w": 165.015625,
+          "h": 154.65625,
+          "right": 744,
+          "bottom": 1230.09375,
+          "clientW": 163,
+          "scrollW": 164,
+          "clientH": 153,
+          "scrollH": 153
+        }
+      ],
+      "clippedText": [],
+      "face": {
+        "x": 200,
+        "y": 355.55555555555554,
+        "w": 472,
+        "h": 355.55555555555554
+      },
+      "faceOverlap": [],
+      "sectionOverlap": false,
+      "documentWidth": 800,
+      "documentHeight": 1280,
+      "imageFit": "cover",
+      "aspect": "standard",
+      "scale": 0.6666666666666666
+    }
+  ],
+  "previews": [
+    {
+      "value": "1600x2560",
+      "bounds": {
+        "x": 188.25,
+        "y": 60,
+        "w": 557.5,
+        "h": 892,
+        "right": 745.75,
+        "bottom": 952
+      }
+    },
+    {
+      "value": "1080x1920",
+      "bounds": {
+        "x": 216.125,
+        "y": 60,
+        "w": 501.75,
+        "h": 892,
+        "right": 717.875,
+        "bottom": 952
+      }
+    },
+    {
+      "value": "1200x1600",
+      "bounds": {
+        "x": 132.5,
+        "y": 60,
+        "w": 669,
+        "h": 892,
+        "right": 801.5,
+        "bottom": 952
+      }
+    },
+    {
+      "value": "1080x2400",
+      "bounds": {
+        "x": 266.296875,
+        "y": 60,
+        "w": 401.390625,
+        "h": 892,
+        "right": 667.6875,
+        "bottom": 952
+      }
+    },
+    {
+      "value": "viewport",
+      "bounds": {
+        "x": 188.25,
+        "y": 60,
+        "w": 557.5,
+        "h": 892,
+        "right": 745.75,
+        "bottom": 952
+      }
+    }
+  ],
+  "resolutionPersistence": true,
+  "materialPersistence": true,
+  "textOpacityPreserved": true,
+  "errors": []
+}

@@ -1,0 +1,114 @@
+{
+  "research_date": "2026-10-10",
+  "timezone": "Asia/Shanghai",
+  "version_scope": "Upstream source snapshots; deployed CPAMP version not verified",
+  "source_files": [
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/manager-server/internal/http/controller/quotasnapshot/handler.go",
+      "local_file": "raw/apps__manager-server__internal__http__controller__quotasnapshot__handler.go",
+      "fetched_utc": "2026-10-10T07:50:21.6045591Z",
+      "sha256": "b86799b3644110307121d298b10a9a3234ecf4393ae3e6f558e8fd8de10b7876"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/manager-server/internal/model/account_quota_snapshot.go",
+      "local_file": "raw/apps__manager-server__internal__model__account_quota_snapshot.go",
+      "fetched_utc": "2026-10-10T07:50:22.3522065Z",
+      "sha256": "e8d6df4bc039fc3d763435bd92891e928373a34872864de648592e04b27adb42"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/manager-server/internal/model/account_quota_window.go",
+      "local_file": "raw/apps__manager-server__internal__model__account_quota_window.go",
+      "fetched_utc": "2026-10-10T07:50:23.0385414Z",
+      "sha256": "687443e5a238ab65d851c7a8fa77cb7b6122e54ce5d7b9479def4a25fc985a01"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/web/src/services/api/codexQuota.ts",
+      "local_file": "raw/apps__web__src__services__api__codexQuota.ts",
+      "fetched_utc": "2026-10-10T07:50:23.7484419Z",
+      "sha256": "ba486766c28a3c8df1ded5615845f2c0bc057cdbcfae97acd7d421f56e6e03e0"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/web/src/utils/quota/providerRequests.ts",
+      "local_file": "raw/apps__web__src__utils__quota__providerRequests.ts",
+      "fetched_utc": "2026-10-10T07:50:24.4715544Z",
+      "sha256": "94a9d69a7506e2d3530cd9b4a8e1c541ae69ef2612dac9ecdb8003d0743da3b8"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/web/src/types/quota.ts",
+      "local_file": "raw/apps__web__src__types__quota.ts",
+      "fetched_utc": "2026-10-10T07:50:25.1738286Z",
+      "sha256": "36d73cba481e5f4434761ea133ecf12aa42588e0aa1a1a44f6fd983ed19a66cc"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/docs/manual/accounts.md",
+      "local_file": "raw/apps__docs__manual__accounts.md",
+      "fetched_utc": "2026-10-10T07:50:25.8473619Z",
+      "sha256": "27cba273b413a2ac5b41b83e6ec788a3d7195cf867988676864dc20ef9f150d6"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/docs/manual/codex-inspection.md",
+      "local_file": "raw/apps__docs__manual__codex-inspection.md",
+      "fetched_utc": "2026-10-10T07:50:26.5535588Z",
+      "sha256": "cd5bcddbda665f354af090b4f710522f1db28ef2c1bd9684138e7b43285d1185"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/manager-server/internal/httpapi/server.go",
+      "local_file": "raw/apps__manager-server__internal__httpapi__server.go",
+      "fetched_utc": "2026-10-10T07:50:28.0125220Z",
+      "sha256": "3bbbd1e5e0b37d3b1c9eb04a14c6db42a530ae4aa65c72a5cf150a727b7ad602"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/manager-server/internal/service/quotasnapshot/service.go",
+      "local_file": "raw/cpamp-quota-service.go",
+      "fetched_utc": "2026-10-10T07:51:10.5082428Z",
+      "sha256": "130cc2a0199e4acb381eb1787a72fda7580550c3b7100faf995bb708f8e888ac"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/seakee/CPA-Manager-Plus/main/apps/manager-server/internal/http/router/router.go",
+      "local_file": "raw/cpamp-router.go",
+      "fetched_utc": "2026-10-10T07:52:31.8217131Z",
+      "sha256": "f71884d99908b0cf3aeceaf9555ca93456a953a2eccd72856aed56b70a2d29c6"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/LibreHardwareMonitor/LibreHardwareMonitor/master/LibreHardwareMonitorLib/Hardware/Gpu/AmdGpu.cs",
+      "local_file": "raw/lhm-amd-gpu.cs",
+      "fetched_utc": "2026-10-10T07:51:11.2958204Z",
+      "sha256": "3beaf61b30d57dcdc88abd42420e49379aacf1897f1c2b3f176143d1c550d661"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/LibreHardwareMonitor/LibreHardwareMonitor/master/LibreHardwareMonitorLib/Hardware/Memory/DimmMemory.cs",
+      "local_file": "raw/lhm-dimm-memory.cs",
+      "fetched_utc": "2026-10-10T07:52:31.1163027Z",
+      "sha256": "2425282d169247f244e7456c9ab0a5e8fefeb982d5f98f3560efc102a139378e"
+    },
+    {
+      "source": "https://raw.githubusercontent.com/LibreHardwareMonitor/LibreHardwareMonitor/master/LibreHardwareMonitorLib/Hardware/Memory/Sensors/SpdThermalSensor.cs",
+      "local_file": "raw/lhm-spd-thermal.cs",
+      "fetched_utc": "2026-10-10T07:52:32.5721256Z",
+      "sha256": "6f8a21974d3deb0816805c7b8c40f7b053b46a82072da8e8bdd9d99e4ef2c54c"
+    }
+  ],
+  "checks": {
+    "cpamp_status_http": 401,
+    "preview": {
+      "toggle_passed": true,
+      "page_errors": 0,
+      "widths": [
+        736,
+        320
+      ],
+      "variants": [
+        "quota",
+        "atmosphere"
+      ]
+    },
+    "real_quota_read": false,
+    "wallpaper_version": "2.8.42",
+    "portrait_display": {
+      "width": 800,
+      "height": 1280
+    },
+    "sensor_temperatures_read": false,
+    "cpamp_health_http": 200
+  }
+}

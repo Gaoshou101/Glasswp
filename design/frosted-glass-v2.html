@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>磨砂玻璃壁纸 · 质感与透明度调节</title>
+  <style>
+    :root { color-scheme:dark; --ink:#f6f3ff; --muted:rgba(247,243,255,.70); --accent:#d4b4ff; --u:min(calc(100vw / 1080),calc(100vh / 1920)); }
+    * { box-sizing:border-box; }
+    html,body { width:100%;min-height:100%;margin:0; }
+    body { background:#17151d;color:var(--ink);font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",sans-serif;font-weight:400; }
+    .wallpaper { --canvas-width:min(calc((100vh - 108px) * 9 / 16),calc(100vw - 414px)); --u:calc(var(--canvas-width) / 1080); position:relative;width:var(--canvas-width);height:calc(var(--canvas-width) * 16 / 9);isolation:isolate;overflow:hidden;border-radius:12px;box-shadow:0 20px 80px rgba(0,0,0,.32); }
+    .art { position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:-1; }
+    .glass { --glass-alpha:.25; --glass-blur:34; --glass-edge:.5; --glass-light:.085; --glass-violet:.045; --glass-grain:.045; position:relative;isolation:isolate;background:linear-gradient(135deg,rgba(255,253,255,var(--glass-light)) 0%,rgba(225,211,247,var(--glass-violet)) 34%,rgba(255,255,255,0) 58%,rgba(218,210,236,var(--glass-violet)) 100%),rgba(20,17,28,var(--glass-alpha));border:calc(1.2 * var(--u)) solid rgba(255,248,255,.08);border-radius:calc(26 * var(--u));backdrop-filter:blur(calc(var(--glass-blur) * var(--u))) saturate(108%) brightness(1.025);-webkit-backdrop-filter:blur(calc(var(--glass-blur) * var(--u))) saturate(108%) brightness(1.025);box-shadow:inset 0 calc(1.4 * var(--u)) 0 rgba(255,255,255,.2),inset 0 calc(-1 * var(--u)) 0 rgba(217,202,246,.13),0 calc(14 * var(--u)) calc(42 * var(--u)) rgba(8,4,18,.13),0 calc(2 * var(--u)) calc(5 * var(--u)) rgba(5,2,12,.05); }
+    .glass::before { content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;opacity:var(--glass-grain);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");background-size:calc(160 * var(--u)) calc(160 * var(--u));mix-blend-mode:soft-light; }
+    .glass::after { content:"";position:absolute;inset:calc(-1.2 * var(--u));border-radius:inherit;pointer-events:none;padding:calc(1.2 * var(--u));opacity:var(--glass-edge);background:linear-gradient(130deg,rgba(255,255,255,.86) 0%,rgba(253,241,255,.32) 20%,rgba(255,255,255,.015) 43%,rgba(211,188,241,.12) 75%,rgba(255,251,255,.62) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude; }
+    .top { position:absolute;left:7%;right:7%;top:4%;height:13.3%;display:grid;grid-template-columns:1.8fr 1fr;gap:calc(22 * var(--u)); }
+    .clock { padding:calc(30 * var(--u)) calc(34 * var(--u));display:flex;flex-direction:column;justify-content:center; }
+    .time { font-size:calc(116 * var(--u));line-height:1;letter-spacing:calc(-5 * var(--u));font-weight:300;font-variant-numeric:tabular-nums;text-shadow:0 calc(2 * var(--u)) calc(18 * var(--u)) rgba(11,4,22,.23); }
+    .date { margin-top:calc(22 * var(--u));font-size:calc(27 * var(--u));letter-spacing:calc(1 * var(--u));color:rgba(255,255,255,.89); }
+    .weather { padding:calc(30 * var(--u));display:flex;flex-direction:column;justify-content:center; }
+    .weather-main { display:flex;align-items:center;gap:calc(18 * var(--u)); }
+    .weather-icon { width:calc(56 * var(--u));height:calc(56 * var(--u));color:#e5d1ff; }
+    .temperature { font-size:calc(68 * var(--u));font-weight:300;line-height:1;font-variant-numeric:tabular-nums; }
+    .weather-description { margin-top:calc(20 * var(--u));font-size:calc(26 * var(--u)); }
+    .weather-range { margin-top:calc(8 * var(--u));font-size:calc(22 * var(--u));color:var(--muted); }
+    .weather-caption { font-size:calc(17 * var(--u));color:rgba(247,243,255,.57);margin-top:calc(17 * var(--u)); }
+    .quota { position:absolute;left:7%;right:7%;top:59%;height:22.4%;padding:calc(28 * var(--u)) calc(32 * var(--u)); }
+    .section-heading { display:flex;justify-content:space-between;align-items:center;gap:calc(16 * var(--u));font-size:calc(27 * var(--u));font-weight:500; }
+    .section-heading .secondary { font-size:calc(19 * var(--u));font-weight:400;color:var(--muted); }
+    .quota-heading { margin-bottom:calc(23 * var(--u)); }
+    .account-heading { display:flex;align-items:center;justify-content:space-between;gap:calc(12 * var(--u));font-size:calc(28 * var(--u));font-weight:500; }
+    .account-label { display:flex;align-items:center;gap:calc(13 * var(--u)); }
+    .account-mark { width:calc(8 * var(--u));height:calc(8 * var(--u));border-radius:50%;background:var(--accent);opacity:.85; }
+    .plan { color:var(--muted);font-size:calc(20 * var(--u));font-weight:400; }
+    .windows { display:grid;grid-template-columns:1fr 1fr;gap:calc(24 * var(--u));margin-top:calc(18 * var(--u)); }
+    .quota-window { padding:calc(18 * var(--u));border-radius:calc(15 * var(--u));background:linear-gradient(140deg,rgba(250,241,255,.07),rgba(250,241,255,.018));box-shadow:inset 0 calc(1 * var(--u)) 0 rgba(255,255,255,.09); }
+    .window-line { display:flex;justify-content:space-between;align-items:baseline;gap:calc(14 * var(--u)); }
+    .window-title { font-size:calc(23 * var(--u));color:rgba(250,245,255,.86); }
+    .remaining { font-size:calc(34 * var(--u));font-weight:400;font-variant-numeric:tabular-nums; }
+    .remaining small { font-size:calc(18 * var(--u));color:var(--muted);margin-right:calc(7 * var(--u)); }
+    .track { height:calc(5 * var(--u));margin:calc(14 * var(--u)) 0 calc(14 * var(--u));border-radius:calc(3 * var(--u));background:rgba(255,255,255,.13);overflow:hidden; }
+    .fill { height:100%;border-radius:inherit;background:linear-gradient(90deg,#c3a2eb,#ead5ff); }
+    .reset { font-size:calc(20 * var(--u));color:var(--muted);font-variant-numeric:tabular-nums; }
+    .reset strong { color:rgba(252,246,255,.94);font-weight:400;margin-right:calc(7 * var(--u)); }
+    .other-account { margin-top:calc(22 * var(--u));padding-top:calc(19 * var(--u));border-top:calc(1 * var(--u)) solid rgba(255,255,255,.17);display:grid;grid-template-columns:1fr 1fr;gap:calc(24 * var(--u));align-items:center; }
+    .other-name { font-size:calc(26 * var(--u));font-weight:400; }
+    .other-note { display:block;font-size:calc(18 * var(--u));color:var(--muted);margin-top:calc(8 * var(--u)); }
+    .other-value { display:flex;align-items:center;gap:calc(16 * var(--u)); }
+    .other-value .track { flex:1;margin:0; }
+    .other-value .remaining { font-size:calc(28 * var(--u)); }
+    .hardware { position:absolute;left:7%;right:7%;top:84%;height:12.1%;display:grid;grid-template-columns:repeat(4,1fr);gap:calc(14 * var(--u)); }
+    .hardware-item { padding:calc(23 * var(--u)) calc(21 * var(--u));display:flex;flex-direction:column; }
+    .hardware-label { font-size:calc(22 * var(--u));color:rgba(252,247,255,.91);letter-spacing:calc(.8 * var(--u)); }
+    .hardware-value { font-size:calc(53 * var(--u));line-height:1.12;font-variant-numeric:tabular-nums;font-weight:300;margin-top:calc(13 * var(--u)); }
+    .hardware-value small { font-size:calc(25 * var(--u));font-weight:400;margin-left:calc(3 * var(--u)); }
+    .hardware-detail { font-size:calc(23 * var(--u));color:rgba(249,243,255,.86);margin-top:calc(13 * var(--u));font-variant-numeric:tabular-nums; }
+    .hardware-caption { font-size:calc(15 * var(--u));color:var(--muted);margin-top:auto;white-space:nowrap; }
+    .hardware-caption.unknown { color:#dbc4f2; }
+    .note { position:absolute;bottom:1.4%;left:7%;right:7%;text-align:right;font-size:calc(17 * var(--u));color:rgba(246,238,255,.65);text-shadow:0 calc(1 * var(--u)) calc(8 * var(--u)) rgba(0,0,0,.45); }
+    .studio { min-height:100vh;padding:20px 24px 24px;display:grid;grid-template-columns:minmax(0,1fr) 310px;grid-template-rows:auto 1fr;column-gap:36px;row-gap:18px;max-width:1640px;margin:auto; }
+    .studio-heading { grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:20px; }
+    .studio-heading h1 { font-size:17px;font-weight:500;margin:0; }
+    .studio-heading span { font-size:12px;color:#a39ba9; }
+    .preview-shell { display:flex;align-items:center;justify-content:center;min-width:0; }
+    .settings { align-self:center;border-top:1px solid #3d3446;padding-top:22px; }
+    .settings h2 { font-size:17px;font-weight:500;margin:0 0 8px; }
+    .settings-description { color:#b4a8be;font-size:13px;line-height:1.7;margin:0 0 25px; }
+    .settings label { font-size:13px;color:#e6ddea; }
+    .target-select { display:block;width:100%;margin:9px 0 25px;padding:11px 12px;border-radius:8px;border:1px solid #514459;background:#29232f;font:inherit;font-size:13px;color:#f3edf8; }
+    .range-head { display:flex;justify-content:space-between;align-items:center;margin:21px 0 12px; }
+    .range-head output { font-size:15px;color:#eee3fc;font-variant-numeric:tabular-nums; }
+    input[type=range] { display:block;width:100%;height:20px;margin:0;accent-color:#d4b4ff;cursor:ew-resize; }
+    .range-labels { display:flex;justify-content:space-between;color:#95889f;font-size:11px;margin-top:7px; }
+    .presets { display:flex;gap:8px;margin-top:27px; }
+    .presets button,.reset-button { font-family:inherit;font-size:13px;padding:10px 12px;border-radius:8px;color:#e7dcee;background:transparent;border:1px solid #50425b;cursor:pointer; }
+    .presets button { flex:1; }
+    .presets button:hover,.reset-button:hover { background:#32293a; }
+    .presets button[aria-pressed=true] { color:#f4eaff;background:#3c2e48;border-color:#947eac; }
+    .settings-status { margin-top:19px;min-height:42px;color:#aa9eb4;font-size:12px;line-height:1.65; }
+    .reset-button { margin-top:14px; }
+    :focus-visible { outline:2px solid #d4b4ff;outline-offset:4px; }
+    html[data-capture] .studio { display:block;min-height:0;padding:0;max-width:none; }
+    html[data-capture] .studio-heading,html[data-capture] .settings { display:none; }
+    html[data-capture] .preview-shell { display:block; }
+    html[data-capture] .wallpaper { --u:min(calc(100vw / 1080),calc(100vh / 1920));width:100vw;height:100vh;border-radius:0;box-shadow:none; }
+    html[data-capture],html[data-capture] body { height:100%;overflow:hidden; }
+    @media(max-width:760px) { .studio { grid-template-columns:1fr;padding:18px;row-gap:22px; } .studio-heading { flex-wrap:wrap;gap:7px; } .wallpaper { --canvas-width:min(calc(100vw - 36px),420px); } .settings { width:min(100%,420px);justify-self:center;padding-bottom:28px; } }
+  </style>
+  <script>if(new URLSearchParams(location.search).has('capture'))document.documentElement.setAttribute('data-capture','');</script>
+</head>
+<body>
+  <div class="studio">
+  <header class="studio-heading"><h1>磨砂玻璃壁纸</h1><span>原图保留 · 展示数据为示例</span></header>
+  <div class="preview-shell">
+  <main class="wallpaper" aria-label="竖屏壁纸磨砂玻璃模块效果图，数据为示例">
+    <img class="art" src="assets/wallpaper-original.jpg" alt="用户提供的白发紫瞳角色壁纸">
+    <section class="top" aria-label="日期时间天气">
+      <div class="glass clock"><div class="time">18:30</div><div class="date">2026.10.10　星期六</div></div>
+      <div class="glass weather">
+        <div class="weather-main"><svg class="weather-icon" viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="17" cy="16" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M17 4V1M5 16H2M8.5 7.5L6 5M25.5 7.5L28 5M29 16H32M17 28V31" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M15 37h22c5 0 8-3 8-7s-3-7-7-7c-1-6-6-9-11-7-5 1-7 5-7 9-6-1-10 2-10 6 0 3 2 6 5 6Z" fill="rgba(33,26,48,.2)" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><div class="temperature">24°</div></div>
+        <div class="weather-description">多云</div><div class="weather-range">19° / 27°</div><div class="weather-caption">天气示例</div>
+      </div>
+    </section>
+    <section class="glass quota" aria-label="AI 套餐余量与重置窗口">
+      <div class="section-heading quota-heading"><span>AI 套餐余量</span><span class="secondary">CPAMP</span></div>
+      <div class="account-heading"><span class="account-label"><span class="account-mark"></span>Codex</span><span class="plan">Pro</span></div>
+      <div class="windows">
+        <div class="quota-window"><div class="window-line"><span class="window-title">5 小时窗口</span><span class="remaining"><small>剩余</small>68%</span></div><div class="track"><div class="fill" style="width:68%"></div></div><div class="reset"><strong>02:18:36</strong>后重置</div></div>
+        <div class="quota-window"><div class="window-line"><span class="window-title">周窗口</span><span class="remaining"><small>剩余</small>42%</span></div><div class="track"><div class="fill" style="width:42%"></div></div><div class="reset"><strong>2 天 06 小时</strong>后重置</div></div>
+      </div>
+      <div class="other-account"><div><div class="other-name">Antigravity</div><span class="other-note">重置时间待确认</span></div><div class="other-value"><div class="track"><div class="fill" style="width:83%"></div></div><span class="remaining"><small>剩余</small>83%</span></div></div>
+    </section>
+    <section class="hardware" aria-label="本机性能">
+      <div class="glass hardware-item"><div class="hardware-label">CPU</div><div class="hardware-value">24<small>%</small></div><div class="hardware-detail">52°C</div><div class="hardware-caption">i5-12600KF</div></div>
+      <div class="glass hardware-item"><div class="hardware-label">GPU</div><div class="hardware-value">16<small>%</small></div><div class="hardware-detail">46°C</div><div class="hardware-caption">RX 6900 XT</div></div>
+      <div class="glass hardware-item"><div class="hardware-label">显存</div><div class="hardware-value">21<small>%</small></div><div class="hardware-detail">3.4 / 16 GB</div><div class="hardware-caption">专用显存</div></div>
+      <div class="glass hardware-item"><div class="hardware-label">RAM</div><div class="hardware-value">38<small>%</small></div><div class="hardware-detail">18.2 / 48 GB</div><div class="hardware-caption unknown">温度待检测</div></div>
+    </section>
+    <div class="note">效果预览 · 所有数值为示例</div>
+  </main>
+  </div>
+  <aside class="settings" aria-label="玻璃材质调节">
+    <h2>调到你喜欢的质感</h2>
+    <p class="settings-description">透明度调节玻璃底色，文字保持清晰。磨砂强度与边缘反光可以单独调节。</p>
+    <label for="glass-target">调节范围</label>
+    <select class="target-select" id="glass-target"><option value="all">所有模块</option><option value="top">日期与天气</option><option value="quota">AI 套餐余量</option><option value="hardware">本机性能</option></select>
+    <div class="range-head"><label for="glass-transparency">透明度</label><output id="transparency-value" for="glass-transparency">75%</output></div>
+    <input id="glass-transparency" type="range" min="0" max="100" step="1" value="75">
+    <div class="range-labels"><span>更实</span><span>更通透</span></div>
+    <div class="range-head"><label for="glass-blur">磨砂强度</label><output id="blur-value" for="glass-blur">34 px</output></div>
+    <input id="glass-blur" type="range" min="0" max="64" step="1" value="34">
+    <div class="range-labels"><span>清晰透光</span><span>柔和雾面</span></div>
+    <div class="range-head"><label for="glass-edge">边缘高光</label><output id="edge-value" for="glass-edge">50%</output></div>
+    <input id="glass-edge" type="range" min="0" max="100" step="1" value="50">
+    <div class="presets" aria-label="材质预设"><button type="button" data-preset="clear" aria-pressed="false">清透</button><button type="button" data-preset="soft" aria-pressed="true">柔雾</button><button type="button" data-preset="deep" aria-pressed="false">深雾</button></div>
+    <p class="settings-status" id="settings-status" role="status" aria-live="polite">拖动滑块实时预览，设置会保存在本机。</p>
+    <button class="reset-button" type="button" id="reset-glass">恢复默认</button>
+  </aside>
+  </div>
+  <script>
+  (() => {
+    'use strict';
+    const defaults = {transparency:75,blur:34,edge:50};
+    const presets = {clear:{transparency:87,blur:17,edge:36},soft:defaults,deep:{transparency:54,blur:48,edge:63}};
+    const groups = ['top','quota','hardware'];
+    const storageKey = 'wallpaper.frosted-glass.v2';
+    let settings = Object.fromEntries(groups.map(group => [group,{...defaults}]));
+    let canSave = true;
+    const clamp = (value,max,fallback) => typeof value==='number' && Number.isFinite(value) ? Math.round(Math.max(0,Math.min(max,value))) : fallback;
+    const clean = value => ({transparency:clamp(value?.transparency,100,defaults.transparency),blur:clamp(value?.blur,64,defaults.blur),edge:clamp(value?.edge,100,defaults.edge)});
+    try { const saved=JSON.parse(localStorage.getItem(storageKey)||'null'); if(saved?.version===2) groups.forEach(group => settings[group]=clean(saved.groups?.[group])); } catch { canSave=false; }
+    const target = document.getElementById('glass-target');
+    const inputs = {transparency:document.getElementById('glass-transparency'),blur:document.getElementById('glass-blur'),edge:document.getElementById('glass-edge')};
+    const outputs = {transparency:document.getElementById('transparency-value'),blur:document.getElementById('blur-value'),edge:document.getElementById('edge-value')};
+    const status = document.getElementById('settings-status');
+    const applyMaterial = () => groups.forEach(group => {
+      const material=settings[group],alpha=(100-material.transparency)/100;
+      const edge=material.edge/100;
+      const node=document.querySelector(group==='top'?'.top':group==='quota'?'.quota':'.hardware');
+      node.style.setProperty('--glass-alpha',String(alpha));
+      node.style.setProperty('--glass-blur',String(material.blur));
+      node.style.setProperty('--glass-edge',String(edge));
+      node.style.setProperty('--glass-light',String(alpha*.26+edge*.04));
+      node.style.setProperty('--glass-violet',String(alpha*.14+edge*.018));
+      node.style.setProperty('--glass-grain',String(.028+material.blur/64*.024));
+      node.querySelectorAll('.glass').forEach(panel => {
+        ['--glass-alpha','--glass-blur','--glass-edge','--glass-light','--glass-violet','--glass-grain'].forEach(name => panel.style.setProperty(name,node.style.getPropertyValue(name)));
+      });
+    });
+    const selectedGroups = () => target.value==='all'?groups:[target.value];
+    const updateControls = () => {
+      const current=settings[selectedGroups()[0]];
+      Object.keys(inputs).forEach(key => {inputs[key].value=String(current[key]);outputs[key].textContent=current[key]+(key==='blur'?' px':'%');});
+      document.querySelectorAll('[data-preset]').forEach(button => button.setAttribute('aria-pressed',String(selectedGroups().every(group => Object.keys(defaults).every(key => settings[group][key]===presets[button.dataset.preset][key])))));
+      const mixed=target.value==='all'&&groups.some(group => Object.keys(defaults).some(key => settings[group][key]!==current[key]));
+      if(mixed)status.textContent='各区域已有不同设置；拖动滑块可统一该项参数。';
+    };
+    const persist = () => {
+      try {localStorage.setItem(storageKey,JSON.stringify({version:2,groups:settings}));canSave=true;} catch {canSave=false;}
+      status.textContent=canSave?'已保存。重新打开仍保留当前质感。':'当前浏览器无法保存；本次调节仍然有效。';
+    };
+    Object.entries(inputs).forEach(([key,input]) => {
+      input.addEventListener('input',() => {selectedGroups().forEach(group => settings[group][key]=Number(input.value));applyMaterial();updateControls();});
+      input.addEventListener('change',persist);
+    });
+    target.addEventListener('change',updateControls);
+    document.querySelectorAll('[data-preset]').forEach(button => button.addEventListener('click',() => {selectedGroups().forEach(group => settings[group]={...presets[button.dataset.preset]});applyMaterial();updateControls();persist();}));
+    document.getElementById('reset-glass').addEventListener('click',() => {selectedGroups().forEach(group => settings[group]={...defaults});applyMaterial();updateControls();persist();});
+    window.wallpaperPropertyListener = {
+      applyUserProperties(properties) {
+        const names={glass_transparency:'transparency',glass_blur:'blur',glass_highlight:'edge'};
+        let changed=false;
+        Object.entries(names).forEach(([name,key]) => {if(properties[name]!==undefined){const value=Number(properties[name].value);if(Number.isFinite(value)){groups.forEach(group => settings[group]=clean({...settings[group],[key]:value}));changed=true;}}});
+        if(changed){applyMaterial();updateControls();}
+      }
+    };
+    applyMaterial();updateControls();
+  })();
+  </script>
+</body>
+</html>

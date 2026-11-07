@@ -1,0 +1,142 @@
+{
+  "defaults": {
+    "clock": {
+      "alpha": "0.25",
+      "blur": "blur(34px) saturate(1.08) brightness(1.025)",
+      "opacity": "1",
+      "background": "rgba(20, 17, 28, 0.25)"
+    },
+    "quota": {
+      "alpha": "0.25",
+      "blur": "blur(34px) saturate(1.08) brightness(1.025)",
+      "opacity": "1",
+      "background": "rgba(20, 17, 28, 0.25)"
+    },
+    "hardware-item": {
+      "alpha": "0.25",
+      "blur": "blur(34px) saturate(1.08) brightness(1.025)",
+      "opacity": "1",
+      "background": "rgba(20, 17, 28, 0.25)"
+    }
+  },
+  "perRegion": true,
+  "textOpacityPreserved": true,
+  "persistence": true,
+  "endpoints": true,
+  "presets": true,
+  "reset": true,
+  "wallpaperEnginePropertyCallback": true,
+  "layouts": [
+    {
+      "viewportWidth": 1280,
+      "documentWidth": 1280,
+      "panels": [
+        {
+          "class": "glass clock",
+          "w": 245,
+          "sw": 245,
+          "h": 110,
+          "sh": 111
+        },
+        {
+          "class": "glass weather",
+          "w": 135,
+          "sw": 135,
+          "h": 110,
+          "sh": 111
+        },
+        {
+          "class": "glass quota",
+          "w": 391,
+          "sw": 391,
+          "h": 180,
+          "sh": 180
+        },
+        {
+          "class": "glass hardware-item",
+          "w": 92,
+          "sw": 92,
+          "h": 96,
+          "sh": 97
+        },
+        {
+          "class": "glass hardware-item",
+          "w": 92,
+          "sw": 92,
+          "h": 96,
+          "sh": 97
+        },
+        {
+          "class": "glass hardware-item",
+          "w": 92,
+          "sw": 92,
+          "h": 96,
+          "sh": 97
+        },
+        {
+          "class": "glass hardware-item",
+          "w": 92,
+          "sw": 92,
+          "h": 96,
+          "sh": 97
+        }
+      ]
+    },
+    {
+      "viewportWidth": 375,
+      "documentWidth": 375,
+      "panels": [
+        {
+          "class": "glass clock",
+          "w": 181,
+          "sw": 181,
+          "h": 81,
+          "sh": 82
+        },
+        {
+          "class": "glass weather",
+          "w": 100,
+          "sw": 100,
+          "h": 81,
+          "sh": 82
+        },
+        {
+          "class": "glass quota",
+          "w": 290,
+          "sw": 290,
+          "h": 133,
+          "sh": 133
+        },
+        {
+          "class": "glass hardware-item",
+          "w": 68,
+          "sw": 68,
+          "h": 71,
+          "sh": 71
+        },
+        {
+          "class": "glass hardware-item",
+          "w": 68,
+          "sw": 68,
+          "h": 71,
+          "sh": 71
+        },
+        {
+          "class": "glass hardware-item",
+          "w": 68,
+          "sw": 68,
+          "h": 71,
+          "sh": 71
+        },
+        {
+          "class": "glass hardware-item",
+          "w": 68,
+          "sw": 68,
+          "h": 71,
+          "sh": 71
+        }
+      ]
+    }
+  ],
+  "errors": []
+}
