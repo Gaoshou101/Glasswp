@@ -23,7 +23,7 @@ Windows / Wallpaper Engine Web 壁纸，沿用已确认的 [v3 玻璃设计](des
 
 ## 本机运行
 
-本次已生成 `artifacts/bridge/WallpaperBridge.exe` 自包含程序，以及 `dist/project.json` 壁纸包。运行发布程序无需另装 .NET。
+桥接是自包含程序，安装在受保护的运行目录 `E:\WallpaperDashboard\current`（见下文“运行目录”）；壁纸包为 `dist/project.json`。运行发布程序无需另装 .NET。
 
 ```powershell
 # 普通权限；部分温度可能不可用
@@ -61,7 +61,11 @@ WE 属性或浏览器「组件与连接」中可勾选「忽略 Codex 基础模�
 
 停止桥接：`./scripts/stop-bridge.ps1`。管理员桥接需要从管理员 PowerShell 停止。
 
-如需重启后自动恢复数据，运行一次 `./scripts/install-bridge-autostart.ps1` 并接受 UAC。脚本注册 `WallpaperDashboardBridge` 计划任务，在当前用户登录 Windows 15 秒后以管理员权限隐藏启动，保留 CPU 温度读取；固定原有 DPAPI 配置目录，无需保存 Windows 密码。任务允许电池供电、没有运行时限，进程异常退出后每分钟重试，最多三次。可用 `-DataDirectory <原 private 目录>` 指定已有配置。
+### 运行目录
+
+管理员计划任务只执行 `E:\WallpaperDashboard` 中的程序：`current\` 是正在运行的发布（含任务启动脚本 `run-bridge.ps1`），`backups\` 保留最近两份回退副本，`state\` 存放启动与更新记录。该目录直接位于盘符根下、不继承权限，所有者为 Administrators，只有 Administrators 和 SYSTEM 可写，普通用户只读；因此普通权限的程序无法替换管理员启动的代码，开发目录的改动、切换分支或清理也不会影响正在运行的桥接。它不在 CD2 工程同步范围内。私有配置仍固定在 `%LOCALAPPDATA%\WallpaperDashboard\private`。启动脚本先把 PowerShell 模块加载限制在系统目录，再读取配置。安装、更新和自启动注册都会核验这些权限，不符合时停止。
+
+如需重启后自动恢复数据，先用 `./scripts/update-bridge.ps1` 安装桥接，再运行一次 `./scripts/install-bridge-autostart.ps1` 并接受 UAC。脚本注册 `WallpaperDashboardBridge` 计划任务，在当前用户登录 Windows 15 秒后以管理员权限隐藏执行 `E:\WallpaperDashboard\current\run-bridge.ps1`，保留 CPU 温度读取；固定原有 DPAPI 配置目录，无需保存 Windows 密码。任务允许电池供电、没有运行时限，进程异常退出后每分钟重试，最多三次。可用 `-DataDirectory <原 private 目录>` 指定已有配置。
 
 取消自动启动：`./scripts/install-bridge-autostart.ps1 -Remove`。取消任务后可继续使用手动启动脚本；正在运行的桥接仍可用停止脚本关闭。
 
@@ -83,7 +87,7 @@ WE 中的「竖屏动态信息壁纸」是本地开发版（`portrait-dashboard`
 
 ## 开发与构建
 
-前端 Node.js 20.19+/22.12+；后端 .NET 10 SDK。此次本机 SDK 位于 `%LOCALAPPDATA%\WallpaperDashboard\devtools\dotnet`。优先复用已安装 SDK。
+前端 Node.js 20.19+/22.12+；后端 .NET 10 SDK。此次本机 SDK 位于 `%LOCALAPPDATA%\WallpaperDashboard\devtools\dotnet`；在 Codex 应用的 MSIX 容器之外，该目录实际位于 `%LOCALAPPDATA%\Packages\OpenAI.Codex_*\LocalCache\Local\WallpaperDashboard\devtools\dotnet`，构建和验证脚本会依次查找这两处及 PATH 中带 SDK 的 dotnet。优先复用已安装 SDK。
 
 ```powershell
 npm ci
@@ -113,7 +117,7 @@ npm run check
 ./scripts/observe-stability.ps1
 ```
 
-更新正在运行的管理员桥接时，更新脚本会弹出一次 UAC，在原用户的管理员上下文恢复计划任务；无需在构建时提升权限。候选桥接须通过健康、构建 ID、配置保留及首个硬件样本检查。旧发布目录保存在 `artifacts/backups/bridge-releases`。更新记录位于 `artifacts/validation/bridge-update.json` 和 `wallpaper-update.json`，程序验证与真实桌面点击分别记录。新安装时先启动桥接以生成配对票据。
+更新脚本会弹出一次 UAC，把 `artifacts/staging` 中的候选复制到受保护运行目录，在受保护副本上重新核验文件哈希与权限，再通过原计划任务重启；无需在构建时提升权限。候选桥接须通过健康、构建 ID、进程路径、配置保留及首个硬件样本检查，失败时恢复旧发布与运行状态。旧发布保存在 `E:\WallpaperDashboard\backups`（保留最近两份）。更新记录位于 `E:\WallpaperDashboard\state\bridge-update.json`，并复制到 `artifacts/validation/bridge-update.json`；壁纸记录为 `wallpaper-update.json`，程序验证与真实桌面点击分别记录。新安装时先启动桥接以生成配对票据。
 
 后端源码：`bridge/WallpaperBridge/`；三组件与数据契约：`src/`；宿主属性：`wallpaper/project.json`。前端输出为经典 IIFE，避免本地文件 ES module 的跨域问题，所有背景与样式随壁纸打包。
 

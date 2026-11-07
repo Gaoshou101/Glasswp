@@ -1,12 +1,13 @@
-﻿param([switch]$OpenSettings, [switch]$Elevated)
+﻿param([switch]$OpenSettings, [switch]$Elevated, [string]$RuntimeRoot)
 $ErrorActionPreference = 'Stop'
-$repoRoot = Split-Path -Parent $PSScriptRoot
-$exePath = Join-Path $repoRoot 'artifacts\bridge\WallpaperBridge.exe'
-if (-not (Test-Path -LiteralPath $exePath)) { throw '请先运行 scripts/build.ps1' }
+. (Join-Path $PSScriptRoot 'release-common.ps1')
+$runtimeRoot = Get-BridgeRuntimeRoot $RuntimeRoot
+$exePath = Join-Path $runtimeRoot 'current\WallpaperBridge.exe'
+if (-not (Test-Path -LiteralPath $exePath)) { throw '受保护运行目录中没有桥接；先运行 scripts/build.ps1 和 scripts/update-bridge.ps1' }
 try { $health = Invoke-RestMethod -Uri 'http://127.0.0.1:17632/v1/health' -TimeoutSec 2 } catch { $health = $null }
 if ($health -and $health.service -ne 'portrait-wallpaper-bridge') { throw '端口 17632 已被其他程序占用' }
 if ($health -and $Elevated -and -not $health.elevated) {
-    & (Join-Path $PSScriptRoot 'stop-bridge.ps1')
+    & (Join-Path $PSScriptRoot 'stop-bridge.ps1') -RuntimeRoot $runtimeRoot
     $health = $null
 }
 if (-not $health) {

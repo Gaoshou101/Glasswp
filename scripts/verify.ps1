@@ -1,12 +1,12 @@
 ﻿param([switch]$Browser, [string]$Python, [switch]$ReleaseRuntime)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'release-common.ps1')
 Push-Location $repoRoot
 try {
     & npm.cmd run check
     if($LASTEXITCODE -ne 0){throw 'Frontend verification failed'}
-    $dotnetPath=Join-Path $env:LOCALAPPDATA 'WallpaperDashboard\devtools\dotnet\dotnet.exe'
-    if(-not(Test-Path -LiteralPath $dotnetPath)){$dotnetPath=(Get-Command dotnet).Source}
+    $dotnetPath=Get-WallpaperDotnet
     & $dotnetPath run --project bridge\WallpaperBridge.Tests\WallpaperBridge.Tests.csproj
     if($LASTEXITCODE -ne 0){throw 'Bridge verification failed'}
     & (Join-Path $repoRoot 'tests\release-check.ps1')
