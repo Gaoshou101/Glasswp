@@ -115,6 +115,8 @@ npm run check
 ./scripts/measure-resources.ps1 -Samples 120 -IntervalSeconds 5 -Label after-optimization
 # 24 小时只读稳定性观察；按分钟留存匿名状态和进程内存
 ./scripts/observe-stability.ps1
+# artifacts 保留策略：默认只列出可删项；-Apply 才删除
+./scripts/prune-artifacts.ps1
 ```
 
 更新脚本会弹出一次 UAC，把 `artifacts/staging` 中的候选复制到受保护运行目录，在受保护副本上重新核验文件哈希与权限，再通过原计划任务重启；无需在构建时提升权限。候选桥接须通过健康、构建 ID、进程路径、配置保留及首个硬件样本检查，失败时恢复旧发布与运行状态。旧发布保存在 `E:\WallpaperDashboard\backups`（保留最近两份）。更新记录位于 `E:\WallpaperDashboard\state\bridge-update.json`，并复制到 `artifacts/validation/bridge-update.json`；壁纸记录为 `wallpaper-update.json`，程序验证与真实桌面点击分别记录。新安装时先启动桥接以生成配对票据。
