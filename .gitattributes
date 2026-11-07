@@ -1,0 +1,13 @@
+# Keep repository text in LF; Windows PowerShell 5.1 and the toolchain accept LF.
+* text=auto eol=lf
+
+# Binary assets and build outputs
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.dll binary
+*.exe binary
+*.zip binary
