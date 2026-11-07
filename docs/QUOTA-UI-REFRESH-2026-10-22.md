@@ -112,4 +112,11 @@
 
 验证：26 项前端测试（新增用尽/过期边界：旧零值、新零值、偏低的非零旧值、重置已过、未知重置、无窗口余额、未来采样时间、重绘时刻和详情对比）；新增浏览器检查 `tests/quota_exhausted_check.py`（6 项，已加入 `verify.ps1 -Browser`）；`verify.ps1 -Browser` 全部通过（270 项桥接检查、发布检查、5 组浏览器回归），另跑分页、绘图过滤、基础模型过滤回归通过。观察脚本已在 Windows PowerShell 5.1 和 PowerShell 7 下对正式桥接只读试运行。
 
-部署状态：仅提交源码与测试，正式 WE 前端仍为 `20261023120255-042c1ef0`，尚未安装。
+部署状态（2026-11-08 00:17）：干净构建 `20261107161215-fd7bbfd2`（commit `1060906`，`dirty=false`）已安装到正式项目 `portrait-dashboard-workshop`，替换 `20261023120255-042c1ef0`，备份在 `dashboard-backups\previous-09c035a378494be29f197b7d796b2685`；本地开发副本 `portrait-dashboard` 同步为同一构建。
+
+- 只对已核实的 BOE1600 UID524 Location 执行 close/open；SKG2713 UID520 未触碰。
+- 安装后 `config/read` 的 `diagnostics.lastClient` 为新 buildId、1600×2560、30 FPS、`paused=false`，三类材质均为 83/26/68。
+- WE `config.json` 字节级未变（SHA-256 前后一致），该项目两块屏的属性与所选壁纸均保持原样；安装副本 9 个文件与 build-info 哈希全部一致，并补齐了此前缺失的 favicon 与过时的 admin 静态文件。
+- Bridge 仍为 `20261107084128-210b5852`（提权、同一进程），本次未更新 bridge。
+- 物理输入验收未重新执行，`physicalInputVerified=false` 仍单独记录。
+- 记录：`artifacts/validation/exhausted-quota-install-before.json`、`exhausted-quota-install.json`、`exhausted-quota-install-after.json`（token 已脱敏）。
