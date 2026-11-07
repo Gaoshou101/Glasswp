@@ -53,7 +53,7 @@ Antigravity 套餐通过上游 `loadCodeAssist` 查询，优先使用 `paidTier`
 ./scripts/install-wallpaper.ps1 -Destination 'F:\SteamLibrary\steamapps\common\wallpaper_engine\projects\myprojects\portrait-dashboard-workshop' -Apply -Location '<已确认的显示器 Location>'
 ```
 
-WE 属性中提供三个组件的材质、显示、大小、水平与垂直位置、时区、12/24 小时、秒、柔光动态、趋势、额度显示方式、翻页间隔及底部留白。可用底部留白避让任务栏。桌面外观在 Wallpaper Engine 中选中正在使用的壁纸后，通过右侧属性调整并由宿主保存。Studio 仅用于浏览器预览，设置只保存在当前浏览器，不会同步到 Wallpaper Engine；WE 的属性也不会自动回填 Studio。天气、账号和传感器等共享数据仍在本机数据设置页管理。多账号卡片默认启用，超过三个账号或单账号四个额度窗口时分页，所有账号与窗口均可访问。
+WE 属性中提供三个组件的材质、显示、大小、水平与垂直位置、时区、12/24 小时、秒、柔光动态、趋势、额度显示方式、翻页间隔及底部留白。可用底部留白避让任务栏。桌面外观在 Wallpaper Engine 中选中正在使用的壁纸后，通过右侧属性调整并由宿主保存。Studio 仅用于浏览器预览，设置只保存在当前浏览器，不会同步到 Wallpaper Engine；WE 的属性也不会自动回填 Studio。天气、账号和传感器等共享数据仍在本机数据设置页管理。多账号卡片默认启用，超过三个账号或单账号五个额度窗口时分页，所有账号与窗口均可访问。
 
 WE 属性或浏览器「组件与连接」中可勾选「忽略 Codex 基础模型周窗口（luna-release）」，默认未勾选。开启后该窗口不参与展示、分页或数据过期提示；卡片和单账号轮播均生效。主套餐周窗口、其他模型与平台的有效额度保持显示，取消勾选即可恢复当前有效窗口。
 
