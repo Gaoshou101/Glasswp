@@ -57,7 +57,9 @@ try {
         $count++; Write-State 'running'
         $remaining=($deadline-[DateTimeOffset]::UtcNow).TotalSeconds
         if($remaining -le 0){break}
-        Start-Sleep -Milliseconds ([int]([math]::Min($IntervalSeconds,$remaining)*1000))
+        # [math]::Min(int,double) binds to the Int32 overload and truncates a sub-second remainder to 0,
+        # which made the 2026-10-22 run spin out 17 extra samples just before its deadline.
+        Start-Sleep -Milliseconds ([int]([math]::Min([double]$IntervalSeconds,$remaining)*1000))
     } while([DateTimeOffset]::UtcNow -lt $deadline)
     Write-State 'completed'
     Write-Output ('Observation completed; inspect samples and event coverage: '+$OutputDirectory)
