@@ -55,6 +55,8 @@ Windows PowerShell 5.1 调用 WE 图形程序时不会自动设置 `$LASTEXITCOD
 
 ### 资源与长期观察
 
+2026-10-23 复核：[资源收益与约 12 小时观察分析](OPTIMIZATION-RESOURCE-FOLLOWUP-2026-10-23.md)。当前合计 CPU 与优化前基本持平，整体资源节省尚未证实；以下保留首轮实施时的采集记录。
+
 - 更新前观察已完成：22:30–22:41，120 样本，Web 全部 CEF 进程 CPU 均值 0.384%、GPU 3D 均值 0.293%、私有提交中位数 422.64 MiB；桥接 CPU 均值 0.058%、私有提交中位数 56.96 MiB。期间包含构建与浏览器活动，只能作为使用观察。原始记录：`artifacts/analysis/optimization-before.json`。
 - 更新后同口径观察已完成：22:46–22:58，120 样本；Web CPU 均值 0.343%、GPU 3D 均值 0.344%、私有提交中位数 424.14 MiB；桥接 CPU 均值 0.059%、私有提交中位数 53.36 MiB。Web 私有工作集中位数由 101.16 增至 205.30 MiB，需同条件复核。记录在 `artifacts/analysis/optimization-after.json`，两轮比较及限制见 [资源观察报告](OPTIMIZATION-RESOURCE-OBSERVATION-2026-10-22.md)。包含本轮浏览器检查，仍不是固定条件 A/B。
 - 完整资源验收仍需同条件预热、闲置/固定交互、前后交替各三轮及暂停恢复。尚无可报告的占用下降百分比。
