@@ -39,9 +39,9 @@ public sealed class DesktopInputGuard(DesktopWindowEvents windowEvents)
             var monitor = new MonitorInfo { Size = Marshal.SizeOf<MonitorInfo>() };
             var found = GetMonitorInfo(MonitorFromPoint(cursor, 0), ref monitor);
             var rect = monitor.Monitor;
-            var minimized = windowEvents.Blocks(x, y);
-            var allowed = found && !minimized && Matches(point, desktop, x, y, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
-            Volatile.Write(ref lastCheck, new { at = DateTimeOffset.UtcNow, allowed, point, desktop, minimized,
+            var windowTransition = windowEvents.Blocks(x, y);
+            var allowed = found && !windowTransition && Matches(point, desktop, x, y, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
+            Volatile.Write(ref lastCheck, new { at = DateTimeOffset.UtcNow, allowed, point, desktop, windowTransition,
                 cursor = new { x, y }, monitor = new { rect.Left, rect.Top, width = rect.Right - rect.Left, height = rect.Bottom - rect.Top } });
             return allowed;
         }

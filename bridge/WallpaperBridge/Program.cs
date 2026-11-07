@@ -65,11 +65,11 @@ app.Use(async (context, next) =>
     catch (Exception e) when (e is HttpRequestException or TaskCanceledException)
     { c.Response.StatusCode = 502; await c.Response.WriteAsJsonAsync(new { message = "远端请求失败，请检查地址、鉴权和实例版本" }); }
 });
-app.MapGet("/v1/health", (DesktopInputGuard input, DesktopWindowEvents windowEvents) => Results.Json(new { service = "portrait-wallpaper-bridge", version = "0.1.0", buildId = BuildIdentity.Id, schemaVersion = 1, desktopInputAvailable = input.Available, minimizeGuardAvailable = windowEvents.Available,
+app.MapGet("/v1/health", (DesktopInputGuard input, DesktopWindowEvents windowEvents) => Results.Json(new { service = "portrait-wallpaper-bridge", version = "0.1.0", buildId = BuildIdentity.Id, schemaVersion = 1, desktopInputAvailable = input.Available, minimizeGuardAvailable = windowEvents.Available, closeGuardAvailable = windowEvents.CloseGuardAvailable,
     elevated = new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent()).IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator) }));
 app.MapGet("/v1/snapshot", (DataHub hub) => { lastSnapshotRead = DateTimeOffset.UtcNow; return Results.Json(hub.Snapshot()); });
 app.MapPost("/v1/desktop-input", async (DesktopInputPoint point, DesktopInputGuard input, CancellationToken token) => {
-    // Let a minimize notification from this same mouse release reach the event thread.
+    // Let minimize/hide/destroy notifications from this same release reach the event thread.
     await Task.Delay(20, token);
     return Results.Json(new { allowed = input.Allows(point), available = input.Available });
 });
@@ -107,7 +107,7 @@ app.MapPost("/v1/setup/config/read", (RemoteSources remote, DesktopInputGuard in
     cpampUrl = store.Config.CpampUrl, managementConfigured = !string.IsNullOrEmpty(store.Config.ManagementKey),
     city = store.Config.City, accounts = store.Config.Accounts.Select(a => new { a.Id, a.Alias, a.Provider }), sensors = store.Config.Sensors,
     quotaRefreshEnabled = store.Config.QuotaRefreshEnabled, quotaRefreshMinutes = store.Config.QuotaRefreshMinutes, quotaRefresh = remote.RefreshStatus(),
-    bridgeUrl = $"http://127.0.0.1:{port}", readToken = store.ReadToken, diagnostics = new { lastClient, lastSnapshotRead, cacheFaults = store.CacheFaults, desktopInput = input.LastCheck, lastMinimize = windowEvents.LastMinimize }
+    bridgeUrl = $"http://127.0.0.1:{port}", readToken = store.ReadToken, diagnostics = new { lastClient, lastSnapshotRead, cacheFaults = store.CacheFaults, desktopInput = input.LastCheck, lastMinimize = windowEvents.LastMinimize, lastWindowDisappearance = windowEvents.LastWindowDisappearance }
 }));
 app.MapPost("/v1/setup/config", (SetupInput input, RemoteSources remote) =>
 {

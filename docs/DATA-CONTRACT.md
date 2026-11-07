@@ -24,6 +24,8 @@
 
 窗口最小化会先于壁纸 `mouseup` 处理完成，届时 `WindowFromPoint` 已命中桌面。为防止这类操作误触，桥接订阅 Windows `EVENT_SYSTEM_MINIMIZESTART` 窗口事件，暂存最小化时鼠标坐标，800 毫秒内对同位置（12 物理像素内）的壁纸点击拒绝；其他位置不受影响。检查前等待 20 毫秒，让同次操作的窗口通知到达。不使用鼠标输入钩子或轮询。
 
+关闭窗口或关闭到托盘也可能产生上述松开转发。桥接另外监听 `EVENT_OBJECT_SHOW/HIDE/DESTROY/LOCATIONCHANGE`，启动时枚举可见应用窗口，并在显示或移动时更新窗口边界；隐藏或销毁时，仅当鼠标位于原窗口范围内才启用同样的 800 毫秒／12 物理像素保护。只接受顶层有标题栏或 `APPWINDOW` 样式的应用窗口，忽略子控件、工具窗口、菜单和普通弹出层，范围外的后台窗口消失不拦截点击。`health.closeGuardAvailable` 表示这些订阅可用；管理诊断的 `lastWindowDisappearance` 仅包含最近一次事件的时间、坐标和 `hidden/destroyed` 类型，`desktopInput.windowTransition` 表示此次点击是否命中最小化或关闭保护，不含应用名和窗口标题。
+
 `hardware`：`status`、`observedAt`、`message`，四个 `cpu/gpu/vram/ram`。每个设备含 `name`、`load/temperature`（`value/unit/source/sensorId`）、`usedBytes/totalBytes`。null 为未知，0 为真实零。容量统一为字节；UI 显示 GiB 数值（GB 标签）。RAM 为 Windows 可用物理内存口径。RAM 温度已取消采集和展示，兼容 v1 的 `ram.temperature.value` 始终为 null；传感器选择仅保留 GPU ID、CPU/GPU 温度。专用显存不含共享内存，不使用 WMI AdapterRAM。所用 LHM 0.9.6 的 GPU SmallData 字段为 MiB，转换为字节。
 
 `quota`：`status`、`fetchedAt`、`message`、`accounts`。账号仅返回用户别名、provider、plan 和展示窗口；不返回物理凭据文件路径、账号身份字段、原始响应或管理凭据。

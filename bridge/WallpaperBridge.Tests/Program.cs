@@ -12,6 +12,9 @@ Check(!DesktopInputGuard.Matches(desktopPoint with { X = double.NaN }, true, -40
 Check(DesktopWindowEvents.Matches(30, -176, -29, -176, -29), "minimize release remains blocked after the app window disappears");
 Check(!DesktopWindowEvents.Matches(801, -176, -29, -176, -29), "minimize protection expires without disabling later desktop clicks");
 Check(!DesktopWindowEvents.Matches(30, -800, 1095, -176, -29), "minimizing an app does not block a different desktop card");
+Check(!DesktopWindowEvents.Matches(-1, 0, 0, 0, 0), "future window event cannot block input");
+Check(DesktopWindowEvents.Matches(800, 12, -12, 0, 0) && !DesktopWindowEvents.Matches(800, 13, 0, 0, 0), "window transition guard preserves exact time and distance limits");
+await DesktopWindowEventChecks.Run(Check);
 var windowEvents = new DesktopWindowEvents();
 await windowEvents.StartAsync(CancellationToken.None);
 Check(windowEvents.Available, "native minimize event subscription is available");
