@@ -115,6 +115,10 @@ npm run check
 ./scripts/measure-resources.ps1 -Samples 120 -IntervalSeconds 5 -Label after-optimization
 # 24 小时只读稳定性观察；按分钟留存匿名状态和进程内存
 ./scripts/observe-stability.ps1
+# 分析一次观察：按进程实例分段、剔除预热，输出可用性、数据状态与内存趋势
+python scripts/analyze-stability.py artifacts/analysis/<观察目录>/samples.jsonl
+# 前端设置的受控 A/B：隔离的无头 Chrome 回放匿名快照，轮换顺序多轮测量，不改正式壁纸
+python scripts/ab-frontend-resources.py --rounds 3 --measure-minutes 6
 # artifacts 保留策略：默认只列出可删项；-Apply 才删除
 ./scripts/prune-artifacts.ps1
 ```
