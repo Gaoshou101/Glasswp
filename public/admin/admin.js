@@ -3,6 +3,7 @@ const $ = id => document.getElementById(id);
 let session = '', config, cities = [], discovered = [];
 let refreshDirty = false, refreshBusy = false;
 let accountOrder = [], orderDirty = false, orderSaving = false;
+let accountPlans = new Map(), plansUnavailable = false, plansReadAt = 0, plansLoading = false, plansGeneration = 0;
 const status = message => { $('status').textContent = message; };
 async function api(path, body = {}, retry = true) {
   const response = await fetch('/v1/setup/' + path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Wallpaper-Setup': '1', 'X-Wallpaper-Admin': session }, body: JSON.stringify(body), cache: 'no-store' });
@@ -29,13 +30,47 @@ async function readConfig() {
   if (!orderDirty) { accountOrder = config.accounts.map(a => ({ ...a })); renderAccountOrder(); }
   // Same-origin preview remembers only the limited display ticket.
   try { const s = JSON.parse(localStorage.getItem('wallpaper.dashboard.v1') || '{}'); s.readToken = config.readToken; s.bridgeUrl = config.bridgeUrl; localStorage.setItem('wallpaper.dashboard.v1', JSON.stringify(s)); } catch { }
+  void readAccountPlans();
+}
+async function readAccountPlans() {
+  if (plansLoading || !config?.readToken || !config.accounts.length) return;
+  const generation = plansGeneration;
+  plansLoading = true; plansReadAt = Date.now();
+  try {
+    const response = await fetch('/v1/snapshot', { headers: { 'X-Wallpaper-Token': config.readToken }, cache: 'no-store', signal: AbortSignal.timeout(8000) });
+    if (!response.ok) throw new Error('Snapshot unavailable');
+    const snapshot = await response.json();
+    if (!Array.isArray(snapshot.quota?.accounts)) throw new Error('Invalid snapshot');
+    if (generation !== plansGeneration) return;
+    accountPlans = new Map(snapshot.quota.accounts.map(a => [a.id, typeof a.plan === 'string' ? a.plan.trim() : '']));
+    plansUnavailable = false;
+  } catch { if (generation === plansGeneration) plansUnavailable = true; }
+  finally { if (generation === plansGeneration) { plansLoading = false; updateAccountPlans(); } }
+}
+function clearAccountPlans() {
+  plansGeneration++; accountPlans.clear(); plansUnavailable = false; plansLoading = false; plansReadAt = 0;
+}
+function updateAccountPlans() {
+  // Update only metadata: background refreshes must preserve draft order and keyboard focus.
+  for (const row of $('account-order').children) {
+    const badge = row.querySelector('.order-plan'), plan = accountPlans.get(row.dataset.orderId);
+    const providerFallback = row.dataset.provider === 'antigravity' && (!plan || plan === 'antigravity');
+    badge.textContent = providerFallback ? 'antigravity' : plan || (plansUnavailable ? '套餐暂不可用' : '套餐待同步');
+    badge.dataset.state = providerFallback ? 'provider' : plan ? 'known' : plansUnavailable ? 'unavailable' : 'unknown';
+    badge.title = providerFallback ? '未获取到套餐信息，显示账号平台 antigravity；获取成功后自动更新。' : plan ? `套餐：${plan}${plansUnavailable ? '（暂时无法更新，保留上次读取结果）' : '（最近的本机额度快照）'}` : plansUnavailable ? '暂时无法读取本机快照，将自动重试；仍可调整并保存顺序。' : '暂无套餐信息；可在下方立即刷新用量，或等待自动刷新。';
+  }
 }
 function renderAccountOrder() {
   $('account-order').replaceChildren();
+  $('account-order-count').textContent = accountOrder.length ? `${accountOrder.length} 个账号` : '';
   accountOrder.forEach((account, index) => {
     const item = document.createElement('li'); item.className = 'order-item'; item.dataset.orderId = account.id;
+    item.dataset.provider = account.provider;
     const position = document.createElement('span'); position.className = 'order-position'; position.textContent = String(index + 1);
     const name = document.createElement('span'); name.className = 'order-name'; name.textContent = account.alias; name.title = account.alias;
+    const identity = document.createElement('div'); identity.className = 'order-identity';
+    const plan = document.createElement('span'); plan.className = 'order-plan';
+    identity.append(name, plan);
     const controls = document.createElement('div'); controls.className = 'order-controls';
     for (const [delta, label, symbol] of [[-1, '上移', '↑'], [1, '下移', '↓']]) {
       const button = document.createElement('button'); button.type = 'button'; button.textContent = symbol; button.dataset.direction = String(delta);
@@ -45,16 +80,18 @@ function renderAccountOrder() {
         if (orderSaving) return;
         const destination = index + delta;
         [accountOrder[index], accountOrder[destination]] = [accountOrder[destination], accountOrder[index]];
-        orderDirty = true; renderAccountOrder();
+        orderDirty = accountOrder.some((a, i) => a.id !== config.accounts[i]?.id); renderAccountOrder();
         const moved = [...$('account-order').children].find(row => row.dataset.orderId === account.id);
         const buttons = [...moved.querySelectorAll('button')];
         (buttons.find(b => b.dataset.direction === String(delta) && !b.disabled) || buttons.find(b => !b.disabled))?.focus();
       };
       controls.append(button);
     }
-    item.append(position, name, controls); $('account-order').append(item);
+    item.append(position, identity, controls); $('account-order').append(item);
   });
+  updateAccountPlans();
   $('save-account-order').disabled = orderSaving || !orderDirty;
+  $('cancel-account-order').disabled = orderSaving || !orderDirty;
   $('account-order-status').textContent = !accountOrder.length ? '先选择关注账号' : orderDirty ? '顺序未保存' : '';
 }
 action('save-account-order', async () => {
@@ -62,8 +99,15 @@ action('save-account-order', async () => {
   orderSaving = true; renderAccountOrder();
   try {
     await api('config', { accounts: accountOrder.map(a => ({ id: a.id, alias: a.alias })) });
-    orderDirty = false; await readConfig(); $('account-order-status').textContent = '显示顺序已保存'; status('显示顺序已保存');
+    config.accounts = accountOrder.map(a => ({ ...a }));
+    orderDirty = false; status('显示顺序已保存');
+    void readAccountPlans();
   } finally { orderSaving = false; renderAccountOrder(); if (!orderDirty) $('account-order-status').textContent = '显示顺序已保存'; }
+});
+$('cancel-account-order').addEventListener('click', () => {
+  if (orderSaving) return;
+  accountOrder = config.accounts.map(a => ({ ...a })); orderDirty = false; renderAccountOrder();
+  $('account-order-status').textContent = '已恢复保存的顺序';
 });
 function renderRefresh(report) {
   const running = ['running', 'queued'].includes(report.state.status);
@@ -96,9 +140,9 @@ action('save-city', async () => { const city = cities[Number($('city-results').v
 action('save-cpamp', async () => {
   const key = $('management-key').value;
   const r = await api('config', { cpampUrl: $('cpamp-url').value, ...(key ? { managementKey: key } : {}) });
-  $('management-key').value = ''; discovered = []; orderDirty = false; $('accounts').replaceChildren(); await readConfig(); status(r.message);
+  $('management-key').value = ''; discovered = []; orderDirty = false; clearAccountPlans(); $('accounts').replaceChildren(); await readConfig(); status(r.message);
 });
-action('clear-cpamp', async () => { const r = await api('config', { clearManagementKey: true, accounts: [] }); $('management-key').value = ''; discovered = []; orderDirty = false; $('accounts').replaceChildren(); await readConfig(); status(r.message); });
+action('clear-cpamp', async () => { const r = await api('config', { clearManagementKey: true, accounts: [] }); $('management-key').value = ''; discovered = []; orderDirty = false; clearAccountPlans(); $('accounts').replaceChildren(); await readConfig(); status(r.message); });
 action('discover-accounts', async () => {
   status('正在读取账号列表…'); discovered = (await api('accounts')).accounts; $('accounts').replaceChildren();
   for (const account of discovered) {
@@ -147,6 +191,7 @@ action('refresh', async () => { const r = await api('refresh'); await readConfig
       polling = true;
       try { renderRefresh(await api('quota-refresh/status')); } catch { $('quota-refresh-summary').textContent = '暂时无法读取刷新状态，请检查本机桥接'; }
       finally { polling = false; }
+      if (Date.now() - plansReadAt >= 15000) void readAccountPlans();
     }, 3000);
   } catch (e) { status(e.message); }
 })();

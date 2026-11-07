@@ -12,6 +12,8 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHa
     private long refreshGeneration;
     private UpstreamQuotaRefresher? refresher;
     private LocalQuotaClassifier quotaClassifier = new();
+    private AntigravitySubscriptionReader? subscriptions;
+    private AntigravitySubscriptionReader Subscriptions => subscriptions ??= new(client);
     private UpstreamQuotaRefresher Refresher => LazyInitializer.EnsureInitialized(ref refresher, () => new(store, client));
     public QuotaRefreshReport RefreshStatus() => Refresher.Report();
     public bool QueueQuotaRefresh() => Refresher.Queue();
@@ -127,6 +129,7 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHa
                 var cachedHeader = new QuotaAccount(a.Id, a.Alias, a.Provider, "", []);
                 var snapshotAccount = new QuotaAccount(a.Id, a.Alias, a.Provider, "", []);
                 bool snapshotAvailable = false;
+                bool currentIdentity = false;
                 try
                 {
                     using var budget = CancellationTokenSource.CreateLinkedTokenSource(token);
@@ -134,6 +137,7 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHa
                     var accountToken = budget.Token;
                     var file = files.FirstOrDefault(f => QuotaAdapter.Text(f, "name") == selection.AuthFile && QuotaAdapter.Text(f, "provider", QuotaAdapter.Text(f, "type")).ToLowerInvariant() == selection.Provider);
                     a = file.ValueKind == JsonValueKind.Object ? CachedHeaderAdapter.Identity(file, selection) : selection;
+                    currentIdentity = file.ValueKind == JsonValueKind.Object;
                     cachedHeader = file.ValueKind == JsonValueKind.Object ? CachedHeaderAdapter.ParseCodex(file, a, DateTimeOffset.UtcNow) : cachedHeader;
                     // Isolate each account: one damaged database bucket must not hide other accounts.
                     using var req = CpampRequest(HttpMethod.Post, "/v0/management/quota-snapshots/query", cfg);
@@ -171,7 +175,12 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHa
                     var previous = old.Accounts.FirstOrDefault(account => account.Id == a.Id);
                     if (previous is not null) snapshotAccount = previous with { Alias = a.Alias, Windows = previous.Windows.Select(w => w with { Stale = true }).ToArray(), ResetCredits = previous.ResetCredits is { } credits ? credits with { Stale = true } : null };
                 }
-                accountsList.Add(CachedHeaderAdapter.Merge(snapshotAccount, cachedHeader, snapshotAvailable));
+                var merged = CachedHeaderAdapter.Merge(snapshotAccount, cachedHeader, snapshotAvailable);
+                if (a.Provider == "antigravity") {
+                    var plan = currentIdentity ? await Subscriptions.Read(cfg, a, token) : null;
+                    merged = merged with { Plan = plan ?? "antigravity" };
+                }
+                accountsList.Add(merged);
             }
             var accounts = accountsList.ToArray();
             var any = accounts.Any(a => a.Windows.Length > 0);

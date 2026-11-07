@@ -387,6 +387,7 @@ Check(JsonSerializer.Deserialize<QuotaAccount>(legacyAccountDoc.RootElement, Pri
 
 await ResilienceChecks.Run(Check);
 await AntigravityChecks.Run(Check);
+await AntigravitySubscriptionChecks.Run(Check);
 Console.WriteLine($"{checks} bridge checks passed");
 
 sealed class StubHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler
