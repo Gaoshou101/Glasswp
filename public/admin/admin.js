@@ -1,9 +1,15 @@
 'use strict';
 const $ = id => document.getElementById(id);
-let session = '', config, cities = [], discovered = [];
-let refreshDirty = false, refreshBusy = false;
-let accountOrder = [], orderDirty = false, orderSaving = false;
+let session = '', config = null, cities = [], refreshBusy = false, sensorsLoaded = false;
+// Account editor: config.accounts is the saved state; the draft keeps watch order and aliases until saved.
+let discovered = null, draftWatched = [], draftAlias = new Map(), accountsSaving = false, accountNotice = '';
 let accountPlans = new Map(), plansUnavailable = false, plansReadAt = 0, plansLoading = false, plansGeneration = 0;
+let diagnosticsReadAt = 0, unsavedKey = '';
+const busy = new Set();
+const sensorFields = { 'gpu-id': 'gpuId', 'cpu-temp': 'cpuTemperatureId', 'gpu-temp': 'gpuTemperatureId' };
+const providerNames = { codex: 'Codex', antigravity: 'Antigravity', claude: 'Claude', kimi: 'Kimi', xai: 'xAI', devin: 'Devin', meta: 'Meta' };
+const providerName = provider => providerNames[provider] || provider || '未知平台';
+const trimUrl = value => String(value || '').trim().replace(/\/+$/, '');
 const status = message => { $('status').textContent = message; };
 async function api(path, body = {}, retry = true) {
   const response = await fetch('/v1/setup/' + path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Wallpaper-Setup': '1', 'X-Wallpaper-Admin': session }, body: JSON.stringify(body), cache: 'no-store' });
@@ -13,25 +19,227 @@ async function api(path, body = {}, retry = true) {
   return result;
 }
 function action(id, fn) {
-  $(id).addEventListener('click', async () => { $(id).disabled = true; try { await fn(); } catch (error) { status(error.message); } finally { $(id).disabled = id === 'refresh-quota-now' ? refreshBusy || !config?.managementConfigured || !config?.accounts.length : id === 'save-account-order' ? !orderDirty : false; } });
+  $(id).addEventListener('click', async () => {
+    if (busy.has(id)) return;
+    busy.add(id); $(id).disabled = true;
+    try { await fn(); } catch (error) { status(error.message); }
+    finally { busy.delete(id); $(id).disabled = false; syncControls(); }
+  });
 }
-async function readConfig() {
+function syncControls() {
+  const set = (id, disabled) => { $(id).disabled = busy.has(id) || disabled; };
+  const accountsChanged = accountsDirty();
+  set('refresh-quota-now', refreshBusy || !config?.managementConfigured || !config?.accounts.length);
+  set('save-accounts', accountsSaving || !accountsChanged);
+  set('cancel-accounts', accountsSaving || !accountsChanged);
+  set('discover-accounts', accountsSaving);
+  set('save-sensors', !sensorsLoaded);
+  updateDirty();
+}
+
+// Unsaved changes are computed against the last saved configuration, so editing a value back clears the mark.
+const cityDirty = () => { const city = cities[Number($('city-results').value)]; return Boolean(city && city.id !== config.city?.id); };
+const cpampDirty = () => trimUrl($('cpamp-url').value) !== trimUrl(config.cpampUrl) || $('management-key').value !== '';
+const refreshDirty = () => $('quota-refresh-enabled').checked !== config.quotaRefreshEnabled || $('quota-refresh-minutes').value.trim() !== String(config.quotaRefreshMinutes);
+const sensorsDirty = () => sensorsLoaded && Object.entries(sensorFields).some(([id, key]) => ($(id).value || null) !== (config.sensors?.[key] || null));
+function accountsDirty() {
+  if (!config) return false;
+  const saved = config.accounts;
+  return draftWatched.length !== saved.length || draftWatched.some((id, i) => id !== saved[i].id || effectiveAlias(id) !== saved[i].alias);
+}
+const sections = [['city', '天气城市', cityDirty], ['cpamp', 'CPAMP 连接', cpampDirty], ['accounts', '账号', accountsDirty], ['refresh', '用量自动刷新', refreshDirty], ['sensors', '硬件传感器', sensorsDirty]];
+const dirtySections = () => config ? sections.filter(([, , changed]) => changed()) : [];
+function updateDirty() {
+  const dirty = dirtySections(), keys = dirty.map(([key]) => key);
+  for (const pill of document.querySelectorAll('[data-dirty-for]')) pill.hidden = !keys.includes(pill.dataset.dirtyFor);
+  if (keys.join() !== unsavedKey) {
+    unsavedKey = keys.join();
+    const box = $('unsaved'); box.replaceChildren(); box.hidden = !dirty.length;
+    if (dirty.length) {
+      box.append('未保存的更改：');
+      dirty.forEach(([key, name], index) => {
+        if (index) box.append('、');
+        const link = document.createElement('a'); link.href = '#' + key + '-section'; link.textContent = name; box.append(link);
+      });
+      box.append('。离开或刷新页面前请先保存。');
+    }
+  }
+  return dirty.length > 0;
+}
+addEventListener('beforeunload', event => { if (updateDirty()) { event.preventDefault(); event.returnValue = ''; } });
+document.addEventListener('input', updateDirty);
+document.addEventListener('change', updateDirty);
+
+async function readConfig(reset = []) {
+  // Keep other sections' drafts when one section saves and the configuration is read again.
+  const keep = new Set(dirtySections().map(([key]) => key).filter(key => !reset.includes(key)));
   config = await api('config/read');
-  $('cpamp-url').value = config.cpampUrl;
+  if (!keep.has('cpamp')) $('cpamp-url').value = config.cpampUrl;
   $('current-city').textContent = '当前：' + config.city.name;
   $('credential-status').textContent = config.managementConfigured ? '已保存加密凭据。留空可保留。' : '尚未填写管理凭据。';
   $('ticket').value = config.readToken;
-  $('diagnostics').textContent = JSON.stringify(config.diagnostics, null, 2);
-  if (!refreshDirty) {
+  if (!keep.has('refresh')) {
     $('quota-refresh-enabled').checked = config.quotaRefreshEnabled;
     $('quota-refresh-minutes').value = String(config.quotaRefreshMinutes);
   }
-  renderRefresh(config.quotaRefresh);
-  if (!orderDirty) { accountOrder = config.accounts.map(a => ({ ...a })); renderAccountOrder(); }
+  if (sensorsLoaded && !keep.has('sensors')) applySensorSelection();
+  if (!keep.has('accounts')) resetAccountDraft();
+  renderAccounts(); renderRefresh(config.quotaRefresh); renderDiagnostics();
   // Same-origin preview remembers only the limited display ticket.
   try { const s = JSON.parse(localStorage.getItem('wallpaper.dashboard.v1') || '{}'); s.readToken = config.readToken; s.bridgeUrl = config.bridgeUrl; localStorage.setItem('wallpaper.dashboard.v1', JSON.stringify(s)); } catch { }
   void readAccountPlans();
 }
+
+function resetAccountDraft() {
+  draftWatched = config.accounts.map(a => a.id);
+  draftAlias = new Map(config.accounts.map(a => [a.id, a.alias]));
+}
+function accountInfo(id) {
+  const saved = config.accounts.find(a => a.id === id), found = discovered?.find(a => a.id === id);
+  return { id, provider: saved?.provider || found?.provider || '', base: saved?.alias || found?.alias || '', label: found?.label || '', missing: Boolean(discovered && !found) };
+}
+const aliasValue = id => draftAlias.has(id) ? draftAlias.get(id) : accountInfo(id).base;
+const effectiveAlias = id => aliasValue(id).trim() || accountInfo(id).base;
+function accountIds() {
+  // Watched accounts first in display order, then the rest in CPAMP order.
+  const rest = [];
+  for (const id of [...(discovered || []).map(a => a.id), ...config.accounts.map(a => a.id)]) if (!draftWatched.includes(id) && !rest.includes(id)) rest.push(id);
+  return [...draftWatched, ...rest];
+}
+const filtersActive = () => Boolean($('account-search').value.trim() || $('account-provider').value || $('account-watch').value);
+function accountMatches(id) {
+  const info = accountInfo(id), watched = draftWatched.includes(id), view = $('account-watch').value, provider = $('account-provider').value;
+  if (provider && info.provider !== provider) return false;
+  if ((view === 'watched' && !watched) || (view === 'unwatched' && watched)) return false;
+  const query = $('account-search').value.trim().toLowerCase();
+  return !query || [aliasValue(id), info.base, info.provider, providerName(info.provider), info.label, accountPlans.get(id) || ''].some(text => text.toLowerCase().includes(query));
+}
+function syncProviderOptions(ids) {
+  const select = $('account-provider'), providers = [...new Set(ids.map(id => accountInfo(id).provider).filter(Boolean))].sort();
+  if ([...select.options].slice(1).map(o => o.value).join() === providers.join()) return;
+  const current = select.value;
+  while (select.options.length > 1) select.remove(1);
+  for (const provider of providers) select.add(new Option(providerName(provider), provider));
+  select.value = providers.includes(current) ? current : '';
+}
+function captureFocus() {
+  const node = document.activeElement, row = node?.closest?.('.account-row');
+  if (!row || !node.dataset.control) return null;
+  return { id: row.dataset.accountId, control: node.dataset.control, index: [...row.parentElement.children].indexOf(row), start: node.selectionStart ?? null, end: node.selectionEnd ?? null };
+}
+function restoreFocus(target) {
+  if (!target) return;
+  const rows = [...$('account-list').children], row = rows.find(r => r.dataset.accountId === target.id);
+  if (!row) {
+    // The row left the current filter: keep the keyboard position in the list.
+    const next = rows[Math.min(target.index, rows.length - 1)];
+    (next?.querySelector(`[data-control="${target.control}"]:not(:disabled)`) || next?.querySelector('[data-control=watch]') || $('account-search')).focus();
+    return;
+  }
+  const controls = [...row.querySelectorAll('[data-control]')], exact = controls.find(c => c.dataset.control === target.control && !c.disabled);
+  const node = exact || (target.control.startsWith('move') && controls.find(c => c.dataset.control.startsWith('move') && !c.disabled)) || row.querySelector('[data-control=watch]');
+  node.focus();
+  if (node === exact && target.start !== null && node.setSelectionRange) node.setSelectionRange(target.start, target.end);
+}
+function rowLabels(row, id) {
+  const name = effectiveAlias(id);
+  row.querySelector('[data-control=watch]').setAttribute('aria-label', '在壁纸上显示 ' + name);
+  for (const button of row.querySelectorAll('.order-controls button')) button.setAttribute('aria-label', (button.dataset.control === 'move-1' ? '上移 ' : '下移 ') + name);
+}
+function accountRow(id, visibleWatched) {
+  const info = accountInfo(id), watched = draftWatched.includes(id), position = draftWatched.indexOf(id) + 1;
+  const item = document.createElement('li'); item.className = 'account-row';
+  Object.assign(item.dataset, { accountId: id, provider: info.provider, watched: String(watched) });
+  const check = document.createElement('input'); check.type = 'checkbox'; check.className = 'watch-toggle'; check.checked = watched; check.dataset.control = 'watch'; check.disabled = accountsSaving;
+  check.addEventListener('change', () => toggleWatch(id, check.checked));
+  const order = document.createElement('span'); order.className = 'order-position'; order.textContent = watched ? String(position) : '–';
+  order.title = watched ? `壁纸显示第 ${position} 位` : '未在壁纸上显示';
+  const main = document.createElement('div'); main.className = 'account-main';
+  const alias = document.createElement('input'); alias.type = 'text'; alias.className = 'alias-input'; alias.value = aliasValue(id); alias.maxLength = 60;
+  alias.placeholder = info.base; alias.dataset.control = 'alias'; alias.disabled = accountsSaving;
+  alias.setAttribute('aria-label', '显示别名 ' + (info.label || info.base));
+  alias.addEventListener('input', () => { draftAlias.set(id, alias.value); accountNotice = ''; rowLabels(item, id); renderAccountSummary(); syncControls(); });
+  const meta = document.createElement('div'); meta.className = 'account-meta';
+  const provider = document.createElement('span'); provider.className = 'provider-badge'; provider.textContent = providerName(info.provider);
+  const plan = document.createElement('span'); plan.className = 'order-plan';
+  meta.append(provider, plan);
+  if (info.label) { const file = document.createElement('span'); file.className = 'account-file'; file.textContent = info.label; file.title = info.label; meta.append(file); }
+  if (info.missing) { const missing = document.createElement('span'); missing.className = 'account-missing'; missing.textContent = '最近一次读取未在 CPAMP 中找到'; meta.append(missing); }
+  main.append(alias, meta);
+  const controls = document.createElement('div'); controls.className = 'order-controls';
+  const at = visibleWatched.indexOf(id);
+  for (const [delta, symbol, label] of [[-1, '↑', '上移'], [1, '↓', '下移']]) {
+    const button = document.createElement('button'); button.type = 'button'; button.textContent = symbol; button.title = label;
+    button.dataset.control = 'move' + delta; button.disabled = accountsSaving || !watched || !visibleWatched[at + delta];
+    button.addEventListener('click', () => moveAccount(id, delta));
+    controls.append(button);
+  }
+  item.append(check, order, main, controls); rowLabels(item, id);
+  return item;
+}
+function renderAccounts() {
+  if (!config) return;
+  const focus = captureFocus(), ids = accountIds();
+  syncProviderOptions(ids);
+  const visible = ids.filter(accountMatches), visibleWatched = visible.filter(id => draftWatched.includes(id));
+  $('account-list').replaceChildren(...visible.map(id => accountRow(id, visibleWatched)));
+  const filter = $('account-filter-status');
+  filter.hidden = !filtersActive() || !ids.length;
+  if (!filter.hidden) {
+    const hiddenWatched = draftWatched.length - visibleWatched.length;
+    const clear = document.createElement('button'); clear.type = 'button'; clear.textContent = '清除筛选';
+    clear.addEventListener('click', () => { $('account-search').value = ''; $('account-provider').value = ''; $('account-watch').value = ''; renderAccounts(); $('account-search').focus(); });
+    filter.replaceChildren(`显示 ${visible.length} / ${ids.length} 个账号` + (!visible.length ? '，没有匹配的账号' : hiddenWatched && visibleWatched.length ? '；上移和下移只在可见的已关注账号之间调整' : ''), clear);
+  }
+  updateAccountPlans();
+  renderAccountSummary();
+  restoreFocus(focus);
+  syncControls();
+}
+function renderAccountSummary() {
+  const total = accountIds().length;
+  $('account-count').textContent = total ? `已关注 ${draftWatched.length}` + (discovered ? ` / 共 ${total} 个账号` : ' 个账号') : '';
+  const empty = !total ? (config.managementConfigured ? '还没有关注账号。点击「从 CPAMP 读取账号」，勾选要显示的账号后保存。' : '先保存 CPAMP 连接，再读取账号。') : !draftWatched.length ? '勾选要显示在壁纸上的账号后保存。' : '';
+  $('account-status').textContent = accountsDirty() ? '有未保存的账号更改' : accountNotice || empty;
+}
+function toggleWatch(id, watched) {
+  if (accountsSaving) return;
+  draftWatched = draftWatched.filter(other => other !== id);
+  if (watched) draftWatched.push(id);
+  accountNotice = ''; renderAccounts();
+}
+function moveAccount(id, delta) {
+  // With a filter active, move past the neighbouring visible account; hidden accounts keep their relative order.
+  if (accountsSaving) return;
+  const visible = draftWatched.filter(accountMatches), at = visible.indexOf(id), neighbor = visible[at + delta];
+  if (at < 0 || !neighbor) return;
+  const order = draftWatched.filter(other => other !== id), target = order.indexOf(neighbor);
+  order.splice(delta < 0 ? target : target + 1, 0, id);
+  draftWatched = order; accountNotice = ''; renderAccounts();
+}
+for (const id of ['account-search', 'account-provider', 'account-watch']) $(id).addEventListener(id === 'account-search' ? 'input' : 'change', renderAccounts);
+action('save-accounts', async () => {
+  if (!accountsDirty() || accountsSaving) return;
+  const accounts = draftWatched.map(id => ({ id, alias: effectiveAlias(id) }));
+  accountsSaving = true; renderAccounts();
+  try {
+    const r = await api('config', { accounts });
+    accountsSaving = false;
+    await readConfig(['accounts']);
+    accountNotice = '账号设置已保存'; status(r.message);
+  } finally { accountsSaving = false; renderAccounts(); }
+});
+$('cancel-accounts').addEventListener('click', () => {
+  if (accountsSaving) return;
+  resetAccountDraft(); accountNotice = '已恢复保存的账号设置'; renderAccounts();
+});
+action('discover-accounts', async () => {
+  status('正在从 CPAMP 读取账号…');
+  discovered = (await api('accounts')).accounts;
+  renderAccounts();
+  const fresh = discovered.filter(a => !draftWatched.includes(a.id)).length, missing = draftWatched.filter(id => !discovered.some(a => a.id === id)).length;
+  status(!discovered.length ? '没有发现支持配额快照的账号' : `已读取 ${discovered.length} 个账号，其中 ${fresh} 个未关注` + (missing ? `；${missing} 个已关注账号未在 CPAMP 中找到` : '') + '。勾选后保存即可显示。');
+});
 async function readAccountPlans() {
   if (plansLoading || !config?.readToken || !config.accounts.length) return;
   const generation = plansGeneration;
@@ -51,133 +259,128 @@ function clearAccountPlans() {
   plansGeneration++; accountPlans.clear(); plansUnavailable = false; plansLoading = false; plansReadAt = 0;
 }
 function updateAccountPlans() {
-  // Update only metadata: background refreshes must preserve draft order and keyboard focus.
-  for (const row of $('account-order').children) {
-    const badge = row.querySelector('.order-plan'), plan = accountPlans.get(row.dataset.orderId);
+  // Update only metadata: background refreshes must preserve drafts and keyboard focus.
+  for (const row of $('account-list').children) {
+    const badge = row.querySelector('.order-plan'), id = row.dataset.accountId, plan = accountPlans.get(id);
+    badge.hidden = row.dataset.watched !== 'true';
+    if (badge.hidden) continue;
     const providerFallback = row.dataset.provider === 'antigravity' && (!plan || plan === 'antigravity');
-    badge.textContent = providerFallback ? 'antigravity' : plan || (plansUnavailable ? '套餐暂不可用' : '套餐待同步');
-    badge.dataset.state = providerFallback ? 'provider' : plan ? 'known' : plansUnavailable ? 'unavailable' : 'unknown';
-    badge.title = providerFallback ? '未获取到套餐信息，显示账号平台 antigravity；获取成功后自动更新。' : plan ? `套餐：${plan}${plansUnavailable ? '（暂时无法更新，保留上次读取结果）' : '（最近的本机额度快照）'}` : plansUnavailable ? '暂时无法读取本机快照，将自动重试；仍可调整并保存顺序。' : '暂无套餐信息；可在下方立即刷新用量，或等待自动刷新。';
+    const pending = !plan && !providerFallback && !config.accounts.some(a => a.id === id);
+    badge.textContent = providerFallback ? 'antigravity' : plan || (pending ? '保存后同步套餐' : plansUnavailable ? '套餐暂不可用' : '套餐待同步');
+    badge.dataset.state = providerFallback ? 'provider' : plan ? 'known' : plansUnavailable && !pending ? 'unavailable' : 'unknown';
+    badge.title = providerFallback ? '未获取到套餐信息，显示账号平台 antigravity；获取成功后自动更新。' : plan ? `套餐：${plan}${plansUnavailable ? '（暂时无法更新，保留上次读取结果）' : '（最近的本机额度快照）'}` : pending ? '新关注的账号保存后，下一次额度快照会带上套餐名称。' : plansUnavailable ? '暂时无法读取本机快照，将自动重试；仍可调整并保存账号设置。' : '暂无套餐信息；可在下方立即刷新用量，或等待自动刷新。';
   }
 }
-function renderAccountOrder() {
-  $('account-order').replaceChildren();
-  $('account-order-count').textContent = accountOrder.length ? `${accountOrder.length} 个账号` : '';
-  accountOrder.forEach((account, index) => {
-    const item = document.createElement('li'); item.className = 'order-item'; item.dataset.orderId = account.id;
-    item.dataset.provider = account.provider;
-    const position = document.createElement('span'); position.className = 'order-position'; position.textContent = String(index + 1);
-    const name = document.createElement('span'); name.className = 'order-name'; name.textContent = account.alias; name.title = account.alias;
-    const identity = document.createElement('div'); identity.className = 'order-identity';
-    const plan = document.createElement('span'); plan.className = 'order-plan';
-    identity.append(name, plan);
-    const controls = document.createElement('div'); controls.className = 'order-controls';
-    for (const [delta, label, symbol] of [[-1, '上移', '↑'], [1, '下移', '↓']]) {
-      const button = document.createElement('button'); button.type = 'button'; button.textContent = symbol; button.dataset.direction = String(delta);
-      button.setAttribute('aria-label', label + ' ' + account.alias); button.title = label;
-      button.disabled = orderSaving || index + delta < 0 || index + delta >= accountOrder.length;
-      button.onclick = () => {
-        if (orderSaving) return;
-        const destination = index + delta;
-        [accountOrder[index], accountOrder[destination]] = [accountOrder[destination], accountOrder[index]];
-        orderDirty = accountOrder.some((a, i) => a.id !== config.accounts[i]?.id); renderAccountOrder();
-        const moved = [...$('account-order').children].find(row => row.dataset.orderId === account.id);
-        const buttons = [...moved.querySelectorAll('button')];
-        (buttons.find(b => b.dataset.direction === String(delta) && !b.disabled) || buttons.find(b => !b.disabled))?.focus();
-      };
-      controls.append(button);
-    }
-    item.append(position, identity, controls); $('account-order').append(item);
-  });
-  updateAccountPlans();
-  $('save-account-order').disabled = orderSaving || !orderDirty;
-  $('cancel-account-order').disabled = orderSaving || !orderDirty;
-  $('account-order-status').textContent = !accountOrder.length ? '先选择关注账号' : orderDirty ? '顺序未保存' : '';
+function resultRow(account) {
+  const row = document.createElement('div'); row.className = 'result-row'; row.dataset.status = account.status;
+  row.textContent = account.alias + ' · ' + account.message;
+  return row;
 }
-action('save-account-order', async () => {
-  if (!orderDirty || orderSaving) return;
-  orderSaving = true; renderAccountOrder();
-  try {
-    await api('config', { accounts: accountOrder.map(a => ({ id: a.id, alias: a.alias })) });
-    config.accounts = accountOrder.map(a => ({ ...a }));
-    orderDirty = false; status('显示顺序已保存');
-    void readAccountPlans();
-  } finally { orderSaving = false; renderAccountOrder(); if (!orderDirty) $('account-order-status').textContent = '显示顺序已保存'; }
-});
-$('cancel-account-order').addEventListener('click', () => {
-  if (orderSaving) return;
-  accountOrder = config.accounts.map(a => ({ ...a })); orderDirty = false; renderAccountOrder();
-  $('account-order-status').textContent = '已恢复保存的顺序';
-});
 function renderRefresh(report) {
   const running = ['running', 'queued'].includes(report.state.status);
   refreshBusy = running;
-  $('refresh-quota-now').disabled = running || !config?.managementConfigured || !config?.accounts.length;
   $('quota-refresh-summary').textContent = report.state.message;
   const time = value => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '暂无';
   $('quota-refresh-times').textContent = `上次尝试：${time(report.state.lastAttemptAt)} · 最近成功：${time(report.state.lastSuccessAt)} · 下次：${running ? '刷新完成后计算' : !report.enabled ? '自动刷新已关闭' : report.nextRefreshAt ? time(report.nextRefreshAt) : '请配置连接与关注账号'}`;
-  $('quota-refresh-accounts').replaceChildren();
-  for (const account of report.state.accounts || []) {
-    const row = document.createElement('div'); row.className = 'account'; row.textContent = account.alias + ' · ' + account.message; $('quota-refresh-accounts').append(row);
-  }
+  // Accounts that were not updated stay visible; the full per-account list is folded away.
+  const results = report.state.accounts || [], missed = results.filter(a => a.status !== 'ok');
+  $('quota-refresh-failures').replaceChildren(...missed.map(resultRow));
+  $('quota-refresh-details').hidden = !results.length;
+  $('quota-refresh-details-summary').textContent = `各账号结果：${results.length - missed.length} 个已更新` + (missed.length ? ` · ${missed.length} 个未更新` : '');
+  $('quota-refresh-accounts').replaceChildren(...results.map(resultRow));
+  syncControls();
 }
-for (const id of ['quota-refresh-enabled', 'quota-refresh-minutes']) $(id).addEventListener('input', () => { refreshDirty = true; });
 action('save-quota-refresh', async () => {
   const minutes = $('quota-refresh-minutes');
   if (!minutes.reportValidity()) return;
   const interval = Number(minutes.value);
   if (!Number.isInteger(interval) || interval < 1 || interval > 10080) throw new Error('请输入 1–10080 之间的整数分钟');
   await api('config', { quotaRefreshEnabled: $('quota-refresh-enabled').checked, quotaRefreshMinutes: interval });
-  refreshDirty = false; await readConfig(); status('刷新设置已保存');
+  await readConfig(['refresh']); status('刷新设置已保存');
 });
 action('refresh-quota-now', async () => { const r = await api('quota-refresh'); renderRefresh(r.refresh); status(r.message); });
 action('search-city', async () => {
   status('正在搜索城市…'); cities = (await api('cities', { query: $('city-query').value })).cities;
-  $('city-results').replaceChildren(); for (let i = 0; i < cities.length; i++) { const o = document.createElement('option'); o.value = String(i); o.textContent = cities[i].name + ' (' + cities[i].timezone + ')'; $('city-results').append(o); }
+  $('city-results').replaceChildren(...cities.map((city, i) => new Option(city.name + ' (' + city.timezone + ')', String(i))));
+  if (!cities.length) $('city-results').append(new Option('未找到城市', ''));
   status(cities.length ? '请选择城市后保存' : '未找到城市，可尝试拼音或英文名');
 });
-action('save-city', async () => { const city = cities[Number($('city-results').value)]; if (!city) throw new Error('请先搜索并选择城市'); const r = await api('config', { city }); await readConfig(); status(r.message); });
+action('save-city', async () => { const city = cities[Number($('city-results').value)]; if (!$('city-results').value || !city) throw new Error('请先搜索并选择城市'); const r = await api('config', { city }); await readConfig(); status(r.message); });
 action('save-cpamp', async () => {
-  const key = $('management-key').value;
-  const r = await api('config', { cpampUrl: $('cpamp-url').value, ...(key ? { managementKey: key } : {}) });
-  $('management-key').value = ''; discovered = []; orderDirty = false; clearAccountPlans(); $('accounts').replaceChildren(); await readConfig(); status(r.message);
+  const key = $('management-key').value, url = $('cpamp-url').value;
+  // The bridge drops the watched accounts whenever the address or the credential changes.
+  const sourceChanged = trimUrl(url) !== trimUrl(config.cpampUrl) || key !== '';
+  const watched = config.accounts.length;
+  if (sourceChanged && (watched || accountsDirty()) && !confirm(`更换面板地址或凭据会取消全部 ${watched} 个关注账号${accountsDirty() ? '，并放弃未保存的账号更改' : ''}；之后需要重新读取并勾选账号。继续保存？`)) { status('已取消保存连接'); return; }
+  const r = await api('config', { cpampUrl: url, ...(key ? { managementKey: key } : {}) });
+  $('management-key').value = '';
+  if (sourceChanged) { discovered = null; clearAccountPlans(); }
+  await readConfig(sourceChanged ? ['cpamp', 'accounts'] : ['cpamp']); status(r.message);
 });
-action('clear-cpamp', async () => { const r = await api('config', { clearManagementKey: true, accounts: [] }); $('management-key').value = ''; discovered = []; orderDirty = false; clearAccountPlans(); $('accounts').replaceChildren(); await readConfig(); status(r.message); });
-action('discover-accounts', async () => {
-  status('正在读取账号列表…'); discovered = (await api('accounts')).accounts; $('accounts').replaceChildren();
-  for (const account of discovered) {
-    const box = document.createElement('div'); box.className = 'account'; const row = document.createElement('label'); row.className = 'row';
-    const check = document.createElement('input'); check.type = 'checkbox'; check.checked = account.selected; check.dataset.accountId = account.id;
-    const text = document.createElement('span'); text.textContent = account.provider;
-    const alias = document.createElement('input'); alias.type = 'text'; alias.value = account.alias; alias.maxLength = 60; alias.setAttribute('aria-label', '显示别名'); alias.dataset.aliasId = account.id;
-    row.append(check, text, alias); const label = document.createElement('small'); label.textContent = account.label; box.append(row, label); $('accounts').append(box);
+action('clear-cpamp', async () => {
+  const watched = config.accounts.length;
+  if (!confirm(watched ? `清除凭据会同时取消全部 ${watched} 个关注账号，壁纸将不再显示额度。确定清除？` : '确定清除已保存的 CPAMP 管理凭据？')) { status('已取消清除凭据'); return; }
+  const r = await api('config', { clearManagementKey: true, accounts: [] });
+  $('management-key').value = ''; discovered = null; clearAccountPlans(); await readConfig(['cpamp', 'accounts']); status(r.message);
+});
+function applySensorSelection() {
+  for (const [id, key] of Object.entries(sensorFields)) {
+    const value = config.sensors?.[key] || '', select = $(id);
+    if (value && ![...select.options].some(o => o.value === value)) select.add(new Option('已保存的传感器（当前未检测到）', value));
+    select.value = value;
   }
-  status(discovered.length ? '选择关注账号，可修改壁纸显示别名' : '没有发现支持配额快照的账号');
-});
-action('save-accounts', async () => {
-  if (!discovered.length) throw new Error('请先读取账号列表');
-  const accounts = discovered.filter(a => document.querySelector(`[data-account-id="${a.id}"]`).checked).map(a => ({ id: a.id, alias: document.querySelector(`[data-alias-id="${a.id}"]`).value }));
-  const order = new Map(accountOrder.map((a, index) => [a.id, index]));
-  accounts.sort((a, b) => (order.get(a.id) ?? accountOrder.length) - (order.get(b.id) ?? accountOrder.length));
-  const r = await api('config', { accounts }); orderDirty = false; await readConfig(); status(r.message);
-});
+}
 action('load-sensors', async () => {
   const sensors = (await api('sensors')).sensors;
-  for (const id of ['gpu-id', 'cpu-temp', 'gpu-temp']) while ($(id).options.length > 1) $(id).remove(1);
-  const add = (id, value, text) => { const o = document.createElement('option'); o.value = value; o.textContent = text; $(id).append(o); };
+  const draft = sensorsDirty() ? Object.fromEntries(Object.keys(sensorFields).map(id => [id, $(id).value])) : null;
+  for (const id of Object.keys(sensorFields)) while ($(id).options.length > 1) $(id).remove(1);
   const seen = new Set();
   for (const s of sensors) {
-    if (/^Gpu/.test(s.hardwareType) && !seen.has(s.hardwareId)) { seen.add(s.hardwareId); add('gpu-id', s.hardwareId, s.hardware); }
+    if (/^Gpu/.test(s.hardwareType) && !seen.has(s.hardwareId)) { seen.add(s.hardwareId); $('gpu-id').add(new Option(s.hardware, s.hardwareId)); }
     if (s.type !== 'Temperature') continue;
     const label = `${s.hardware} · ${s.name} (${s.value === null ? '不可用' : s.value.toFixed(1) + '°C'})`;
-    if (s.hardwareType === 'Cpu') add('cpu-temp', s.id, label);
-    if (/^Gpu/.test(s.hardwareType)) add('gpu-temp', s.id, label);
+    if (s.hardwareType === 'Cpu') $('cpu-temp').add(new Option(label, s.id));
+    if (/^Gpu/.test(s.hardwareType)) $('gpu-temp').add(new Option(label, s.id));
   }
-  for (const [id, key] of Object.entries({ 'gpu-id': 'gpuId', 'cpu-temp': 'cpuTemperatureId', 'gpu-temp': 'gpuTemperatureId' })) $(id).value = config.sensors[key] || '';
-  $('sensor-report').textContent = sensors.filter(s => ['Load', 'Temperature', 'Data', 'SmallData'].includes(s.type)).map(s => `${s.hardware} / ${s.name}: ${s.value === null ? '不可用' : s.value.toFixed(2)} (${s.type})`).join('\n');
+  sensorsLoaded = true; applySensorSelection();
+  if (draft) for (const [id, value] of Object.entries(draft)) if ([...$(id).options].some(o => o.value === value)) $(id).value = value;
+  const lines = sensors.filter(s => ['Load', 'Temperature', 'Data', 'SmallData'].includes(s.type)).map(s => `${s.hardware} / ${s.name}: ${s.value === null ? '不可用' : s.value.toFixed(2)} (${s.type})`);
+  $('sensor-report').textContent = lines.join('\n');
+  $('sensor-summary').textContent = `原始传感器读数（${lines.length} 项）`;
+  $('sensor-details').hidden = !lines.length;
+  $('sensor-hint').textContent = `已检测到 ${seen.size} 个物理 GPU；选择后保存即可应用。`;
   status('传感器已检测');
 });
-action('save-sensors', async () => { const r = await api('config', { sensors: { gpuId: $('gpu-id').value || null, cpuTemperatureId: $('cpu-temp').value || null, gpuTemperatureId: $('gpu-temp').value || null } }); await readConfig(); status(r.message); });
+action('save-sensors', async () => { const r = await api('config', { sensors: { gpuId: $('gpu-id').value || null, cpuTemperatureId: $('cpu-temp').value || null, gpuTemperatureId: $('gpu-temp').value || null } }); await readConfig(['sensors']); status(r.message); });
+function ago(value) {
+  const seconds = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 1000));
+  return seconds < 10 ? '刚刚' : seconds < 60 ? `${seconds} 秒前` : seconds < 3600 ? `${Math.floor(seconds / 60)} 分钟前` : seconds < 86400 ? `${Math.floor(seconds / 3600)} 小时前` : `${Math.floor(seconds / 86400)} 天前`;
+}
+function moment(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '时间未知' : `${date.toLocaleString('zh-CN', { hour12: false })}（${ago(value)}）`;
+}
+function renderDiagnostics() {
+  // Readable facts first; the raw report stays in the folded advanced section.
+  const d = config?.diagnostics || {}, client = d.lastClient, faults = Array.isArray(d.cacheFaults) ? d.cacheFaults.length : 0;
+  const quiet = client && Date.now() - new Date(client.at).getTime() > 5 * 60 * 1000;
+  const facts = [
+    ['壁纸前端', client ? [client.host === 'wallpaper-engine' ? 'Wallpaper Engine' : '浏览器预览', client.paused ? '已暂停' : '运行中', client.width && client.height ? `${client.width}×${client.height}` : '', client.fps ? `${client.fps} FPS` : ''].filter(Boolean).join(' · ') : '尚未收到壁纸上报'],
+    ['最近上报', client ? moment(client.at) + (client.buildId ? ` · 构建 ${client.buildId}` : '') + (quiet ? ' · 较久未上报，壁纸可能已关闭或暂停' : '') : '—', quiet],
+    ['最近读取快照', d.lastSnapshotRead ? moment(d.lastSnapshotRead) : '尚无'],
+    ['缓存故障', faults ? `${faults} 项，详见高级诊断` : '无', faults > 0]
+  ];
+  $('connection-facts').replaceChildren(...facts.flatMap(([term, text, warn]) => {
+    const dt = document.createElement('dt'), dd = document.createElement('dd');
+    dt.textContent = term; dd.textContent = text; if (warn) dd.dataset.state = 'warn';
+    return [dt, dd];
+  }));
+  $('diagnostics').textContent = JSON.stringify(d, null, 2);
+}
+async function readDiagnostics() {
+  diagnosticsReadAt = Date.now();
+  try { const latest = await api('config/read'); config.diagnostics = latest.diagnostics; renderDiagnostics(); } catch { }
+}
 action('copy-ticket', async () => { await navigator.clipboard.writeText(config.readToken); status('展示票据已复制'); });
 action('toggle-ticket', async () => { $('ticket').type = $('ticket').type === 'password' ? 'text' : 'password'; });
 action('refresh', async () => { const r = await api('refresh'); await readConfig(); status(r.message); });
@@ -185,6 +388,7 @@ action('refresh', async () => { const r = await api('refresh'); await readConfig
   try {
     if (!['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname)) throw new Error('本机设置只能从桥接服务打开');
     session = (await api('session')).session; await readConfig(); status('已连接。设置会保存在本机。');
+    diagnosticsReadAt = Date.now();
     let polling = false;
     setInterval(async () => {
       if (document.hidden || polling) return;
@@ -192,6 +396,7 @@ action('refresh', async () => { const r = await api('refresh'); await readConfig
       try { renderRefresh(await api('quota-refresh/status')); } catch { $('quota-refresh-summary').textContent = '暂时无法读取刷新状态，请检查本机桥接'; }
       finally { polling = false; }
       if (Date.now() - plansReadAt >= 15000) void readAccountPlans();
+      if (Date.now() - diagnosticsReadAt >= 15000) void readDiagnostics();
     }, 3000);
   } catch (e) { status(e.message); }
 })();
