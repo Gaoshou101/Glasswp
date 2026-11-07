@@ -13,11 +13,33 @@ export function isCodexImageQuota(window: QuotaWindow): boolean {
   return /(?:^| · )(?:绘图(?:（[^）]*）)?|imagegen(?:_[a-z0-9_]+)?)(?:$| · )/i.test(window.label)
     || /^(?:cached-header-)?imagegen(?:[-_]|$)/i.test(window.id);
 }
+export type QuotaWindowState = 'current' | 'exhausted' | 'expired';
+export const quotaFreshMs = 900000;
+/**
+ * A used-up window cannot recover before its boundary, so its zero balance stays the truth until the
+ * reset (or, with an unknown reset, one full window after the sample) however old the sample is.
+ * Returns that end time, or null when the window is not exhausted.
+ */
+export function exhaustedUntil(window: QuotaWindow, now = Date.now()): number | null {
+  if (window.mode === 'non_window' || window.remainingPercent === null || !Number.isFinite(window.remainingPercent) || window.remainingPercent > 0) return null;
+  const observed = Date.parse(window.observedAt || '');
+  if (!Number.isFinite(observed) || observed > now + 60000) return null;
+  const reset = Date.parse(window.resetAt || '');
+  const end = Number.isFinite(reset) ? reset : window.durationSeconds && window.durationSeconds > 0 ? observed + window.durationSeconds * 1000 : NaN;
+  return Number.isFinite(end) && end > now ? end : null;
+}
+export function quotaWindowState(window: QuotaWindow, now = Date.now()): QuotaWindowState {
+  if (exhaustedUntil(window, now) !== null) return 'exhausted';
+  const observed = Date.parse(window.observedAt || '');
+  return !window.stale && Number.isFinite(observed) && observed <= now + 60000 && now - observed <= quotaFreshMs ? 'current' : 'expired';
+}
+/** Windows that may be shown: current evidence and exhausted windows that have not reached their reset. */
 export function currentQuotaWindows(account: QuotaAccount, now = Date.now()): QuotaWindow[] {
-  return account.windows.filter(w => {
-    const observed = Date.parse(w.observedAt || '');
-    return !w.stale && Number.isFinite(observed) && observed <= now + 60000 && now - observed <= 900000;
-  });
+  return account.windows.filter(w => quotaWindowState(w, now) !== 'expired');
+}
+/** The next moment a displayed window changes state (15-minute expiry or the end of exhaustion). */
+export function nextQuotaStateChange(windows: QuotaWindow[], now = Date.now()): number {
+  return Math.min(Infinity, ...windows.map(w => exhaustedUntil(w, now) ?? Date.parse(w.observedAt || '') + quotaFreshMs + 1).filter(Number.isFinite));
 }
 export function visibleQuotaWindows(account: QuotaAccount, ignoreCodexBaseWeekly = false, ignoreCodexImageQuota = false, now = Date.now()): QuotaWindow[] {
   return currentQuotaWindows(account, now).filter(w => account.provider !== 'codex' || !(ignoreCodexBaseWeekly && isCodexBaseWeekly(w)) && !(ignoreCodexImageQuota && isCodexImageQuota(w)));

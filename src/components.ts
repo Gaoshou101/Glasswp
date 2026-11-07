@@ -1,13 +1,13 @@
 import type { HardwareData, QuotaData, QuotaWindow, WeatherData } from './contract';
 import type { Settings } from './settings';
 import { ageLabel, capacity, durationLabel, percent, resetText, temperature, weatherLabel } from './format';
-import { quotaPages, type QuotaEntry, type QuotaPage } from './quota';
+import { nextQuotaStateChange, quotaPages, quotaWindowState, type QuotaEntry, type QuotaPage } from './quota';
 import { setCardInsight, type HardwareSample } from './insights';
 import { ClockFormats } from './clock-format';
 
 const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, value?: string): HTMLElementTagNameMap[K] => { const n = document.createElement(tag); n.className = className; if (value !== undefined) n.textContent = value; return n; };
 const text = (node: Element, value: string) => { if (node.textContent !== value) node.textContent = value; };
-interface WindowView { block: HTMLElement; remaining: Text; fill: HTMLElement; track: HTMLElement; title: HTMLElement; meta: HTMLElement; countdown: { node: HTMLElement; window: QuotaWindow } }
+interface WindowView { block: HTMLElement; remainingLabel: HTMLElement; remaining: Text; fill: HTMLElement; track: HTMLElement; title: HTMLElement; meta: HTMLElement; countdown: { node: HTMLElement; window: QuotaWindow } }
 interface AccountView { node: HTMLElement; alias: HTMLElement; plan: HTMLElement; windows: WindowView[]; freshness: { node: HTMLElement; entry: QuotaEntry }; empty?: HTMLElement }
 export class ClockWeather {
   private weather?: WeatherData;
@@ -68,7 +68,7 @@ export class QuotaComponent {
   update(data: QuotaData) {
     const key = this.pages[this.index]?.key;
     this.data = data; this.pages = quotaPages(data.accounts, this.settings.quotaLayout, this.settings.ignoreCodexBaseWeekly, this.settings.ignoreCodexImageQuota);
-    this.expiresAt = Math.min(Infinity, ...this.pages.flatMap(p => p.entries.flatMap(e => e.windows.map(w => Date.parse(w.observedAt!) + 900001))));
+    this.expiresAt = nextQuotaStateChange(this.pages.flatMap(p => p.entries.flatMap(e => e.windows)));
     const same = this.pages.findIndex(p => p.key === key);
     this.index = Math.min(this.index, Math.max(0, this.pages.length - 1));
     if (same >= 0) this.index = same;
@@ -80,7 +80,8 @@ export class QuotaComponent {
     if (now >= this.expiresAt) { this.update(this.data); return; }
     for (const item of this.countdowns) text(item.node, resetText(item.window, now));
     for (const { node, entry } of this.freshness) {
-      const evidence = entry.windows.length ? entry.windows : entry.account.windows;
+      // An exhausted window's old sample is still valid until its reset, so it never marks the card expired.
+      const evidence = (entry.windows.length ? entry.windows : entry.account.windows).filter(w => quotaWindowState(w, now) !== 'exhausted');
       const observations = evidence.map(w => w.observedAt).filter((w): w is string => !!w).sort();
       const observed = observations[0] || null;
       const stale = ['offline', 'error', 'unauthorized', 'unsupported'].includes(this.data.status) || evidence.some(w => w.stale) || !observed || now - Date.parse(observed) > 900000;
@@ -148,14 +149,14 @@ export class QuotaComponent {
     const windowViews: WindowView[] = [];
     for (const w of page.windows) {
       const block = el('div', 'quota-window'), line = el('div', 'window-line');
-      const remaining = el('span', 'remaining'), value = document.createTextNode(percent(w.remainingPercent)), title = el('span', 'window-title', w.label); remaining.append(el('small', '', '剩余'), value);
+      const remaining = el('span', 'remaining'), remainingLabel = el('small', '', '剩余'), value = document.createTextNode(percent(w.remainingPercent)), title = el('span', 'window-title', w.label); remaining.append(remainingLabel, value);
       line.append(title, remaining);
       const track = el('div', 'track'), fill = el('div', 'fill'); track.append(fill);
       const countdown = el('div', 'reset', resetText(w)), countdownView = { node: countdown, window: w }; this.countdowns.push(countdownView);
       const units = w.usedValue !== null && w.limitValue !== null ? `${w.usedValue} / ${w.limitValue} ${w.quotaUnit}` : durationLabel(w.durationSeconds);
       const meta = el('div', 'window-meta', units || '周期未知');
       block.append(line, track, countdown, meta); windows.append(block);
-      windowViews.push({ block, remaining: value, fill, track, title, meta, countdown: countdownView });
+      windowViews.push({ block, remainingLabel, remaining: value, fill, track, title, meta, countdown: countdownView });
     }
     content.append(windows);
     let empty: HTMLElement | undefined;
@@ -173,13 +174,18 @@ export class QuotaComponent {
     text(view.plan, page.account.plan || page.account.provider); view.plan.title = view.plan.textContent || '';
     view.freshness.entry = page;
     const absolute = (value: string | null) => value && Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat('zh-CN', { timeZone: this.settings.timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date(value)) : '未知';
+    const now = Date.now();
     view.windows.forEach((item, i) => {
       const w = page.windows[i]; item.countdown.window = w;
-      text(item.title, w.label); const value = percent(w.remainingPercent); if (item.remaining.data !== value) item.remaining.data = value;
+      // Used up is a definite state with a known end, so name it instead of showing a bare 0% or an expiry.
+      const exhausted = quotaWindowState(w, now) === 'exhausted';
+      item.block.dataset.exhausted = String(exhausted); text(item.remainingLabel, exhausted ? '' : '剩余');
+      text(item.title, w.label); const value = exhausted ? '已用尽' : percent(w.remainingPercent); if (item.remaining.data !== value) item.remaining.data = value;
       const scale = `scaleX(${Math.max(0, Math.min(100, w.remainingPercent ?? 0)) / 100})`; if (item.fill.style.transform !== scale) item.fill.style.transform = scale;
       item.fill.dataset.low = String(w.remainingPercent !== null && w.remainingPercent < 15); item.track.dataset.unknown = String(w.remainingPercent === null);
       text(item.meta, w.usedValue !== null && w.limitValue !== null ? `${w.usedValue} / ${w.limitValue} ${w.quotaUnit}` : durationLabel(w.durationSeconds) || '周期未知');
       item.block.title = `${w.label}\n${w.mode} · ${w.accuracy}\n重置 ${absolute(w.resetAt)}\n快照 ${absolute(w.observedAt)}\n${this.settings.timezone}`;
+      if (exhausted) item.block.title += w.resetAt ? '\n额度已用尽：重置前保持用尽，不因快照时间较早而判为过期。' : '\n额度已用尽：重置时间未知，按一个周期内保持用尽显示。';
       if (w.accuracy === 'unknown') item.block.title += '\nCPAMP 尚未确认此窗口的重置时间，倒计时仅供参考。刷新后以最新快照为准。';
     });
     if (view.empty) text(view.empty, page.ignoredWindows && !page.account.windows.length ? page.ignoredLabel || '额度窗口已忽略' : page.expiredWindows ? '暂无最新额度，等待刷新' : '暂无额度证据');

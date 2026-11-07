@@ -1,6 +1,6 @@
 import type { QuotaAccount, QuotaData, QuotaWindow, WeatherData, WeatherHour } from './contract';
 import { percent } from './format';
-import { currentQuotaWindows, visibleQuotaWindows } from './quota';
+import { currentQuotaWindows, quotaWindowState, visibleQuotaWindows } from './quota';
 
 export interface HardwareSample { at: number; value: number | null; temperature: number | null }
 export interface SampleStats { count: number; span: number; average: number | null; peak: number | null; low: number | null; temperaturePeak: number | null }
@@ -17,9 +17,9 @@ export function visibleQuotaAccounts(data: QuotaData, ignoreBaseWeekly: boolean,
   return data.accounts.map(account => ({ ...account, windows: visibleQuotaWindows(account, ignoreBaseWeekly, ignoreImageQuota, now) }));
 }
 const windowKey = (w: QuotaWindow) => JSON.stringify([w.id, w.label, w.durationSeconds, w.mode]);
+/** Current evidence, or an exhausted window whose zero balance still holds until its reset. */
 export function freshQuota(window: QuotaWindow, now: number): boolean {
-  const at = Date.parse(window.observedAt || '');
-  return !window.stale && Number.isFinite(at) && now - at <= 900000;
+  return quotaWindowState(window, now) !== 'expired';
 }
 const known = (w: QuotaWindow) => w.remainingPercent !== null && Number.isFinite(w.remainingPercent);
 export function quotaInsight(data: QuotaData, accountId: string, ignoreBaseWeekly: boolean, now = Date.now(), ignoreImageQuota = false) {
@@ -44,7 +44,8 @@ export function quotaInsight(data: QuotaData, accountId: string, ignoreBaseWeekl
     values: account.windows.map(w => {
       const other = a.windows.find(v => windowKey(v) === windowKey(w))!;
       const expired = other.mode !== 'non_window' && other.resetAt && Date.parse(other.resetAt) <= now;
-      return sourceAvailable && freshQuota(other, now) && known(other) && !expired ? percent(other.remainingPercent) : '待更新';
+      if (!sourceAvailable || !freshQuota(other, now) || !known(other) || expired) return '待更新';
+      return quotaWindowState(other, now) === 'exhausted' ? '已用尽' : percent(other.remainingPercent);
     }) })) : [];
   return { account, heading, explanation, rows, observedAt: account.windows.map(w => w.observedAt).filter((v): v is string => !!v).sort()[0] || null };
 }

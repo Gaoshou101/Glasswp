@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { ageLabel, percent, resetText } from '../src/format.ts';
 import { defaults, loadSettings, loopbackUrl } from '../src/settings.ts';
 import type { QuotaWindow } from '../src/contract.ts';
-import { currentQuotaWindows, isCodexBaseWeekly, isCodexImageQuota, quotaPages } from '../src/quota.ts';
+import { currentQuotaWindows, exhaustedUntil, isCodexBaseWeekly, isCodexImageQuota, nextQuotaStateChange, quotaPages, quotaWindowState } from '../src/quota.ts';
 import { forecastHours, quotaInsight, sampleStats } from '../src/insights.ts';
 const window: QuotaWindow = { id: 'short', label: '5 小时', remainingPercent: 0, usedValue: null, limitValue: null, quotaUnit: '', resetAt: '2026-10-10T00:00:10Z', durationSeconds: 18000, mode: 'fixed', accuracy: 'exact', observedAt: new Date().toISOString(), stale: false };
 test('zero quota and missing evidence remain distinguishable', () => { assert.equal(percent(0), '0%'); assert.equal(percent(null), '—'); assert.equal(percent(NaN), '—'); assert.equal(percent(120), '100%'); });
@@ -37,18 +37,47 @@ test('manual paging is default and upgrades previously saved automatic paging', 
 test('only current server evidence is displayed and stale history never creates extra pages', () => {
   const now = Date.parse('2026-10-23T03:00:00Z');
   const fresh = { ...window, observedAt: new Date(now).toISOString(), resetAt: new Date(now+3600000).toISOString() };
+  // Non-zero history: an exhausted window has its own rule (see the next test).
   const account = { id: 'a', alias: 'A', provider: 'antigravity', plan: '', windows: [fresh,
-    { ...fresh, id: 'legacy', stale: true }, { ...fresh, id: 'too-old', observedAt: new Date(now-900001).toISOString() },
-    { ...fresh, id: 'missing-time', observedAt: null }, { ...fresh, id: 'future-time', observedAt: new Date(now+60001).toISOString() }] };
+    { ...fresh, id: 'legacy', stale: true, remainingPercent: 40 }, { ...fresh, id: 'too-old', observedAt: new Date(now-900001).toISOString(), remainingPercent: 40 },
+    { ...fresh, id: 'missing-time', observedAt: null }, { ...fresh, id: 'future-time', observedAt: new Date(now+60001).toISOString(), remainingPercent: 40 }] };
   assert.deepEqual(currentQuotaWindows(account, now).map(w => w.id), ['short']);
   assert.deepEqual(quotaPages([account], 'cards', false, false, now)[0].entries[0].windows.map(w => w.id), ['short']);
-  const expired = quotaPages([account], 'cards', false, false, now+960002)[0].entries[0];
+  assert.deepEqual(quotaPages([account], 'cards', false, false, now+960002)[0].entries[0].windows.map(w => w.id), ['short'], 'used up until its reset');
+  const expired = quotaPages([account], 'cards', false, false, now+3600001)[0].entries[0];
   assert.equal(expired.windows.length, 0);
   assert.equal(expired.ignoredWindows, 0, 'expired evidence is not a user display filter');
   assert.equal(account.windows.length, 5);
   const detail = quotaInsight({ status: 'stale', fetchedAt: null, message: '', accounts: [account] }, 'a', false, now)!;
   assert.deepEqual(detail.account.windows.map(w => w.id), ['short'], 'details must use the same current-only inventory');
   assert.ok(detail.heading.includes('已用尽'), 'global historical staleness must not invalidate current evidence');
+});
+
+test('a used-up window stays labelled exhausted until its reset instead of expiring', () => {
+  const now = Date.parse('2026-11-07T12:00:00Z');
+  const used = { ...window, remainingPercent: 0, observedAt: new Date(now - 3 * 3600000).toISOString(), resetAt: new Date(now + 3600000).toISOString(), stale: true };
+  assert.equal(quotaWindowState(used, now), 'exhausted', 'an old zero sample before the reset is still the truth');
+  assert.equal(exhaustedUntil(used, now), now + 3600000);
+  assert.equal(quotaWindowState(used, now + 3600000), 'expired', 'after the reset the old zero no longer holds');
+  assert.equal(quotaWindowState({ ...used, remainingPercent: 3 }, now), 'expired', 'a low but non-zero old sample may have changed');
+  assert.equal(quotaWindowState({ ...used, remainingPercent: null }, now), 'expired');
+  assert.equal(quotaWindowState({ ...used, mode: 'non_window' }, now), 'expired', 'balances without a window never self-reset');
+  const unknownReset = { ...used, resetAt: null, durationSeconds: 18000 };
+  assert.equal(quotaWindowState(unknownReset, now), 'exhausted', 'unknown reset: holds for one window after the sample');
+  assert.equal(quotaWindowState(unknownReset, now + 2 * 3600000 + 1), 'expired');
+  assert.equal(quotaWindowState({ ...used, resetAt: null, durationSeconds: null }, now), 'expired');
+  assert.equal(quotaWindowState({ ...used, observedAt: null }, now), 'expired');
+  assert.equal(quotaWindowState({ ...used, observedAt: new Date(now + 60001).toISOString() }, now), 'expired');
+  assert.equal(quotaWindowState({ ...used, stale: false, observedAt: new Date(now).toISOString() }, now), 'exhausted', 'a fresh zero is labelled too');
+  assert.equal(quotaWindowState({ ...used, remainingPercent: 25, stale: false, observedAt: new Date(now).toISOString() }, now), 'current');
+  const account = { id: 'a', alias: 'A', provider: 'codex', plan: 'Pro', windows: [used, { ...used, id: 'weekly', remainingPercent: 60 }] };
+  assert.deepEqual(quotaPages([account], 'cards', false, false, now)[0].entries[0].windows.map(w => w.id), ['short']);
+  assert.equal(quotaPages([account], 'cards', false, false, now)[0].entries[0].expiredWindows, 1);
+  assert.equal(nextQuotaStateChange([used], now), now + 3600000, 're-render when the exhaustion ends, not 15 minutes after the sample');
+  const peer = { id: 'b', alias: 'B', provider: 'codex', plan: 'Pro', windows: [{ ...used, remainingPercent: 25, stale: false, observedAt: new Date(now).toISOString() }] };
+  const detail = quotaInsight({ status: 'stale', fetchedAt: null, message: '', accounts: [account, peer] }, 'a', false, now)!;
+  assert.ok(detail.heading.includes('已用尽'));
+  assert.deepEqual(detail.rows.map(r => r.values[0]), ['已用尽', '25%']);
 });
 
 test('cards keep every account and extra window reachable', () => {
