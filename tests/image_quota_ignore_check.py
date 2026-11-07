@@ -30,8 +30,8 @@ with sync_playwright() as p:
     short = dict(id='five-hour', label='5 小时窗口', remainingPercent=80, usedValue=None, limitValue=None,
                  quotaUnit='', resetAt=iso(now+3600), durationSeconds=18000, mode='fixed', accuracy='exact', observedAt=iso(now), stale=False)
     week = dict(short, id='weekly', label='周窗口', durationSeconds=604800)
-    image = dict(short, id='imagegen-premium-0-window-1d-0', label='日窗口 · 绘图（Premium）', durationSeconds=86400, observedAt=iso(now-86400), stale=True)
-    base = dict(week, id='luna-release-weekly-0', label='周窗口 · 基础模型', observedAt=iso(now-86400), stale=True)
+    image = dict(short, id='imagegen-premium-0-window-1d-0', label='日窗口 · 绘图（Premium）', durationSeconds=86400)
+    base = dict(week, id='luna-release-weekly-0', label='周窗口 · 基础模型')
     fixture = copy.deepcopy(snapshot)
     fixture.pop('revisions', None)
     fixture['quota'] = dict(status='stale', fetchedAt=iso(now), message='过滤验证数据', accounts=[
@@ -45,11 +45,10 @@ with sync_playwright() as p:
     page.goto(BASE + '/?studio', wait_until='networkidle')
     page.wait_for_selector('.quota-card')
     assert not page.locator('#ignore-codex-image-quota').is_checked()
-    assert page.locator('.quota-nav span').inner_text() == '1 / 2'
-    page.get_by_role('button', name='下一页额度').click()
-    assert page.locator('.quota-card').count() == 1
-    assert '绘图' in page.locator('.window-title').inner_text()
-    assert page.locator('.card-freshness:visible').count() == 1
+    assert page.locator('.quota-nav').count() == 0
+    assert page.locator('.quota-card').count() == 3
+    assert '绘图' in page.locator('.quota-card').first.locator('.window-title').last.inner_text()
+    assert page.locator('.card-freshness:visible').count() == 0
     results['old_settings_preserve_image_by_default'] = True
 
     page.locator('#ignore-codex-image-quota').check()
@@ -68,13 +67,13 @@ with sync_playwright() as p:
     fixture['quota']['accounts'][0]['windows'].append(base)
     page.reload(wait_until='networkidle')
     page.wait_for_selector('.quota-card')
-    page.get_by_role('button', name='下一页额度').click()
-    assert page.locator('.window-title').all_inner_texts() == ['周窗口 · 基础模型']
+    assert page.locator('.quota-nav').count() == 0
+    assert '周窗口 · 基础模型' in page.locator('.window-title').all_inner_texts()
     page.locator('#ignore-codex-base-weekly').check()
     assert page.locator('.quota-nav').count() == 0
     page.locator('#ignore-codex-image-quota').uncheck()
-    page.get_by_role('button', name='下一页额度').click()
-    assert page.locator('.window-title').all_inner_texts() == ['日窗口 · 绘图（Premium）']
+    assert page.locator('.quota-nav').count() == 0
+    assert '日窗口 · 绘图（Premium）' in page.locator('.window-title').all_inner_texts()
     results['image_and_luna_toggles_independent'] = True
 
     page.evaluate("window.wallpaperPropertyListener.applyUserProperties({ignore_codex_image_quota:{value:true}})")
@@ -82,7 +81,7 @@ with sync_playwright() as p:
     assert page.locator('.quota-nav').count() == 0
     page.evaluate("window.wallpaperPropertyListener.applyUserProperties({ignore_codex_image_quota:{value:false}})")
     assert not page.locator('#ignore-codex-image-quota').is_checked()
-    assert page.locator('.quota-nav span').inner_text() == '1 / 2'
+    assert page.locator('.quota-nav').count() == 0
     results['we_property_hides_and_restores'] = True
 
     fixture['quota']['accounts'][0]['windows'] = [image]

@@ -1,0 +1,96 @@
+# 额度分页、焦点和 Antigravity 刷新修复
+
+## 变更
+
+- WE 的鼠标兼容点击不再主动聚焦按钮，避免 CEF 将点击识别为键盘操作并留下紫色焦点框；输入框仍可聚焦，键盘翻页仍保留焦点。
+- 每个账号每页容纳最多四项额度。两张账号卡片时使用 2×2 排列，三张卡片时使用紧凑列表；单账号轮播同样保留四项。超过四项继续分页，每项只出现一次。五个账号从四页减至两页。
+- Antigravity 与 Codex 共用原有定时刷新、手动刷新和失败退避。使用当前 auth_index 和项目身份，通过 CPA 替换 OAuth，调用额度查询并把真实结果写入 CPAMP。保持已有窗口 ID、模型范围和短周期/周周期关系。
+- Antigravity 查询依次尝试 CPAMP v1.13.1 的三个 quota-summary 地址；401、403、429 立即停止该账号重试。空响应、缺失余额、身份不明或写入失败均保留旧快照，不伪造新余额或采集时间。未返回的旧窗口保留原证据及过期提示。
+- Antigravity 卡片使用 Claude/GPT、Gemini 的可读名称。
+
+## 验证
+
+- 23 项前端测试、TypeScript 和生产构建通过。
+- 189 项桥接检查通过，包括 Antigravity 四项额度、零余量、窗口身份、重置时间、自动调度、地址回退、429 退避与错误信息保护。
+- 匿名浏览器回归覆盖四种竖屏尺寸、卡片与轮播、完整四项额度、普通点击和 WE 仅抬键点击、键盘焦点、移开鼠标后恢复轮播；无浏览器异常。
+- 原有桌面输入保护回归通过，包含被其他窗口覆盖、最小化、断连、重复点击和暂停期间的待定授权。
+- 原有液态玻璃完整回归通过，包括翻页动画、键盘焦点、详情菜单与请求范围、四种尺寸布局和暂停恢复；鼠标不再要求保留焦点，键盘焦点用真实 Enter 激活验证。
+
+可重复执行：`tests/quota_ui_check.py`、`tests/quota_pagination_check.py`、`tests/luna_ignore_check.py`、`tests/image_quota_ignore_check.py`。
+
+## 本机安装结果
+
+- 桥接及两份本地壁纸已更新到 `20261022151549-770b90c4`，正式竖屏 WE 上报同一版本、1600×2560、30 FPS、未暂停。只对原 BOE1600 UID524 显示器重载，工坊远端未更新。
+- 正式五账号真实刷新 5/5 成功，两个 Antigravity 各返回并写入两项 Claude/GPT 额度。原有十分钟自动调度保留；本轮真实上游验证由手动入口触发，自动调度路径由隔离测试覆盖。
+- 五账号的全部十二项窗口在两页内可达，卡片数为 3/2，无重复或遗漏；真实快照翻页、刷新保留选中页、基础模型和绘图过滤回归通过。
+- Gemini 最新查询没有返回新窗口，因此旧 Gemini 证据继续带过期提示；Codex 历史绘图证据也保留。整体 `stale` 不代表桥接故障或本轮刷新失败。
+- 城市、账号顺序、传感器、自动刷新、展示票据、两项目外观与身份、WE 完整设置逐项比对保持；硬件与天气正常，缓存故障为空。记录：`artifacts/validation/quota-ui-installed.json`。
+- 程序输入回归与真实桌面物理输入分开记录，本轮未声称做过物理点击验收。
+
+接口来源：[CPAMP v1.13.1 providerRequests.ts](https://github.com/seakee/CPA-Manager-Plus/blob/v1.13.1/apps/web/src/utils/quota/providerRequests.ts)、[builders.ts](https://github.com/seakee/CPA-Manager-Plus/blob/v1.13.1/apps/web/src/utils/quota/builders.ts)、[accountQuotaDisplayWindows.ts](https://github.com/seakee/CPA-Manager-Plus/blob/v1.13.1/apps/web/src/features/accounts/model/accountQuotaDisplayWindows.ts)。仅复用 quota-summary 接口，不下载账号凭据，不更改上游部署。
+
+## 用户截图后的补充修复
+
+上述安装记录为首次五账号验证；本节记录随后七账号场景的修复。
+
+- 第二页的三卡片中，四项额度挤压了 flex 子项，套餐名和过期提示的行框被缩小，原有测试只检查元素外框，未发现文字裁切。现为标题、套餐、额度列表和提示保留高度，调整紧凑卡片的行高、间距与内边距；额度模块外框和面部留白保持。
+- 第三页缺少 Gemini 的原因已通过真实接口核对：该账号的 `retrieveUserQuotaSummary` 仅返回 Claude/GPT，`fetchAvailableModels` 才提供 Gemini 余额。现在缺少 Gemini 时读取后者；按可读模型的最低余额展示「Gemini · 共享额度」，排除 tab 模型，保留零余量和重置边界。接口没有声明的周期保持未知，不把共享额度假定为 5 小时或周额度。
+- 两次查询合并写入时使用同一采集时间，符合 CPAMP 的单次 observation 校验。补充查询受限时停止地址重试并保留可用汇总；未查询到的历史窗口继续保留原时间及过期提示。
+- 原有 Gemini 5 小时和周窗口仍然可访问。七账号窗口数为 `3/2/1/3/5/5/3`，完整分页为四页，每页卡片数 `3/3/2/1`。当前 Codex 显示过滤设置保留。
+
+最终安装构建：`20261022155233-1fb954a9`。桥接、两份本地项目与正式 WE 宿主构建一致，1600×2560、30 FPS、未暂停；真实刷新 7/7 成功，四个 Antigravity 账号各写入两项 Claude/GPT 和一项 Gemini 共享额度。账号顺序、城市、传感器、自动刷新、票据、项目属性/身份和 WE 配置比对通过。记录：`artifacts/validation/quota-clipping-installed.json`。
+
+验证通过：23 项前端测试、200 项桥接检查、8 项发布事务检查；七账号匿名数据在四种竖屏尺寸、卡片/轮播下检查文字裁切与元素重叠，覆盖共享额度及历史窗口逐项可达；正式安装数据四页无重复、无遗漏、无垂直文字裁切。桌面输入保护、液态交互、基础模型和绘图过滤回归通过。本节未把程序验证视为用户物理输入验收。
+
+安装辅助校验改用直接比较 WE 配置文本，避开 Windows PowerShell 5.1 长字符串 JSON 序列化的耗时问题。临时校验进程及任务已结束；持续资源观察中的本轮构建、安装与辅助校验时段不能视为空闲基准。
+
+补充来源：[CPAMP snapshot observation 校验](https://github.com/seakee/CPA-Manager-Plus/blob/v1.13.1/apps/manager-server/internal/service/quotasnapshot/service.go)。读取模型额度继续通过 CPA 代入 OAuth，不下载凭据，不改变 CPAMP 部署。
+
+## 用户显示验收（2026-10-23）
+
+用户在修复版应用后确认：「显示完整，遮挡已消失」。本次确认对应第二页套餐名与底部提示、最后一页新增的「Gemini · 共享额度」，四页显示验收通过。结果已同步到 `artifacts/validation/quota-clipping-installed.json`；本次确认仅记录视觉显示结果，物理点击验收状态仍待确认。
+
+## 固定卡片尺寸（2026-10-23）
+
+- 多账号模式固定三等宽卡位，所有页面使用相同卡片宽高；末页和追加额度页不足三个账号时保留空位，不拉宽现有卡片。
+- 「数据已过期」移到套餐名右侧，与 Antigravity 等名称同一行。悬停提示显示采集距今时间及原始采集时间，卡片底部不再占用一行。
+- 各账号仍完整保留原有额度，每张卡片每页最多四项；超过四项继续分页，单账号轮播仍可选。
+
+前端 `20261023030135-951a837f` 已应用到两份本地项目及本机预览。正式 WE 上报相同前端版本、1600×2560、30 FPS、未暂停。桥接进程保持 `20261022155233-1fb954a9`，未重启；父发布清单使用 `frontendBuildId` 单独记录前端版本。账号、十分钟刷新、票据、城市、传感器、项目属性及 WE 配置比对保持。安装前的前端及项目均有备份。
+
+23 项前端测试与生产构建通过；匿名七账号覆盖四种竖屏尺寸、固定三列及跨页相同宽高、过期提示行内位置与文字裁切、鼠标/键盘翻页及自动轮播。已安装前端的真实七账号四页额度无重复、无遗漏、无垂直裁切，刷新保留当前页；基础模型过滤及过期提示回归通过，无浏览器异常。结果：`artifacts/validation/quota-ui-20261023/result.json`、`artifacts/validation/quota-fixed-slots-installed.json`。物理点击未另行验收。
+
+## 最新额度、手动翻页与完整填充（2026-10-23）
+
+- 用户明确调整要求：过期历史窗口不再展示，只使用最新服务端有效额度。所有平台的 `stale`、缺失或无效采集时间、超过 15 分钟的观测均不参与卡片、分页与详情；没有最新额度时保留账号并显示等待刷新。到达过期时间即移除显示，不依赖下一次快照 revision 变化。
+- 默认翻页间隔改为 0，旧版浏览器设置升级时迁移为手动翻页；安装到两份本地 WE 项目时显式设置 `rotate_seconds=0`。十分钟服务端额度自动刷新独立运行。
+- 将账号及追加额度卡片统一排入三列分页。后面还有卡片时先补满当前页，只有最后一页允许空位；保留原账号顺序及额度逐项不重复规则。
+- 真实七账号原窗口数 `3/2/1/3/5/5/3`，当前有效窗口数 `2/2/1/3/3/3/3`，分页从四页缩为三页 `3/3/1`。历史 Gemini 5 小时、周额度及过期 Codex 绘图窗口不再产生额外页。
+- 验证：25 项前端测试及生产构建；四种竖屏尺寸、固定卡片宽高、鼠标/键盘分页、旧自动间隔后的页面稳定、追加卡片完整填充、旧历史不会增加页面、额度无新快照时到期移除；真实快照有效额度无重复或遗漏，刷新保持所选页。
+
+已安装前端 `20261023045404-7eb38c12`，正式 WE 上报同一版本、1600×2560、30 FPS、未暂停。两份项目翻页间隔均为 0，其他项目属性保持；城市、账号顺序、展示票据、传感器、十分钟自动刷新及 WE 配置比对保持，桥接未重启。安装后的真实分页为 `3/3/1`，基础模型及绘图过滤回归通过。结果：`artifacts/validation/quota-current-installed.json`、`artifacts/validation/quota-current-20261023/result.json`、`artifacts/validation/quota-current-pagination-20261023/result.json`。
+
+## 完整服务端清单与五项卡片（2026-10-23 后续修正）
+
+### 根因与更正
+
+旧桥接请求携带 `antigravity/cli/1.0.13`，对同一账号的 `retrieveUserQuotaSummary` 只能取得 Claude/GPT。桥接随后从模型接口补出 `gemini:gemini-shared`，并以默认 partial 方式写入 CPAMP，导致它与服务端的新 Gemini 窗口并存。时间过滤无法排除仍有近期观测的旧身份。
+
+对照 CPAMP v1.14.9 的 `utils/quota/constants.ts`，使用 `antigravity/hub/2.23.0 darwin/arm64` 实测同一账号三个 summary 端点均返回五项：Claude/GPT 5 小时、周额度，Gemini 5 小时、周额度，以及 Gemini 4 Argon 周额度。上节将普通 Gemini 窗口统称为历史窗口的结论不准确；它们当前仍有效，被替代的是补出的共享窗口。
+
+### 修复
+
+- 使用当前 hub 请求标识；读取到有效 summary 就使用它的完整清单，不再补入另一种 shared 表示。
+- 成功 summary 写入 `observation.inventory_scope_key=antigravity:quota-windows`、`inventory_mode=complete`。CPAMP 首次将缺席窗口标为 `pending_absent`，下一次独立观测将其设为 `inactive`。两种状态均不显示，即使余额采集时间还很新。
+- summary 全部不可用时，模型接口仅提供 partial 观测；鉴权失败、429、不可读取响应均不会写入停用清单。Codex 继续使用 partial，避免删除 API 未覆盖的独立功能额度。
+- 成功快照查询尊重服务端窗口缺席，不再用原始响应头补回窗口；响应头仅作快照读取失败时的回退。
+- Argon 使用独立名称 `Gemini 4 Argon · 周额度`，保留服务端独立 ID 与余额。
+- 每张卡片最多五项，同一账号五项不拆页；三列卡位和卡片 340u 高度保持。五项列表压缩行距、进度条与倒计时字号，名称与百分比仍在首行；超过五项仍完整分页。
+
+### 安装与验证
+
+前后端版本 `20261023120255-042c1ef0` 已安装至桥接及两份 WE 项目，正式 WE 上报同一版本、1600×2560、30 FPS、未暂停。配置、账号顺序、配对票据、城市、传感器、材质参数与 WE 配置比对保持；翻页仍为 0，额度刷新仍为十分钟。
+
+25 项前端测试、216 项桥接检查及生产发布构建通过。匿名数据覆盖四种竖屏尺寸的五项卡片与单账号模式、文字裁切、固定卡片尺寸、鼠标/键盘焦点、手动分页、超过五项的完整填充及自然过期。真实刷新连续两次 7/7 成功，Antigravity 窗口数为 `5/4/4/4`，Argon 剩余约 `63.019174%`；旧共享窗口全部转为 inactive，并未重新出现。七账号当前窗口数 `2/2/1/5/4/4/4`，真实页面 `3/3/1`，五项同卡无裁切、无重复或遗漏，刷新保持当前页。
+
+结果：`artifacts/validation/quota-inventory-installed.json`、`artifacts/validation/current-inventory-probe.json`、`artifacts/validation/quota-current-20261023/result.json`、`artifacts/validation/quota-current-pagination-20261023/result.json`。真实快照排版图见 `artifacts/validation/quota-current-pagination-20261023/page-2.png`。本次未另做桌面物理点击验收。

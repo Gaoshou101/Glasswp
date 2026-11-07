@@ -15,7 +15,11 @@ export function installDesktopInput(root: HTMLElement, enabled: () => boolean, a
     replay = { x, y, at: performance.now() };
     replaying = true;
     try {
-      node.closest<HTMLElement>('button,a,input,textarea,select,[tabindex]')?.focus({ preventScroll: true });
+      // CEF treats programmatic focus as keyboard input and leaves a focus ring
+      // after a mouse replay. Only editable controls need a caret here.
+      const focusTarget = node.closest<HTMLElement>('button,a,input,textarea,select,[tabindex]');
+      if (focusTarget?.matches('input,textarea,select')) focusTarget.focus({ preventScroll: true });
+      else if (document.activeElement instanceof HTMLElement && root.contains(document.activeElement)) document.activeElement.blur();
       const card = node.closest<HTMLElement>('.glass');
       if (root.dataset.dynamic === 'true' && card) {
         card.classList.add('liquid-pressed');

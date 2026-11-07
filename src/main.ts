@@ -91,7 +91,7 @@ for (const [key, id] of [['enabled', 'widget-enabled'], ['scale', 'widget-scale'
 for (const [key, id] of [['seconds', 'show-seconds'], ['hour12', 'hour12'], ['motion', 'motion'], ['trends', 'trends']] as const) $(id).addEventListener('change', () => { settings[key] = $<HTMLInputElement>(id).checked; applyAppearance(); lifecycle(); store(); });
 $('timezone').addEventListener('change', () => { const tz = $<HTMLInputElement>('timezone').value; try { new Intl.DateTimeFormat('zh-CN', { timeZone: tz }); settings.timezone = tz; clock.tick(); store(); } catch { $('settings-status').textContent = '请输入有效时区，例如 Asia/Shanghai。'; } });
 $('safe-bottom').addEventListener('change', () => { settings.safeBottom = clamp(Number($<HTMLInputElement>('safe-bottom').value), 1, 10, 3.9); applyAppearance(); store(); });
-$('rotate-seconds').addEventListener('change', () => { settings.rotateSeconds = clamp(Number($<HTMLInputElement>('rotate-seconds').value), 0, 300, 30); store(); });
+$('rotate-seconds').addEventListener('change', () => { settings.rotateSeconds = clamp(Number($<HTMLInputElement>('rotate-seconds').value), 0, 300, 0); store(); });
 $('quota-layout').addEventListener('change', () => { settings.quotaLayout = $<HTMLSelectElement>('quota-layout').value === 'carousel' ? 'carousel' : 'cards'; quota.refreshLayout(); applyAppearance(); store(); });
 $('ignore-codex-base-weekly').addEventListener('change', () => { settings.ignoreCodexBaseWeekly = $<HTMLInputElement>('ignore-codex-base-weekly').checked; quota.refreshLayout(); store(); });
 $('ignore-codex-image-quota').addEventListener('change', () => { settings.ignoreCodexImageQuota = $<HTMLInputElement>('ignore-codex-image-quota').checked; quota.refreshLayout(); store(); });
@@ -182,7 +182,7 @@ window.wallpaperPropertyListener = {
     if (properties.bridge_token) settings.readToken = String(properties.bridge_token.value || '').trim().slice(0, 128);
     if (properties.material_mode) settings.materialMode = properties.material_mode.value === 'frosted' ? 'frosted' : 'liquid';
     for (const key of ['seconds', 'hour12', 'motion', 'trends'] as const) if (properties[key]) settings[key] = properties[key].value === true;
-    if (properties.rotate_seconds) settings.rotateSeconds = clamp(Number(properties.rotate_seconds.value), 0, 300, 30);
+    if (properties.rotate_seconds) settings.rotateSeconds = clamp(Number(properties.rotate_seconds.value), 0, 300, 0);
     if (properties.quota_layout) { settings.quotaLayout = properties.quota_layout.value === 'carousel' ? 'carousel' : 'cards'; quota.refreshLayout(); }
     if (properties.ignore_codex_base_weekly) { settings.ignoreCodexBaseWeekly = properties.ignore_codex_base_weekly.value === true; quota.refreshLayout(); }
     if (properties.ignore_codex_image_quota) { settings.ignoreCodexImageQuota = properties.ignore_codex_image_quota.value === true; quota.refreshLayout(); }

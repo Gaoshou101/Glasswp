@@ -56,6 +56,7 @@ export class QuotaComponent {
   private pages: QuotaPage[] = [];
   private index = 0;
   private rotationAt = Date.now();
+  private expiresAt = Infinity;
   private countdowns: { node: HTMLElement; window: QuotaWindow }[] = [];
   private freshness: { node: HTMLElement; entry: QuotaEntry }[] = [];
   private views: AccountView[] = [];
@@ -67,6 +68,7 @@ export class QuotaComponent {
   update(data: QuotaData) {
     const key = this.pages[this.index]?.key;
     this.data = data; this.pages = quotaPages(data.accounts, this.settings.quotaLayout, this.settings.ignoreCodexBaseWeekly, this.settings.ignoreCodexImageQuota);
+    this.expiresAt = Math.min(Infinity, ...this.pages.flatMap(p => p.entries.flatMap(e => e.windows.map(w => Date.parse(w.observedAt!) + 900001))));
     const same = this.pages.findIndex(p => p.key === key);
     this.index = Math.min(this.index, Math.max(0, this.pages.length - 1));
     if (same >= 0) this.index = same;
@@ -75,13 +77,15 @@ export class QuotaComponent {
   refreshLayout() { this.index = 0; this.rotationAt = Date.now(); this.update(this.data); }
   tick() {
     const now = Date.now();
+    if (now >= this.expiresAt) { this.update(this.data); return; }
     for (const item of this.countdowns) text(item.node, resetText(item.window, now));
     for (const { node, entry } of this.freshness) {
       const evidence = entry.windows.length ? entry.windows : entry.account.windows;
       const observations = evidence.map(w => w.observedAt).filter((w): w is string => !!w).sort();
       const observed = observations[0] || null;
       const stale = ['offline', 'error', 'unauthorized', 'unsupported'].includes(this.data.status) || evidence.some(w => w.stale) || !observed || now - Date.parse(observed) > 900000;
-      text(node, observed ? `${stale ? '数据已过期 · ' : ''}${ageLabel(observed, now)}` : entry.ignoredWindows && !entry.account.windows.length ? entry.ignoredLabel || '额度窗口已忽略' : '尚无额度证据');
+      text(node, stale && observed ? '数据已过期' : '');
+      node.title = observed ? `数据已过期 · ${ageLabel(observed, now)}\n采集时间：${observed}` : '';
       node.dataset.stale = String(stale);
       node.hidden = !stale || !observed;
     }
@@ -102,6 +106,7 @@ export class QuotaComponent {
     const page = this.pages[this.index];
     const cards = this.settings.quotaLayout === 'cards';
     this.root.dataset.quotaLayout = this.settings.quotaLayout;
+    this.root.dataset.quotaDense = String(page?.entries.some(e => e.windows.length > 2) ?? false);
     this.root.querySelector<HTMLElement>('.quota-heading')!.title = this.data.message;
     if (this.navCount !== this.pages.length) {
       this.navCount = this.pages.length; secondary.replaceChildren(); this.pageLabel = undefined;
@@ -121,20 +126,24 @@ export class QuotaComponent {
       const block = el('div', 'empty-quota'); block.append(el('div', '', this.data.status === 'unconfigured' ? '连接你的 AI 套餐' : '暂无可显示的额度'), el('small', '', this.data.message)); content.append(block); return;
     }
     const grid = el('div', cards ? 'quota-cards' : 'quota-single');
-    grid.style.setProperty('--card-count', String(page.entries.length));
+    grid.dataset.cardCount = String(page.entries.length);
     for (const entry of page.entries) grid.append(this.account(entry, cards));
     content.append(grid);
     this.tick();
   }
   private account(page: QuotaEntry, cards: boolean): HTMLElement {
     const content = el('article', cards ? 'quota-card' : 'quota-account'); content.dataset.accountId = page.account.id;
+    content.dataset.dense = String(page.windows.length > 2);
+    content.dataset.windowCount = String(page.windows.length);
     content.setAttribute('aria-label', page.account.alias); content.title = page.account.alias;
     const heading = el('div', 'account-heading'), label = el('span', 'account-label');
     const alias = el('span', 'account-alias', page.account.alias);
     label.append(el('span', 'account-mark'), alias);
     heading.append(label); content.append(heading);
     const plan = el('span', 'plan', page.account.plan || page.account.provider); plan.title = page.account.plan || page.account.provider;
-    if (cards) content.append(plan); else heading.append(plan);
+    const meta = el('div', 'account-meta');
+    const freshness = el('div', 'card-freshness'), freshnessView = { node: freshness, entry: page }; this.freshness.push(freshnessView);
+    meta.append(plan, freshness); content.append(meta);
     const windows = el('div', 'windows');
     const windowViews: WindowView[] = [];
     for (const w of page.windows) {
@@ -153,9 +162,8 @@ export class QuotaComponent {
     if (!page.windows.length) {
       empty = el('div', 'empty-quota'); empty.style.height = 'calc(155 * var(--u))';
       const ignored = !!page.ignoredWindows && !page.account.windows.length;
-      empty.append(el('div', '', ignored ? page.ignoredLabel || '额度窗口已忽略' : page.account.windows.length ? '本页无更多窗口' : '暂无额度证据')); content.append(empty);
+      empty.append(el('div', '', ignored ? page.ignoredLabel || '额度窗口已忽略' : page.expiredWindows ? '暂无最新额度，等待刷新' : '暂无额度证据')); content.append(empty);
     }
-    const freshness = el('div', 'card-freshness'), freshnessView = { node: freshness, entry: page }; this.freshness.push(freshnessView); content.append(freshness);
     const glint = el('span', 'liquid-glint'); glint.setAttribute('aria-hidden', 'true'); content.prepend(glint);
     const view = { node: content, alias, plan, windows: windowViews, freshness: freshnessView, empty }; this.views.push(view); this.updateAccount(view, page);
     return content;
@@ -174,7 +182,7 @@ export class QuotaComponent {
       item.block.title = `${w.label}\n${w.mode} · ${w.accuracy}\n重置 ${absolute(w.resetAt)}\n快照 ${absolute(w.observedAt)}\n${this.settings.timezone}`;
       if (w.accuracy === 'unknown') item.block.title += '\nCPAMP 尚未确认此窗口的重置时间，倒计时仅供参考。刷新后以最新快照为准。';
     });
-    if (view.empty) text(view.empty, page.ignoredWindows && !page.account.windows.length ? page.ignoredLabel || '额度窗口已忽略' : page.account.windows.length ? '本页无更多窗口' : '暂无额度证据');
+    if (view.empty) text(view.empty, page.ignoredWindows && !page.account.windows.length ? page.ignoredLabel || '额度窗口已忽略' : page.expiredWindows ? '暂无最新额度，等待刷新' : '暂无额度证据');
     setCardInsight(view.node, { kind: 'quota', title: `${page.account.alias} · 请求活动`, data: this.data, accountId: page.account.id, ignoreBaseWeekly: this.settings.ignoreCodexBaseWeekly, ignoreImageQuota: this.settings.ignoreCodexImageQuota, timezone: this.settings.timezone });
   }
 }

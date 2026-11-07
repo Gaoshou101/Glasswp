@@ -2,11 +2,11 @@ import { availableResets, compactCount } from '../src/account-activity';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ageLabel, percent, resetText } from '../src/format.ts';
-import { defaults, loopbackUrl } from '../src/settings.ts';
+import { defaults, loadSettings, loopbackUrl } from '../src/settings.ts';
 import type { QuotaWindow } from '../src/contract.ts';
-import { isCodexBaseWeekly, isCodexImageQuota, quotaPages } from '../src/quota.ts';
+import { currentQuotaWindows, isCodexBaseWeekly, isCodexImageQuota, quotaPages } from '../src/quota.ts';
 import { forecastHours, quotaInsight, sampleStats } from '../src/insights.ts';
-const window: QuotaWindow = { id: 'short', label: '5 小时', remainingPercent: 0, usedValue: null, limitValue: null, quotaUnit: '', resetAt: '2026-10-10T00:00:10Z', durationSeconds: 18000, mode: 'fixed', accuracy: 'exact', observedAt: null, stale: false };
+const window: QuotaWindow = { id: 'short', label: '5 小时', remainingPercent: 0, usedValue: null, limitValue: null, quotaUnit: '', resetAt: '2026-10-10T00:00:10Z', durationSeconds: 18000, mode: 'fixed', accuracy: 'exact', observedAt: new Date().toISOString(), stale: false };
 test('zero quota and missing evidence remain distinguishable', () => { assert.equal(percent(0), '0%'); assert.equal(percent(null), '—'); assert.equal(percent(NaN), '—'); assert.equal(percent(120), '100%'); });
 test('reset does not invent restored balance at zero', () => { assert.equal(resetText(window, Date.parse('2026-10-10T00:00:09Z')), '00:00:01 后重置'); assert.equal(resetText(window, Date.parse('2026-10-10T00:00:10Z')), '等待更新'); });
 test('rolling and estimated boundaries retain their meaning', () => { assert.equal(resetText({ ...window, mode: 'rolling', accuracy: 'estimated' }, Date.parse('2026-10-10T00:00:09Z')), '约 00:00:01 · 滚动恢复'); assert.equal(resetText({ ...window, resetAt: 'invalid' }), '重置时间未知'); });
@@ -20,16 +20,47 @@ test('bridge URL cannot redirect a display ticket to a remote site', () => { ass
 test('age is based on observation, not last fetch', () => { assert.equal(ageLabel('2026-10-10T00:00:00Z', Date.parse('2026-10-10T01:01:00Z')), '1 小时前'); assert.equal(ageLabel(null), '尚无快照'); });
 test('accepted appearance is default', () => { const s = defaults(); assert.equal(s.resolution, '1600x2560'); assert.deepEqual(s.material.quota, { transparency: 75, blur: 34, edge: 50 }); });
 
+test('manual paging is default and upgrades previously saved automatic paging', () => {
+  assert.equal(defaults().rotateSeconds, 0);
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  let saved = { version: 1, rotateSeconds: 30 };
+  Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: { getItem: (key: string) => key === 'wallpaper.dashboard.v1' ? JSON.stringify(saved) : null } });
+  try {
+    assert.equal(loadSettings().rotateSeconds, 0);
+    saved = { version: 2, rotateSeconds: 0 };
+    assert.equal(loadSettings().rotateSeconds, 0);
+    saved = { version: 2, rotateSeconds: 60 };
+    assert.equal(loadSettings().rotateSeconds, 60, 'a later explicit opt-in remains available');
+  } finally { if (previous) Object.defineProperty(globalThis, 'localStorage', previous); else Reflect.deleteProperty(globalThis, 'localStorage'); }
+});
+
+test('only current server evidence is displayed and stale history never creates extra pages', () => {
+  const now = Date.parse('2026-10-23T03:00:00Z');
+  const fresh = { ...window, observedAt: new Date(now).toISOString(), resetAt: new Date(now+3600000).toISOString() };
+  const account = { id: 'a', alias: 'A', provider: 'antigravity', plan: '', windows: [fresh,
+    { ...fresh, id: 'legacy', stale: true }, { ...fresh, id: 'too-old', observedAt: new Date(now-900001).toISOString() },
+    { ...fresh, id: 'missing-time', observedAt: null }, { ...fresh, id: 'future-time', observedAt: new Date(now+60001).toISOString() }] };
+  assert.deepEqual(currentQuotaWindows(account, now).map(w => w.id), ['short']);
+  assert.deepEqual(quotaPages([account], 'cards', false, false, now)[0].entries[0].windows.map(w => w.id), ['short']);
+  const expired = quotaPages([account], 'cards', false, false, now+960002)[0].entries[0];
+  assert.equal(expired.windows.length, 0);
+  assert.equal(expired.ignoredWindows, 0, 'expired evidence is not a user display filter');
+  assert.equal(account.windows.length, 5);
+  const detail = quotaInsight({ status: 'stale', fetchedAt: null, message: '', accounts: [account] }, 'a', false, now)!;
+  assert.deepEqual(detail.account.windows.map(w => w.id), ['short'], 'details must use the same current-only inventory');
+  assert.ok(detail.heading.includes('已用尽'), 'global historical staleness must not invalidate current evidence');
+});
+
 test('cards keep every account and extra window reachable', () => {
   const accounts = Array.from({ length: 4 }, (_, i) => ({ id: String(i), alias: '账号 ' + i, provider: 'codex', plan: '', windows: i === 0 ? [window, { ...window, id: 'week' }, { ...window, id: 'model' }] : i === 2 ? [] : [window] }));
   const pages = quotaPages(accounts, 'cards');
   assert.deepEqual(pages[0].entries.map(e => e.account.id), ['0', '1', '2']);
   assert.equal(pages[0].entries[2].windows.length, 0);
   assert.deepEqual(pages.flatMap(p => p.entries.filter(e => e.account.id === '0').flatMap(e => e.windows.map(w => w.id))), ['short', 'week', 'model']);
-  assert.deepEqual(pages[2].entries.map(e => e.account.id), ['3']);
-  assert.deepEqual(pages[1].entries.map(e => e.account.id), ['0']);
+  assert.equal(pages[0].entries[0].windows.length, 3);
+  assert.deepEqual(pages[1].entries.map(e => e.account.id), ['3']);
   assert.ok(pages.every(p => p.entries.length <= 3));
-  assert.ok(quotaPages(accounts, 'carousel').every(p => p.entries.length === 1 && p.entries[0].windows.length <= 2));
+  assert.ok(quotaPages(accounts, 'carousel').every(p => p.entries.length === 1 && p.entries[0].windows.length <= 5));
 });
 
 test('uneven quota pages show each account window once in both layouts', () => {
@@ -44,19 +75,31 @@ test('uneven quota pages show each account window once in both layouts', () => {
         if (!account.windows.length) assert.equal(entries.length, 1, 'empty accounts remain visible once');
       }
       assert.ok(pages.every(page => page.entries.length > 0 && page.entries.length <= (layout === 'cards' ? 3 : 1)));
-      assert.ok(pages.flatMap(page => page.entries).every(entry => entry.windows.length <= 2));
+      if (layout === 'cards') assert.ok(pages.slice(0, -1).every(page => page.entries.length === 3), 'only the last page may have empty slots');
+      assert.ok(pages.flatMap(page => page.entries).every(entry => entry.windows.length <= 5));
     }
   }
   const accounts = [3, 2, 1].map((count, i) => ({ id: String(i), alias: '账号 ' + i, provider: 'codex', plan: '',
     windows: Array.from({ length: count }, (_, j) => ({ ...window, id: String(j), label: j === 2 ? '日窗口 · 绘图（Premium）' : window.label })) }));
   const pages = quotaPages(accounts, 'cards');
-  assert.equal(pages.length, 2);
-  assert.deepEqual(pages[1].entries.map(entry => [entry.account.id, entry.windows.map(w => w.label)]), [['0', ['日窗口 · 绘图（Premium）']]]);
+  assert.equal(pages.length, 1);
+  assert.equal(pages[0].entries[0].windows[2].label, '日窗口 · 绘图（Premium）');
+});
+
+test('five Antigravity windows stay together and larger inventories never replay windows', () => {
+  const accounts = [2, 5, 11].map((count, i) => ({ id: String(i), alias: '账号 ' + i, provider: 'antigravity', plan: '',
+    windows: Array.from({ length: count }, (_, j) => ({ ...window, id: String(j) })) }));
+  for (const layout of ['cards', 'carousel'] as const) {
+    const pages = quotaPages(accounts, layout);
+    assert.equal(pages.flatMap(p => p.entries).filter(e => e.account.id === '1').length, 1);
+    assert.equal(pages.flatMap(p => p.entries).find(e => e.account.id === '1')!.windows.length, 5);
+    assert.deepEqual(pages.flatMap(p => p.entries).filter(e => e.account.id === '2').flatMap(e => e.windows.map(w => w.id)), Array.from({ length: 11 }, (_, j) => String(j)));
+  }
 });
 
 test('optional Codex base weekly filter keeps main quota, other scopes and other providers', () => {
   const main = { ...window, id: 'weekly', label: '周窗口', durationSeconds: 604800 };
-  const base = { ...main, id: 'gpt-reserve-weekly-0', label: '周窗口 · 基础模型', stale: true };
+  const base = { ...main, id: 'gpt-reserve-weekly-0', label: '周窗口 · 基础模型' };
   const review = { ...main, id: 'code-review-weekly', label: '周窗口 · 代码审查' };
   const accounts = [{ id: 'codex', alias: 'Codex', provider: 'codex', plan: '', windows: [window, main, base, review] },
     { id: 'claude', alias: 'Claude', provider: 'claude', plan: '', windows: [base] }];
@@ -89,7 +132,7 @@ test('ignoring the only base weekly window preserves the account with an explici
 });
 
 test('optional image quota filter is independent of luna-release and keeps real daily quotas', () => {
-  const image = { ...window, id: 'imagegen-premium-0-window-1d-0', label: '日窗口 · 绘图（Premium）', durationSeconds: 86400, stale: true };
+  const image = { ...window, id: 'imagegen-premium-0-window-1d-0', label: '日窗口 · 绘图（Premium）', durationSeconds: 86400 };
   const daily = { ...window, id: 'window-1d-0', label: '日窗口', durationSeconds: 86400 };
   const base = { ...window, id: 'gpt-reserve-weekly-0', label: '周窗口 · 基础模型', durationSeconds: 604800 };
   const account = { id: 'codex', alias: 'Codex', provider: 'codex', plan: '', windows: [window, daily, image, base] };
@@ -133,8 +176,8 @@ test('quota insights compare only identical scopes and known plans, excluding ex
   ];
   const data = { status: 'ok' as const, fetchedAt: null, message: '', accounts };
   const insight = quotaInsight(data, 'a', false, now)!;
-  assert.deepEqual(insight.rows.map(r => r.alias), ['A', 'B', 'Old', 'Expired']);
-  assert.deepEqual(insight.rows.map(r => r.values[0]), ['20%', '80%', '待更新', '待更新']);
+  assert.deepEqual(insight.rows.map(r => r.alias), ['A', 'B', 'Expired']);
+  assert.deepEqual(insight.rows.map(r => r.values[0]), ['20%', '80%', '待更新']);
   assert.ok(insight.heading.includes('相对余量最低'));
   assert.equal(quotaInsight(data, 'expired', false, now)!.heading, '需要更新额度证据');
   assert.equal(quotaInsight({ ...data, accounts: accounts.map(a => ({ ...a, plan: '' })) }, 'a', false, now)!.rows.length, 0);

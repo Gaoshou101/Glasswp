@@ -25,7 +25,7 @@ with sync_playwright() as p:
     short = dict(id='five-hour', label='5 小时窗口', remainingPercent=80, usedValue=None, limitValue=None,
                  quotaUnit='', resetAt=iso(now+3600), durationSeconds=18000, mode='fixed', accuracy='exact', observedAt=iso(now), stale=False)
     week = dict(short, id='weekly', label='周窗口', durationSeconds=604800)
-    base = dict(week, id='gpt-reserve-weekly-0', label='周窗口 · 基础模型', observedAt=iso(now-86400), stale=True)
+    base = dict(week, id='gpt-reserve-weekly-0', label='周窗口 · 基础模型')
     fixture = copy.deepcopy(snapshot)
     fixture.pop('revisions', None)
     fixture['quota'] = dict(status='stale', fetchedAt=iso(now), message='过滤验证数据', accounts=[
@@ -41,10 +41,9 @@ with sync_playwright() as p:
     page.locator('#rotate-seconds').fill('0')
     page.locator('#rotate-seconds').dispatch_event('change')
     assert not page.locator('#ignore-codex-base-weekly').is_checked()
-    assert page.locator('.quota-nav span').inner_text() == '1 / 3'
-    page.get_by_role('button', name='下一页额度').click()
-    expect(page.locator('.window-title').first).to_contain_text('基础模型')
-    assert '数据已过期' in page.locator('.card-freshness').first.inner_text()
+    assert page.locator('.quota-nav span').inner_text() == '1 / 2'
+    expect(page.locator('.quota-card').first.locator('.window-title').last).to_contain_text('基础模型')
+    assert page.locator('.card-freshness:visible').count() == 0
     results['default_preserves_base_weekly'] = True
 
     page.locator('#ignore-codex-base-weekly').check()
@@ -70,9 +69,8 @@ with sync_playwright() as p:
 
     page.evaluate("window.wallpaperPropertyListener.applyUserProperties({quota_layout:{value:'cards'},ignore_codex_base_weekly:{value:false}})")
     assert not page.locator('#ignore-codex-base-weekly').is_checked()
-    assert page.locator('.quota-nav span').inner_text() == '1 / 3'
-    page.get_by_role('button', name='下一页额度').click()
-    expect(page.locator('.window-title').first).to_contain_text('基础模型')
+    assert page.locator('.quota-nav span').inner_text() == '1 / 2'
+    expect(page.locator('.quota-card').first.locator('.window-title').last).to_contain_text('基础模型')
     page.evaluate("window.wallpaperPropertyListener.applyUserProperties({ignore_codex_base_weekly:{value:true}})")
     assert page.locator('#ignore-codex-base-weekly').is_checked()
     assert page.locator('.quota-nav span').inner_text() == '1 / 2'

@@ -223,7 +223,7 @@
       "rotate_seconds": {
         "type": "slider",
         "text": "额度翻页间隔（秒，0 为手动）",
-        "value": 30,
+        "value": 0,
         "min": 0,
         "max": 300,
         "step": 5,

@@ -367,7 +367,8 @@ with sync_playwright() as p:
     page.wait_for_selector('.quota-nav')
     nav = page.locator('.quota-nav').bounding_box()
     page.mouse.move(nav['x'], nav['y'])
-    page.get_by_role('button', name='下一页额度', exact=True).click()
+    page.get_by_role('button', name='下一页额度', exact=True).focus()
+    page.keyboard.press('Enter')
     page.wait_for_function('document.querySelector("[aria-label=下一页额度]")===document.activeElement')
     assert page.locator('.quota-card').count() == 1
     assert page.locator('.quota-card').first.get_attribute('data-account-id') == 'extra'

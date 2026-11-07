@@ -4,7 +4,8 @@
     [switch]$Apply,
     [int]$Monitor = -1,
     [string]$Location,
-    [switch]$PreviewWindow
+    [switch]$PreviewWindow,
+    [switch]$ManualQuotaPaging
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'release-common.ps1')
@@ -44,6 +45,7 @@ $result=Invoke-ReleaseTransaction -Source $source -Destination $Destination -Bac
     param($candidatePath)
     $candidate=Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $candidatePath 'project.json') | ConvertFrom-Json
     $merged=Merge-WallpaperProject $candidate $previous
+    if ($ManualQuotaPaging) { $merged.general.properties.rotate_seconds.value=0 }
     $merged.general.properties.bridge_token.value=$displayToken
     $merged | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath (Join-Path $candidatePath 'project.json') -Encoding UTF8
     # Local pairing intentionally changes project.json; regenerate only this installed copy's checksum.

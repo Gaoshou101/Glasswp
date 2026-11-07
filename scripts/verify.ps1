@@ -13,7 +13,7 @@ try {
     if($ReleaseRuntime){& (Join-Path $repoRoot 'tests\bridge-release-check.ps1')}
     if($Browser){
         if(-not $Python){$Python=(Get-Command python -ErrorAction Stop).Source}
-        foreach($test in @('snapshot_lifecycle_check.py','desktop_input_check.py','liquid_glass_check.py')){
+        foreach($test in @('snapshot_lifecycle_check.py','desktop_input_check.py','quota_ui_check.py','liquid_glass_check.py')){
             & $Python (Join-Path $repoRoot ('tests\'+$test))
             if($LASTEXITCODE -ne 0){throw ('Browser verification failed: '+$test)}
         }

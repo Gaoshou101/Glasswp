@@ -2,7 +2,7 @@ export type Group = 'top' | 'quota' | 'hardware';
 export interface Material { transparency: number; blur: number; edge: number }
 export interface Widget { enabled: boolean; scale: number; x: number; y: number }
 export interface Settings {
-  version: 1; material: Record<Group, Material>; widgets: Record<Group, Widget>; bridgeUrl: string;
+  version: 2; material: Record<Group, Material>; widgets: Record<Group, Widget>; bridgeUrl: string;
   readToken: string; timezone: string; seconds: boolean; hour12: boolean; motion: boolean; trends: boolean;
   rotateSeconds: number; quotaLayout: 'carousel' | 'cards'; ignoreCodexBaseWeekly: boolean; ignoreCodexImageQuota: boolean; safeBottom: number; resolution: string;
   materialMode: 'liquid' | 'frosted';
@@ -11,10 +11,10 @@ export const groups: Group[] = ['top', 'quota', 'hardware'];
 export const defaultMaterial: Material = { transparency: 75, blur: 34, edge: 50 };
 export const clamp = (value: unknown, min: number, max: number, fallback: number) => typeof value === 'number' && Number.isFinite(value) ? Math.max(min, Math.min(max, value)) : fallback;
 export function defaults(): Settings {
-  return { version: 1, material: Object.fromEntries(groups.map(g => [g, { ...defaultMaterial }])) as Settings['material'],
+  return { version: 2, material: Object.fromEntries(groups.map(g => [g, { ...defaultMaterial }])) as Settings['material'],
     widgets: Object.fromEntries(groups.map(g => [g, { enabled: true, scale: 1, x: 0, y: 0 }])) as Settings['widgets'],
     bridgeUrl: 'http://127.0.0.1:17632', readToken: '', timezone: 'Asia/Shanghai', seconds: false, hour12: false,
-    motion: true, trends: true, rotateSeconds: 30, quotaLayout: 'cards', ignoreCodexBaseWeekly: false, ignoreCodexImageQuota: false, safeBottom: 3.9, resolution: '1600x2560', materialMode: 'liquid' };
+    motion: true, trends: true, rotateSeconds: 0, quotaLayout: 'cards', ignoreCodexBaseWeekly: false, ignoreCodexImageQuota: false, safeBottom: 3.9, resolution: '1600x2560', materialMode: 'liquid' };
 }
 export function loopbackUrl(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -36,7 +36,7 @@ export function loadSettings(): Settings {
       settings.readToken = typeof saved.readToken === 'string' ? saved.readToken.slice(0, 128) : '';
       try { new Intl.DateTimeFormat('zh-CN', { timeZone: saved.timezone }); settings.timezone = saved.timezone || settings.timezone; } catch { /* Keep default timezone. */ }
       for (const key of ['seconds', 'hour12', 'motion', 'trends', 'ignoreCodexBaseWeekly', 'ignoreCodexImageQuota'] as const) if (typeof saved[key] === 'boolean') settings[key] = saved[key];
-      settings.rotateSeconds = clamp(saved.rotateSeconds, 0, 300, 30);
+      settings.rotateSeconds = saved.version === 2 ? clamp(saved.rotateSeconds, 0, 300, 0) : 0;
       if (saved.quotaLayout === 'carousel' || saved.quotaLayout === 'cards') settings.quotaLayout = saved.quotaLayout;
       if (saved.materialMode === 'frosted' || saved.materialMode === 'liquid') settings.materialMode = saved.materialMode;
       settings.safeBottom = clamp(saved.safeBottom, 1, 10, 3.9);
