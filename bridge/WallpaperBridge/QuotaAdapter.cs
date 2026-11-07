@@ -34,7 +34,7 @@ public static class QuotaAdapter
             ResetCreditData? resetCredits = null;
             foreach (var w in windows.EnumerateArray())
             {
-                if (Text(w, "availability") is "inactive" or "removed" or "missing") continue;
+                if (Text(w, "availability").Trim().ToLowerInvariant() is "inactive" or "pending_absent" or "removed" or "missing" or "disabled") continue;
                 if (target.Provider == "codex" && Number(w, "reset_credits_available") is >= 0 and <= int.MaxValue and var available && available == Math.Truncate(available))
                 {
                     var creditAt = Timestamp(w, "observed_at_ms");
@@ -61,6 +61,8 @@ public static class QuotaAdapter
                 var kind = Text(w, "window_kind", "额度窗口");
                 var scope = Text(w, "model_scope_key");
                 var label = WindowLabel(duration is > 0 ? (long)duration : null, kind, scope);
+                if (target.Provider == "antigravity" && scope is "claude_gpt" or "gemini")
+                    label = (scope == "claude_gpt" ? "Claude/GPT" : Text(w, "provider_window_id").StartsWith("gemini-4-argon:", StringComparison.OrdinalIgnoreCase) ? "Gemini 4 Argon" : "Gemini") + " · " + (duration == 18000 ? "5 小时" : duration == 604800 ? "周额度" : duration == 86400 ? "日额度" : Text(w, "provider_window_id").EndsWith("-shared", StringComparison.Ordinal) ? "共享额度" : kind);
                 plan = Text(w, "plan_type", plan);
                 result.Add(new(Text(w, "provider_window_id", kind), label, remaining, Number(w, "used_value"), Number(w, "limit_value"), Text(w, "quota_unit"),
                     Timestamp(w, "cycle_end_ms"), duration is > 0 ? (long)duration : null, Text(w, "window_mode", "unknown"), Text(w, "boundary_accuracy", "unknown"), observed, stale));

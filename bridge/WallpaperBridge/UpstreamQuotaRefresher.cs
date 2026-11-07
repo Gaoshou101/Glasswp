@@ -101,7 +101,7 @@ public sealed class UpstreamQuotaRefresher
                     if (!Current(key, manual)) break;
                     token.ThrowIfCancellationRequested();
                     RefreshAccountResult result;
-                    if (selection.Provider != "codex") result = new(selection.Alias, "unsupported", "该平台暂不支持自动刷新；继续展示已有快照");
+                    if (selection.Provider is not ("codex" or "antigravity")) result = new(selection.Alias, "unsupported", "该平台暂不支持自动刷新；继续展示已有快照");
                     else
                     {
                         try
@@ -109,19 +109,16 @@ public sealed class UpstreamQuotaRefresher
                             var file = files.FirstOrDefault(f => QuotaAdapter.Text(f, "name") == selection.AuthFile && QuotaAdapter.Text(f, "provider", QuotaAdapter.Text(f, "type")).Equals(selection.Provider, StringComparison.OrdinalIgnoreCase));
                             if (file.ValueKind != JsonValueKind.Object) throw new InvalidOperationException();
                             var account = CachedHeaderAdapter.Identity(file, selection);
-                            if (string.IsNullOrEmpty(account.AuthIndex) || string.IsNullOrEmpty(account.AccountId)) throw new InvalidOperationException();
-                            using var request = Request(cfg, HttpMethod.Post, "/v0/management/api-call", UpstreamQuotaAdapter.Request(account));
-                            using var response = await client.SendAsync(request, token);
-                            response.EnsureSuccessStatusCode();
-                            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
-                            var wrapper = QuotaAdapter.Unwrap(doc.RootElement);
-                            var statusCode = QuotaAdapter.Number(wrapper, "status_code") ?? QuotaAdapter.Number(wrapper, "statusCode");
-                            if (statusCode is not (>= 200 and < 300)) throw new HttpRequestException(null, null, statusCode is >= 100 and <= 599 ? (HttpStatusCode)(int)statusCode : null);
-                            var body = wrapper.GetProperty("body");
-                            using var usage = JsonDocument.Parse(body.ValueKind == JsonValueKind.String ? body.GetString()! : body.GetRawText());
-                            var windows = UpstreamQuotaAdapter.Windows(usage.RootElement, clock());
+                            if (string.IsNullOrEmpty(account.AuthIndex) || account.Provider == "codex" && string.IsNullOrEmpty(account.AccountId)) throw new InvalidOperationException();
+                            Dictionary<string, object?>[] windows;
+                            var completeInventory = false;
+                            if (account.Provider == "antigravity") {
+                                var project = AntigravityQuotaAdapter.Project(file);
+                                account = account with { ProjectId = project };
+                                (windows, completeInventory) = await ReadAntigravity(cfg, account, project, token);
+                            } else windows = UpstreamQuotaAdapter.Windows(await ReadUsage(cfg, UpstreamQuotaAdapter.Request(account), token), clock());
                             if (!Current(key, manual)) break;
-                            using var writeRequest = Request(cfg, HttpMethod.Post, "/v0/management/quota-snapshots", UpstreamQuotaAdapter.SnapshotWrite(account, windows));
+                            using var writeRequest = Request(cfg, HttpMethod.Post, "/v0/management/quota-snapshots", UpstreamQuotaAdapter.SnapshotWrite(account, windows, completeInventory));
                             using var writeResponse = await client.SendAsync(writeRequest, token);
                             writeResponse.EnsureSuccessStatusCode();
                             using var written = JsonDocument.Parse(await writeResponse.Content.ReadAsStringAsync(token));
@@ -159,6 +156,48 @@ public sealed class UpstreamQuotaRefresher
             return true;
         }
         finally { runGate.Release(); }
+    }
+    private async Task<JsonElement> ReadUsage(BridgeConfig cfg, object body, CancellationToken token)
+    {
+        using var request = Request(cfg, HttpMethod.Post, "/v0/management/api-call", body);
+        using var response = await client.SendAsync(request, token);
+        response.EnsureSuccessStatusCode();
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
+        var wrapper = QuotaAdapter.Unwrap(doc.RootElement);
+        var status = QuotaAdapter.Number(wrapper, "status_code") ?? QuotaAdapter.Number(wrapper, "statusCode");
+        if (status is not (>= 200 and < 300)) throw new HttpRequestException(null, null, status is >= 100 and <= 599 ? (HttpStatusCode)(int)status : null);
+        var content = wrapper.GetProperty("body");
+        using var usage = JsonDocument.Parse(content.ValueKind == JsonValueKind.String ? content.GetString()! : content.GetRawText());
+        return usage.RootElement.Clone();
+    }
+    private async Task<(Dictionary<string, object?>[] Windows, bool Complete)> ReadAntigravity(BridgeConfig cfg, AccountSelection account, string project, CancellationToken token)
+    {
+        Exception? last = null;
+        // CPAMP records the combined inventory as one observation and requires
+        // every window in that write to carry the same observation timestamp.
+        var observed = clock();
+        foreach (var url in AntigravityQuotaAdapter.SummaryUrls)
+        {
+            // A readable summary is the current inventory. Do not supplement it
+            // with synthetic shared buckets from a different API representation.
+            try { return (AntigravityQuotaAdapter.Windows(await ReadUsage(cfg, AntigravityQuotaAdapter.Request(account, project, url), token), observed), true); }
+            catch (HttpRequestException e) when (e.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden or HttpStatusCode.TooManyRequests) { throw; }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+            catch (Exception e) when (e is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException) { last = e; }
+        }
+        foreach (var url in AntigravityQuotaAdapter.ModelUrls)
+        {
+            try {
+                var models = AntigravityQuotaAdapter.ModelWindows(await ReadUsage(cfg, AntigravityQuotaAdapter.Request(account, project, url), token), observed);
+                // All summary endpoints failed. Model evidence is partial and
+                // cannot retire precise windows from the unavailable summary.
+                return (models, false);
+            }
+            catch (HttpRequestException e) when (e.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden or HttpStatusCode.TooManyRequests) { throw; }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+            catch (Exception e) when (e is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException) { last = e; }
+        }
+        throw last ?? new JsonException("No Antigravity response");
     }
     private static string Failure(HttpRequestException e) => e.StatusCode switch
     {

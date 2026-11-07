@@ -31,6 +31,10 @@ using var doc = JsonDocument.Parse("""
 """);
 var result = QuotaAdapter.Parse(doc.RootElement, selected, now);
 Check(result.Length == 1 && result[0].Windows.Length == 3, "inactive windows excluded");
+foreach (var unavailable in new[] { "pending_absent", "INACTIVE", "disabled", "removed", "missing" }) {
+    using var absent = JsonDocument.Parse(JsonSerializer.Serialize(new { items = new[] { new { row_key = "row", windows = new[] { new { provider_window_id = "old", availability = unavailable, observed_at_ms = 100000000, stale = false, remaining_percent = 75 } } } } }));
+    Check(QuotaAdapter.Parse(absent.RootElement, selected, now)[0].Windows.Length == 0, "fresh unavailable window excluded: " + unavailable);
+}
 Check(result[0].Windows[0].RemainingPercent == 0, "used percentage conversion preserves exhausted quota");
 Check(result[0].Windows[1].RemainingPercent is null && result[0].Windows[1].Stale, "missing and old evidence are not zero");
 Check(result[0].Windows[1].Mode == "rolling" && result[0].Windows[1].Accuracy == "estimated", "provider semantics retained");
@@ -50,7 +54,8 @@ using var imageCached = JsonDocument.Parse("""
 var imageHeader = CachedHeaderAdapter.ParseCodex(imageCached.RootElement, selected[0], DateTimeOffset.Parse("2026-10-10T00:00:30Z"));
 Check(imageHeader.Windows.Single().Label == "日窗口 · 绘图（Premium）", "cached image quota uses same feature label");
 Check(imageHeader.Windows.Single().Id == "cached-header-imagegen-premium-primary", "cached image quota identity is separate from coding headers");
-Check(CachedHeaderAdapter.Merge(imageAccount with { Windows = [imageAccount.Windows[0]] }, imageHeader).Windows.Length == 2, "cached image quota cannot merge into a coding daily budget");
+Check(CachedHeaderAdapter.Merge(imageAccount with { Windows = [imageAccount.Windows[0]] }, imageHeader).Windows.Length == 1, "authoritative snapshot does not resurrect missing image quota from headers");
+Check(CachedHeaderAdapter.Merge(imageAccount with { Windows = [imageAccount.Windows[0]] }, imageHeader, snapshotAvailable: false).Windows.Length == 2, "failed snapshot can use distinct cached image evidence");
 Check(CachedHeaderAdapter.Merge(imageAccount, imageHeader).Windows.Length == 2, "cached image quota does not duplicate canonical image budget");
 using var legacyImage = JsonDocument.Parse("""
 {"items":[{"row_key":"row","windows":[{"provider_window_id":"window-1d-0","window_kind":"daily","model_scope_kind":"family","model_scope_key":"codex_main","source":"response_header","source_observation_id":"image-request","duration_seconds":86400,"used_percent":1,"remaining_percent":99,"cycle_end_ms":186400000,"observed_at_ms":100000000}]}]}
@@ -139,7 +144,8 @@ var canonicalMerged = CachedHeaderAdapter.Merge(canonical, newerHeader);
 Check(canonicalMerged.Windows[0] == canonical.Windows[0], "newer response headers cannot replace CPAMP's selected balance and reset boundary");
 var oldBalanceNewBoundary = canonical with { Windows = [canonical.Windows[0] with { ObservedAt = canonicalAt.AddHours(-1), Stale = true }] };
 Check(CachedHeaderAdapter.Merge(oldBalanceNewBoundary, newerHeader).Windows[0] == oldBalanceNewBoundary.Windows[0], "old balance observation does not authorize overwriting a CPAMP boundary");
-Check(CachedHeaderAdapter.Merge(canonical with { Windows = [] }, newerHeader).Windows[0] == newerHeader.Windows[0], "response headers still supply a missing quota window");
+Check(CachedHeaderAdapter.Merge(canonical with { Windows = [] }, newerHeader).Windows.Length == 0, "empty current inventory cannot resurrect a removed window from fresh headers");
+Check(CachedHeaderAdapter.Merge(canonical with { Windows = [] }, newerHeader, snapshotAvailable: false).Windows[0] == newerHeader.Windows[0], "response headers supply a window only on snapshot failure");
 Check(CachedHeaderAdapter.Merge(canonical, newerHeader, snapshotAvailable: false).Windows[0] == newerHeader.Windows[0], "failed snapshot query may fall back to a newer cached header");
 Check(CachedHeaderAdapter.Merge(canonical, header with { Windows = [header.Windows[0] with { ObservedAt = canonicalAt.AddMinutes(-1) }] }, snapshotAvailable: false).Windows[0] == canonical.Windows[0], "failed snapshot query retains previous evidence when headers are older");
 using var conflict = JsonDocument.Parse("""{"account":"a@example.test","email":"b@example.test"}""");
@@ -188,7 +194,7 @@ Check(mixed.Length == 4 && !mixed[0].ContainsKey("remaining_percent") && (double
 Check((long)mixed[0]["cycle_end_ms"]! == now.AddSeconds(90).ToUnixTimeMilliseconds() && (string)mixed[0]["boundary_accuracy"]! == "derived", "relative upstream reset uses observation time");
 Check((string)mixed[0]["model_scope_key"]! == "codex_main" && (string)mixed[2]["model_scope_key"]! == "code_review" && (string)mixed[3]["model_scope_kind"]! == "models" && (string)mixed[0]["container_provider_window_id"]! == "weekly", "main, code review and Spark scopes stay distinct with concurrent cadence relation");
 using var writeShape = JsonDocument.Parse(JsonSerializer.Serialize(UpstreamQuotaAdapter.SnapshotWrite(selected[0], mixed)));
-Check(!writeShape.RootElement.GetProperty("entries")[0].TryGetProperty("observation", out _), "snapshot write preserves unobserved scopes through CPAMP partial inventory");
+Check(writeShape.RootElement.GetProperty("entries")[0].GetProperty("observation").GetProperty("inventory_mode").GetString() == "partial", "Codex snapshot write preserves unobserved scopes through partial inventory");
 
 var refreshTemp = Path.Combine(Path.GetTempPath(), "wallpaper-refresh-test-" + Guid.NewGuid());
 try
@@ -377,6 +383,7 @@ using var legacyAccountDoc = JsonDocument.Parse("""{"id":"a","alias":"A","provid
 Check(JsonSerializer.Deserialize<QuotaAccount>(legacyAccountDoc.RootElement, PrivateStore.Json)?.ResetCredits is null, "legacy quota cache without reset credit fields stays compatible");
 
 await ResilienceChecks.Run(Check);
+await AntigravityChecks.Run(Check);
 Console.WriteLine($"{checks} bridge checks passed");
 
 sealed class StubHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler

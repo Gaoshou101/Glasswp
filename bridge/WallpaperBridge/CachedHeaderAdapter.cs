@@ -65,8 +65,9 @@ public static class CachedHeaderAdapter
         var result = snapshot.Windows.ToList();
         foreach (var header in cachedHeader.Windows)
         {
-            // CPAMP already resolves quota and boundary evidence independently. Keep its
-            // selected window intact; raw headers are only missing-window/error fallbacks.
+            // A successful snapshot query is authoritative, including absences.
+            // Raw headers may only supply windows during a snapshot read failure.
+            if (snapshotAvailable) continue;
             var scopedHeader = header.Label.Contains(" · ");
             var i = result.FindIndex(w => w.DurationSeconds == header.DurationSeconds && (scopedHeader ? w.Label == header.Label : !w.Label.Contains(" · ")));
             if (i < 0) { if (scopedHeader || !result.Any(w => w.DurationSeconds == header.DurationSeconds)) result.Add(header); }

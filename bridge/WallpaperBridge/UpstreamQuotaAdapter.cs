@@ -85,7 +85,10 @@ public static class UpstreamQuotaAdapter
     public static object Target(AccountSelection a) => new { auth_file_snapshot = a.AuthFile, auth_index = a.AuthIndex,
         auth_account_id_snapshot = a.AccountId, auth_provider_snapshot = a.Provider, account_snapshot = a.AccountSnapshot,
         auth_label_snapshot = a.AuthLabel, auth_project_id_snapshot = a.ProjectId, source = a.AuthFile };
-    public static object SnapshotWrite(AccountSelection a, Dictionary<string, object?>[] windows) => new {
-        entries = new[] { new { row_key = a.Id, provider = a.Provider, account = Target(a), windows } }
-    }; // CPAMP's omitted observation defaults to a partial inventory; unobserved scopes are preserved.
+    public static object SnapshotWrite(AccountSelection a, Dictionary<string, object?>[] windows, bool completeInventory = false) => new {
+        entries = new[] { new { row_key = a.Id, provider = a.Provider, account = Target(a), windows,
+            observation = new { source = "api_query", observed_at_ms = windows[0]["observed_at_ms"],
+                inventory_scope_key = a.Provider == "codex" ? "codex:rate-limits" : a.Provider + ":quota-windows",
+                inventory_mode = completeInventory ? "complete" : "partial" } } }
+    };
 }
