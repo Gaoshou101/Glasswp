@@ -18,7 +18,13 @@
 
 验证：`tests/admin_settings_check.py` 增至 14 组检查，新增两组：一组覆盖玻璃材质计算样式、壁纸原画背景、图标引用完整性、降低透明度回退和指针高光；另一组覆盖导航高亮、回车搜索与当前城市、Esc 清空、票据显示/复制反馈。原有检查同步调整为保存按钮按更改启用、导航圆点与状态色调。完整 `verify.ps1 -Browser`：26 项前端测试、270 项桥接检查、6 组浏览器回归全部通过。截图见 `artifacts/validation/admin-settings-*.png`。
 
-部署状态：同样只提交源码与测试，需经 `scripts/update-bridge.ps1`（一次 UAC）上线。
+部署状态（2026-11-08 15:08 上线）：用户确认后，以干净候选 `20261108064802-3b4716a8`（commit `cbb056f`，含第 4 步统一账号列表、液态玻璃重构和隐藏重复套餐标签）运行 `scripts/update-bridge.ps1`，一次 UAC 完成安装，替换桥接 `20261107084128-210b5852`。运行目录备份在 `E:\WallpaperDashboard\backups\previous-41d3152e0ed041fba7f00e1433ac280c`。
+
+- 上线前后对比（只比摘要，不含凭据与票据明文）：11 个关注账号及顺序/别名摘要、展示票据摘要、CPAMP 地址摘要、凭据已配置、城市、传感器选择、刷新开关与 10 分钟间隔全部一致；桥接仍为提权进程，计划任务 `\WallpaperDashboardBridge` 仍在运行。
+- 线上 `/admin/` 与 `admin.js` 的哈希与源码一致，壁纸原画背景可访问。只读验收：11 行账号（7 Codex、4 Antigravity），显示 6 个 team、1 个 plus、4 个 Google AI Pro，没有重复的 `antigravity` 标签；连接状态、玻璃材质、可读诊断（Wallpaper Engine · 运行中 · 1600×2560 · 30 FPS）与刷新汇总正常；所有保存按钮在无更改时不可用；390px 宽度无横向溢出。浏览器错误 0，只发出会话、读配置、刷新状态和快照四类只读请求，没有配置写入。
+- 壁纸前端在桥接重启后自动重连并继续上报；后台 24 小时稳定性观察的 60 秒采样没有出现不可用记录。
+- Wallpaper Engine 中的正式壁纸仍为 `20261107161215-fd7bbfd2`：其后壁纸脚本与样式没有变化，只改了设置页和工作室选项文字，因此未重新执行 close/open。
+- 记录：`artifacts/validation/bridge-update.json`、`admin-glass-bridge-before.json`、`admin-glass-bridge-after.json`、`admin-glass-live-result.json`。
 
 ## 后续更新：设置页体验优化（2026-11-08）
 
@@ -34,7 +40,7 @@
 
 验证：`tests/admin_settings_check.py` 重写为自带静态服务（临时端口提供 `dist/`），全部 API 使用匿名夹具，12 组检查通过、浏览器错误 0；已加入 `scripts/verify.ps1 -Browser`。覆盖套餐按 ID 对应、读取合并与缺失标记、搜索/平台/关注筛选、筛选中排序与焦点、撤销、勾选/别名回退、保存失败重试与重开、跨区块草稿保留、真实的离页提示、凭据变更确认、传感器检测前禁用保存、可读诊断与折叠、刷新结果折叠后不被轮询收起、文本安全、360/540/900/1440 宽度及图标。完整 `verify.ps1 -Browser`：26 项前端测试、270 项桥接检查及 6 组浏览器回归通过。首轮运行时 `liquid_glass_check.py` 出现一次负载相关的时序失败，单独运行与第二轮完整运行均通过。
 
-部署状态：仅提交源码与测试。设置页由桥接从受保护的运行目录 `E:\WallpaperDashboard` 提供，上线需经 `scripts/update-bridge.ps1`（一次 UAC 提权，重启桥接），尚未执行。
+部署状态：已随 2026-11-08 15:08 的桥接 `20261108064802-3b4716a8` 一并上线，详见上文「液态玻璃视觉重构」一节。
 
 ## 后续更新：Antigravity 真实套餐
 
