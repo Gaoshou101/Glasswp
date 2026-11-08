@@ -1,18 +1,288 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>壁纸本机设置</title><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>壁纸本机设置</title><link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <style>
-:root{color-scheme:dark;font-family:"Segoe UI","Microsoft YaHei UI",sans-serif;background:#17151d;color:#f6f3ff}*{box-sizing:border-box}body{max-width:900px;margin:36px auto;padding:0 24px 60px}h1{font-size:28px;font-weight:500}h2{font-size:19px;font-weight:500;margin:0 0 16px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}p{color:#b4a8be;line-height:1.65}section{padding:24px;margin:24px 0;border:1px solid #514459;border-radius:16px;background:#29232f;scroll-margin-top:130px}label{display:block;font-size:14px;margin:14px 0 7px}input,select,button{font:inherit;border-radius:8px;padding:10px 12px;border:1px solid #514459;background:#17151d;color:#f6f3ff}input:not([type=checkbox]),select{width:100%}button{cursor:pointer;margin:14px 8px 0 0;background:#3c2e48}button:disabled{opacity:.6;cursor:default}a{color:#d4b4ff;text-underline-offset:4px}.row{display:flex;gap:10px;align-items:center}.row input[type=checkbox]{width:18px;height:18px;flex-shrink:0}.row input:not([type=checkbox]){flex:1;min-width:0}.row button{margin:0;flex-shrink:0;white-space:nowrap}small{color:#b4a8be}pre{white-space:pre-wrap;font:12px/1.7 Consolas,monospace;color:#b4a8be;overflow:auto;margin:12px 0}:focus-visible{outline:2px solid #d4b4ff;outline-offset:3px}#ticket{font-family:Consolas,monospace}[hidden]{display:none!important}
-.statusbar{position:sticky;top:10px;z-index:2;padding:12px;border-radius:8px;background:#34283f;border:1px solid #776185;min-height:48px}#unsaved{margin-top:6px;font-size:13px;line-height:1.6;color:#ffd7a8}#unsaved a{color:#ffd7a8}
-.heading-note{font-size:13px;font-weight:400;color:#b4a8be}.dirty-pill{font-size:12px;font-weight:400;line-height:1.5;padding:2px 9px;border-radius:999px;border:1px solid #a8774f;color:#ffd7a8;background:#3d2c22}.hint{font-size:13px;margin:10px 0 0}
-.account-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 150px 150px;gap:10px}#account-filter-status button{margin:0 0 0 8px;padding:3px 10px;font-size:13px}.account-list{list-style:none;padding:0;margin:12px 0 0}.account-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #514459}.watch-toggle{width:18px;height:18px;flex-shrink:0;margin:0}.order-position{font-size:13px;color:#b4a8be;min-width:24px;text-align:center;font-variant-numeric:tabular-nums}.account-main{flex:1;min-width:0;display:grid;gap:6px}.alias-input{padding:7px 10px}.account-row[data-watched=false] .alias-input{color:#b4a8be}.account-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-width:0}.provider-badge,.order-plan,.account-file{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:1.5}.provider-badge,.order-plan{padding:2px 9px;border-radius:6px}.provider-badge{border:1px solid #514459;color:#b4a8be}.order-plan{border:1px solid #695279;background:#3c2e48;color:#e0c9f6}.order-plan[data-state=unknown],.order-plan[data-state=unavailable]{color:#b4a8be;background:transparent;border-color:#514459}.account-file{min-width:0;color:#b4a8be}.account-missing{font-size:12px;color:#ffb4a8}.order-controls{display:flex;flex-shrink:0;gap:8px}.order-controls button{margin:0;width:40px;padding:8px}.order-controls button:disabled{opacity:.3}.order-controls button:hover:not(:disabled){background:#51405f}.order-controls button:active:not(:disabled){transform:translateY(1px)}.account-row[data-watched=false] .order-controls{visibility:hidden}#account-status{min-height:20px;margin:10px 0 0}#cancel-accounts{background:transparent}
-details{margin-top:14px;border:1px solid #514459;border-radius:10px;padding:0 14px}summary{cursor:pointer;padding:10px 0;color:#d8cde2;font-size:14px}details[open] summary{border-bottom:1px solid #514459}.facts{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 16px;margin:16px 0 0;font-size:14px}.facts dt{color:#b4a8be}.facts dd{margin:0;overflow-wrap:anywhere}.facts dd[data-state=warn]{color:#ffd7a8}.result-row{border-top:1px solid #514459;padding:8px 0;font-size:14px;overflow-wrap:anywhere}.result-row[data-status=failed]{color:#ffb4a8}#quota-refresh-failures .result-row:first-child{border-top:0}
-@media(max-width:540px){body{margin:24px auto;padding:0 16px 40px}section{padding:16px}.account-toolbar{grid-template-columns:1fr 1fr}#account-search{grid-column:1/-1}.account-row{gap:8px}.order-controls{gap:4px}.order-controls button{width:34px;padding:6px}.facts{grid-template-columns:1fr;gap:2px}.facts dd{margin-bottom:8px}}
+/* Liquid glass materials follow the wallpaper's .glass recipe (src/design.css, src/liquid.css). */
+:root{
+  color-scheme:dark;
+  --ink:#f6f3ff;--ink-2:rgba(246,243,255,.76);--ink-3:rgba(246,243,255,.54);
+  --accent:#d4b4ff;--warn:#ffd7a8;--danger:#ffa3a3;--ok:#9fe3c0;
+  --hairline:rgba(255,248,255,.12);--hairline-strong:rgba(255,248,255,.22);
+  --field:rgba(12,9,20,.42);--field-hover:rgba(18,14,28,.52);--fill:rgba(255,255,255,.07);
+  --well:rgba(8,6,14,.24);
+  --radius-panel:28px;--radius-group:20px;--radius-control:13px;
+  --ease:cubic-bezier(.2,.85,.25,1.15);--ease-out:cubic-bezier(.22,.61,.36,1);
+  font-family:"SF Pro Text","PingFang SC","Segoe UI Variable Text","Segoe UI","Microsoft YaHei UI",sans-serif;
+  background:#17151d;color:var(--ink);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+/* The wallpaper art sits behind the page so the glass has real colour to refract. */
+body::before{content:"";position:fixed;inset:-80px;z-index:-2;background:#17151d url(../assets/wallpaper-original.jpg) center 26%/cover no-repeat;filter:blur(9px) saturate(1.25) brightness(.5)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(60% 50% at 10% 0%,rgba(190,150,255,.2),transparent 70%),radial-gradient(50% 45% at 100% 100%,rgba(255,120,190,.11),transparent 70%),linear-gradient(180deg,rgba(23,21,29,.2),rgba(23,21,29,.62))}
+[hidden]{display:none!important}
+a{color:var(--accent);text-underline-offset:4px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+svg.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.glass{position:relative;isolation:isolate;border:1px solid rgba(255,248,255,.14);border-radius:var(--radius-panel);
+  background:linear-gradient(155deg,rgba(255,255,255,.13),rgba(243,232,255,.035) 26%,rgba(255,255,255,0) 52%,rgba(207,190,235,.05)),rgba(22,18,32,.5);
+  -webkit-backdrop-filter:blur(30px) saturate(150%) brightness(1.04);backdrop-filter:blur(30px) saturate(150%) brightness(1.04);
+  box-shadow:inset 0 1.5px 2px rgba(255,255,255,.2),inset 0 -1px 2px rgba(230,207,255,.1),0 22px 60px rgba(6,3,14,.36),0 2px 6px rgba(6,3,14,.2)}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;background:radial-gradient(520px circle at var(--glint-x,16%) var(--glint-y,0%),rgba(255,250,255,.1),rgba(236,222,255,.03) 42%,transparent 70%);opacity:.55;transition:opacity .5s var(--ease-out)}
+.glass:hover::before{opacity:1}
+.glass::after{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;padding:1px;opacity:.6;background:linear-gradient(125deg,rgba(255,255,255,.78),rgba(249,238,255,.28) 21%,rgba(255,255,255,.03) 42%,rgba(228,202,255,.14) 70%,rgba(255,255,255,.55));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude}
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;max-width:1180px;margin:0 auto;padding:28px 28px 0}
+.sidebar{position:sticky;top:28px;align-self:start;display:flex;flex-direction:column;gap:18px;padding:18px 12px 12px;border-radius:30px;max-height:calc(100vh - 56px)}
+.brand{display:flex;align-items:center;gap:12px;padding:2px 6px 0;min-width:0}
+.brand img{width:40px;height:40px;border-radius:11px;box-shadow:0 4px 14px rgba(0,0,0,.35);flex-shrink:0}
+.brand div{min-width:0}
+.brand strong{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bridge-state{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)}
+#bridge-state::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink-3);flex-shrink:0}
+#bridge-state[data-state=ok]::before{background:var(--ok);box-shadow:0 0 8px rgba(159,227,192,.7)}
+#bridge-state[data-state=error]::before{background:var(--danger);box-shadow:0 0 8px rgba(255,163,163,.6)}
+.nav{display:grid;gap:2px}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:14px;color:var(--ink-2);text-decoration:none;font-size:14px;transition:background .2s,color .2s}
+.nav a:hover{background:var(--fill);color:var(--ink)}
+.nav a[aria-current]{background:rgba(255,255,255,.13);color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+.nav a span{flex:1}
+.nav .icon{width:18px;height:18px;color:var(--accent)}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--warn);box-shadow:0 0 8px rgba(255,215,168,.6);flex-shrink:0}
+.sidebar-foot{margin-top:auto;display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:14px;font-size:13px;text-decoration:none;color:var(--ink-2);border:1px solid var(--hairline);transition:background .2s,color .2s}
+.sidebar-foot:hover{background:var(--fill);color:var(--ink)}
+.sidebar-foot span{flex:1}
+.sidebar-foot .icon{width:16px;height:16px}
+main{min-width:0;padding-bottom:28px}
+.page-head{padding:10px 4px 2px}
+.page-head h1{margin:0;font-size:34px;font-weight:650;letter-spacing:-.02em;line-height:1.2}
+.page-head p{margin:6px 0 0;color:var(--ink-2)}
+.panel{margin-top:22px;padding:24px;scroll-margin-top:24px}
+.panel-head{display:flex;align-items:center;flex-wrap:wrap;gap:12px 14px;margin-bottom:6px}
+.panel-title{flex:1;min-width:0}
+.panel-title h2{margin:0;font-size:19px;font-weight:600;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;line-height:1.35}
+.panel-sub{margin:2px 0 0;font-size:13px;color:var(--ink-3);overflow-wrap:anywhere}
+.panel-sub:empty{display:none}
+.icon-tile{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;flex-shrink:0;color:#fff;background:linear-gradient(160deg,var(--tile-a),var(--tile-b));box-shadow:inset 0 1px 1px rgba(255,255,255,.45),inset 0 -1px 1px rgba(0,0,0,.16),0 6px 16px var(--tile-glow)}
+.icon-tile .icon{width:22px;height:22px;stroke-width:1.8}
+[data-tint=sky]{--tile-a:rgba(124,190,255,.92);--tile-b:rgba(66,118,228,.88);--tile-glow:rgba(66,118,228,.28)}
+[data-tint=indigo]{--tile-a:rgba(150,150,255,.92);--tile-b:rgba(88,82,214,.88);--tile-glow:rgba(88,82,214,.28)}
+[data-tint=violet]{--tile-a:rgba(212,170,255,.95);--tile-b:rgba(140,92,214,.9);--tile-glow:rgba(140,92,214,.32)}
+[data-tint=teal]{--tile-a:rgba(110,222,206,.9);--tile-b:rgba(36,148,150,.88);--tile-glow:rgba(36,148,150,.26)}
+[data-tint=amber]{--tile-a:rgba(255,200,120,.92);--tile-b:rgba(222,128,52,.88);--tile-glow:rgba(222,128,52,.26)}
+[data-tint=rose]{--tile-a:rgba(255,160,200,.92);--tile-b:rgba(210,82,140,.88);--tile-glow:rgba(210,82,140,.26)}
+p{color:var(--ink-2);line-height:1.65;margin:12px 0 0}
+.hint{font-size:13px;color:var(--ink-3);margin:10px 0 0}
+.field{margin-top:16px}
+.field>label,.field-label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin:0 0 7px 2px}
+input,select,button,textarea{font:inherit;color:var(--ink)}
+input:not([type=checkbox]),select{width:100%;padding:11px 14px;border-radius:var(--radius-control);border:1px solid var(--hairline);background:var(--field);box-shadow:inset 0 1px 2px rgba(0,0,0,.25);transition:border-color .2s,background .2s,box-shadow .2s}
+input:not([type=checkbox]):hover,select:hover{background:var(--field-hover)}
+input:not([type=checkbox]):focus,select:focus{outline:none;border-color:rgba(212,180,255,.7);box-shadow:inset 0 1px 2px rgba(0,0,0,.25),0 0 0 4px rgba(212,180,255,.2)}
+input::placeholder{color:rgba(246,243,255,.38)}
+input[readonly]{color:var(--ink-2)}
+select{appearance:none;-webkit-appearance:none;padding-right:38px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4b4ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px}
+select option{background:#231d2c;color:var(--ink)}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none}
+.search-field{position:relative}
+.search-field .icon{position:absolute;left:13px;top:50%;width:17px;height:17px;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
+.search-field input{padding-left:38px}
+.inline{display:flex;gap:10px;align-items:center}
+.inline>input{flex:1;min-width:0}
+.inline>button{flex-shrink:0}
+button{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;padding:10px 18px;border-radius:999px;border:1px solid rgba(255,248,255,.16);background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 4px 14px rgba(6,3,14,.16);font-size:14px;font-weight:500;transition:transform .18s var(--ease),background .2s,border-color .2s,opacity .2s,box-shadow .2s}
+button:hover:not(:disabled){background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.08));border-color:rgba(255,248,255,.24)}
+button:active:not(:disabled){transform:scale(.96)}
+button:disabled{opacity:.42;cursor:default;box-shadow:none}
+button.primary{border-color:rgba(232,210,255,.5);background:linear-gradient(180deg,rgba(201,163,246,.78),rgba(142,98,208,.74));box-shadow:inset 0 1px 1px rgba(255,255,255,.45),inset 0 -1px 1px rgba(60,20,110,.25),0 6px 20px rgba(140,92,214,.34);color:#fff}
+button.primary:hover:not(:disabled){background:linear-gradient(180deg,rgba(212,178,252,.86),rgba(152,108,218,.8));border-color:rgba(240,222,255,.6)}
+button.primary:disabled{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border-color:rgba(255,248,255,.14);color:var(--ink-2)}
+button.quiet{background:transparent;box-shadow:none}
+button.danger{color:var(--danger)}
+button.small{padding:5px 12px;font-size:13px}
+.actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:18px}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;padding:14px 16px;border-radius:var(--radius-group);background:var(--well);border:1px solid var(--hairline);cursor:pointer}
+.switch-row span{font-weight:500}
+.switch-row small{display:block;font-weight:400;font-size:13px;color:var(--ink-3)}
+input[type=checkbox][role=switch]{appearance:none;-webkit-appearance:none;position:relative;width:51px;height:31px;flex-shrink:0;margin:0;border-radius:999px;background:rgba(255,255,255,.16);box-shadow:inset 0 1px 3px rgba(0,0,0,.35);cursor:pointer;transition:background .25s var(--ease-out)}
+input[type=checkbox][role=switch]::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:linear-gradient(180deg,#fff,#efe9f7);box-shadow:0 3px 8px rgba(0,0,0,.3),0 1px 1px rgba(0,0,0,.18);transition:transform .3s var(--ease)}
+input[type=checkbox][role=switch]:checked{background:linear-gradient(180deg,#b88ef0,#8c5fd2)}
+input[type=checkbox][role=switch]:checked::after{transform:translateX(20px)}
+.dirty-pill{font-size:12px;font-weight:500;line-height:1.5;padding:2px 10px;border-radius:999px;border:1px solid rgba(255,215,168,.45);color:var(--warn);background:rgba(120,72,30,.3)}
+.heading-note{font-size:13px;font-weight:400;color:var(--ink-3)}
+.account-toolbar{display:grid;grid-template-columns:minmax(0,1fr) 150px 150px;gap:10px;margin-top:16px}
+#account-filter-status{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.list-group{list-style:none;margin:14px 0 0;padding:0 14px;border-radius:var(--radius-group);background:var(--well);border:1px solid var(--hairline)}
+.list-group:empty{display:none}
+.account-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--hairline)}
+.account-row:first-child{border-top:0}
+.watch-toggle{appearance:none;-webkit-appearance:none;display:grid;place-content:center;width:24px;height:24px;margin:0;flex-shrink:0;border-radius:50%;border:1.5px solid rgba(255,255,255,.38);background:rgba(255,255,255,.04);cursor:pointer;transition:background .2s,border-color .2s,box-shadow .2s,transform .18s var(--ease)}
+.watch-toggle:checked{border-color:transparent;background:linear-gradient(180deg,#c9a5f5,#9064d6);box-shadow:inset 0 1px 1px rgba(255,255,255,.4),0 0 0 4px rgba(201,165,245,.14)}
+.watch-toggle::after{content:"";width:13px;height:13px;background:#fff;transform:scale(0);transition:transform .22s var(--ease);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat}
+.watch-toggle:checked::after{transform:scale(1)}
+.watch-toggle:active:not(:disabled){transform:scale(.9)}
+.order-position{font-size:13px;color:var(--ink-3);min-width:22px;text-align:center;font-variant-numeric:tabular-nums}
+.account-main{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.alias-input{padding:7px 10px!important;border-color:transparent!important;background:rgba(255,255,255,.035)!important;box-shadow:none!important;font-weight:500}
+.alias-input:hover{background:rgba(255,255,255,.07)!important}
+.alias-input:focus{border-color:rgba(212,180,255,.7)!important;background:var(--field)!important;box-shadow:0 0 0 4px rgba(212,180,255,.2)!important}
+.account-row[data-watched=false] .alias-input{color:var(--ink-3);font-weight:400}
+.account-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-width:0;padding-left:2px}
+.provider-badge,.order-plan,.account-file{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;line-height:1.5}
+.provider-badge,.order-plan{padding:2px 10px;border-radius:999px}
+.provider-badge{border:1px solid var(--hairline-strong);color:var(--ink-2)}
+.order-plan{border:1px solid rgba(212,180,255,.4);background:rgba(150,104,214,.28);color:#efdfff}
+.order-plan[data-state=unknown],.order-plan[data-state=unavailable]{color:var(--ink-3);background:transparent;border-color:var(--hairline)}
+.account-file{min-width:0;color:var(--ink-3)}
+.account-missing{font-size:12px;color:var(--danger)}
+.order-controls{display:flex;flex-shrink:0;gap:6px}
+.order-controls button{width:36px;height:36px;padding:0;border-radius:50%}
+.order-controls button .icon{width:18px;height:18px;stroke-width:2}
+.order-controls button:disabled{opacity:.25}
+.account-row[data-watched=false] .order-controls{visibility:hidden}
+#account-status{min-height:22px;margin:12px 0 0;font-size:13px;color:var(--ink-3)}
+details{margin-top:16px;border-radius:var(--radius-group);background:var(--well);border:1px solid var(--hairline)}
+summary{list-style:none;display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px 16px;font-size:14px;color:var(--ink-2);border-radius:inherit}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"";width:16px;height:16px;flex-shrink:0;background:var(--accent);transition:transform .25s var(--ease);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E") center/contain no-repeat}
+details[open]>summary::before{transform:rotate(90deg)}
+summary:hover{color:var(--ink)}
+details>:not(summary){margin:0 16px 14px}
+pre{white-space:pre-wrap;font:12px/1.7 "Cascadia Mono",Consolas,monospace;color:var(--ink-2);overflow:auto;max-height:420px}
+.facts{display:grid;grid-template-columns:max-content minmax(0,1fr);margin:16px 0 0;padding:0 16px;border-radius:var(--radius-group);background:var(--well);border:1px solid var(--hairline);font-size:14px}
+.facts dt,.facts dd{padding:11px 0;border-top:1px solid var(--hairline)}
+.facts dt{color:var(--ink-3);padding-right:20px}
+.facts dd{margin:0;text-align:right;overflow-wrap:anywhere}
+.facts dt:first-of-type,.facts dt:first-of-type+dd{border-top:0}
+.facts dd[data-state=warn]{color:var(--warn)}
+.result-row{padding:9px 0;font-size:14px;overflow-wrap:anywhere;border-top:1px solid var(--hairline)}
+.result-row:first-child{border-top:0}
+.result-row[data-status=failed],.result-row[data-status=unsupported]{color:var(--warn)}
+#quota-refresh-failures{margin-top:12px;padding:0 16px;border-radius:var(--radius-group);background:rgba(120,72,30,.18);border:1px solid rgba(255,215,168,.25)}
+#quota-refresh-failures:empty{display:none}
+.meta-line{font-size:13px;color:var(--ink-3);margin:8px 0 0}
+#quota-refresh-summary{color:var(--ink);margin-top:16px}
+.dock{position:sticky;bottom:16px;z-index:5;display:flex;align-items:flex-start;gap:12px;margin-top:24px;padding:12px 18px;border-radius:22px;font-size:14px}
+.dock::before{opacity:.35}
+.status-dot{width:9px;height:9px;border-radius:50%;margin-top:6px;flex-shrink:0;background:var(--ok);box-shadow:0 0 10px rgba(159,227,192,.7)}
+.dock[data-tone=busy] .status-dot{background:var(--accent);box-shadow:0 0 10px rgba(212,180,255,.8);animation:pulse 1.2s ease-in-out infinite}
+.dock[data-tone=error] .status-dot{background:var(--danger);box-shadow:0 0 10px rgba(255,163,163,.7)}
+.dock[data-tone=info] .status-dot{background:var(--ink-3);box-shadow:none}
+.dock-text{min-width:0;flex:1}
+#status{overflow-wrap:anywhere}
+.dock[data-tone=error] #status{color:#ffd0d0}
+#unsaved{margin-top:3px;font-size:13px;line-height:1.6;color:var(--warn)}
+#unsaved a{color:var(--warn)}
+@keyframes pulse{50%{opacity:.35}}
+@media(max-width:960px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:0;padding:12px 16px 0}
+  .sidebar{top:8px;z-index:6;flex-direction:row;align-items:center;gap:8px;padding:6px;border-radius:22px;max-height:none;overflow-x:auto;scrollbar-width:none}
+  .sidebar::-webkit-scrollbar{display:none}
+  .brand,.sidebar-foot{display:none}
+  .nav{display:flex;gap:4px}
+  .nav a{padding:7px 12px;white-space:nowrap;font-size:13px}
+  .nav .icon{display:none}
+  .page-head{padding-top:18px}
+  .panel{scroll-margin-top:72px}
+}
+@media(max-width:540px){
+  body{font-size:14px}
+  .page-head h1{font-size:28px}
+  .panel{padding:18px 16px;border-radius:24px}
+  .icon-tile{width:34px;height:34px;border-radius:10px}
+  .account-toolbar{grid-template-columns:1fr 1fr}
+  .search-field{grid-column:1/-1}
+  .list-group{padding:0 10px}
+  .account-row{gap:8px}
+  .order-controls{gap:4px}
+  .order-controls button{width:32px;height:32px}
+  .facts{grid-template-columns:minmax(0,1fr)}
+  .facts dd{text-align:left;border-top:0;padding-top:0}
+  .facts dt{padding-bottom:2px}
+  .inline{flex-wrap:wrap}
+  .inline>input{flex-basis:100%}
+  .dock{bottom:10px;padding:10px 14px;font-size:13px;border-radius:18px}
+  #status{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .unsaved-tail{display:none}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+@media(prefers-reduced-transparency:reduce){.glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:#241e2e}body::before{filter:blur(16px) brightness(.3)}}
+@media(forced-colors:active){.glass,button,input,select,details,.list-group,.facts{border:1px solid CanvasText}.watch-toggle:checked,input[type=checkbox][role=switch]:checked{background:Highlight}}
 </style><script defer src="admin.js"></script></head><body>
-<h1>壁纸本机设置</h1><p>天气、套餐余量与硬件传感器。设置保存在当前 Windows 用户的加密配置中。</p>
-<div class="statusbar"><div id="status" role="status" aria-live="polite">正在连接本机桥接…</div><div id="unsaved" hidden></div></div>
-<section id="city-section" aria-labelledby="city-heading"><h2 id="city-heading">天气城市<span class="dirty-pill" data-dirty-for="city" hidden>未保存</span></h2><p id="current-city">默认：苏州 · 江苏</p><label for="city-query">搜索城市（可用中文或拼音）</label><div class="row"><input id="city-query" placeholder="例如 苏州 / Suzhou"><button id="search-city">搜索</button></div><label for="city-results">选择搜索结果</label><select id="city-results"><option value="">先搜索城市</option></select><button id="save-city">使用该城市</button><p>数据由 Open-Meteo 天气模型提供，每 15 分钟读取一次；断网保留上次数据。</p></section>
-<section id="cpamp-section" aria-labelledby="cpamp-heading"><h2 id="cpamp-heading">CPAMP 连接<span class="dirty-pill" data-dirty-for="cpamp" hidden>未保存</span></h2><label for="cpamp-url">面板地址</label><input id="cpamp-url" type="url" value="https://cpa.gdp.pw" autocomplete="off"><label for="management-key">管理凭据</label><input id="management-key" type="password" autocomplete="new-password" placeholder="首次连接时填写；留空保留已保存凭据"><p id="credential-status"></p><button id="save-cpamp">加密保存连接</button><button id="clear-cpamp">清除凭据</button><p class="hint">更换面板地址或重新填写凭据会取消全部关注账号，保存前会再次确认。</p></section>
-<section id="accounts-section" aria-labelledby="accounts-heading"><h2 id="accounts-heading">账号<span id="account-count" class="heading-note"></span><span class="dirty-pill" data-dirty-for="accounts" hidden>未保存</span></h2><p>勾选的账号显示在壁纸上，并按列表顺序排列，同时用于多账号卡片与单账号轮播。别名只影响壁纸显示；套餐名称来自最近的本机额度快照。</p><div class="account-toolbar"><input id="account-search" type="search" placeholder="搜索别名、平台、套餐或凭据文件" aria-label="搜索账号" autocomplete="off"><select id="account-provider" aria-label="按平台筛选"><option value="">全部平台</option></select><select id="account-watch" aria-label="按显示状态筛选"><option value="">全部账号</option><option value="watched">已关注</option><option value="unwatched">未关注</option></select></div><p id="account-filter-status" class="hint" hidden></p><ol id="account-list" class="account-list" aria-label="账号列表"></ol><p id="account-status" role="status" aria-live="polite"></p><button id="save-accounts" disabled>保存账号设置</button><button id="cancel-accounts" disabled>撤销更改</button><button id="discover-accounts">从 CPAMP 读取账号</button></section>
-<section id="refresh-section" aria-labelledby="refresh-heading"><h2 id="refresh-heading">用量自动刷新<span class="dirty-pill" data-dirty-for="refresh" hidden>未保存</span></h2><label class="row"><input id="quota-refresh-enabled" type="checkbox" checked>自动获取上游用量</label><label for="quota-refresh-minutes">刷新间隔（分钟）</label><input id="quota-refresh-minutes" type="number" min="1" max="10080" step="1" value="10" inputmode="numeric" aria-describedby="quota-refresh-help"><p id="quota-refresh-help">默认每 10 分钟一次，可设为 1–10080 分钟。桥接运行期间刷新关注账号；当前支持 Codex 与 Antigravity。请求失败时保留已有数据，等待下次刷新。</p><button id="save-quota-refresh">保存刷新设置</button><button id="refresh-quota-now">立即刷新用量</button><p id="quota-refresh-summary" role="status" aria-live="polite">正在读取刷新状态…</p><p id="quota-refresh-times"></p><div id="quota-refresh-failures"></div><details id="quota-refresh-details" hidden><summary id="quota-refresh-details-summary">各账号结果</summary><div id="quota-refresh-accounts"></div></details></section>
-<section id="sensors-section" aria-labelledby="sensors-heading"><h2 id="sensors-heading">硬件传感器<span class="dirty-pill" data-dirty-for="sensors" hidden>未保存</span></h2><p>默认读取 CPU 总负载、CPU Package、物理 GPU 核心和专用显存。物理内存显示使用率和容量。</p><button id="load-sensors">检测传感器</button><label for="gpu-id">显示的物理 GPU</label><select id="gpu-id"><option value="">自动选择</option></select><label for="cpu-temp">CPU 温度</label><select id="cpu-temp"><option value="">自动：CPU Package / Core Max</option></select><label for="gpu-temp">GPU 温度</label><select id="gpu-temp"><option value="">自动：GPU Core</option></select><button id="save-sensors" disabled>保存传感器选择</button><p id="sensor-hint" class="hint">先检测传感器，再选择要显示的 GPU 与温度来源。</p><details id="sensor-details" hidden><summary id="sensor-summary">原始传感器读数</summary><pre id="sensor-report"></pre></details></section>
-<section id="connection-section" aria-labelledby="connection-heading"><h2 id="connection-heading">壁纸连接</h2><p>展示票据用于读取壁纸数据和手动刷新用量。管理凭据不会提供给壁纸。</p><label for="ticket">展示票据</label><input id="ticket" readonly type="password"><button id="copy-ticket">复制票据</button><button id="toggle-ticket">显示 / 隐藏</button><p><a id="studio-link" href="/?studio">打开壁纸预览与外观设置</a></p><dl id="connection-facts" class="facts" aria-label="壁纸运行状态"></dl><button id="refresh">重新读取天气与快照</button><details id="advanced-diagnostics"><summary>高级诊断（原始数据）</summary><pre id="diagnostics"></pre></details></section>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-weather" viewBox="0 0 24 24"><circle cx="8.5" cy="8.5" r="3"/><path d="M8.5 2.5v1.3M2.5 8.5h1.3M4.3 4.3l.9.9M12.7 4.3l-.9.9"/><path d="M9 20h8.5a3.5 3.5 0 0 0 .3-7 5 5 0 0 0-9.4 1.6A2.75 2.75 0 0 0 9 20Z"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1.2-1.2"/></symbol>
+<symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c.6-3.4 3-5.3 6-5.3s5.4 1.9 6 5.3"/><path d="M15.5 4.9a3.2 3.2 0 0 1 0 6.2M17.6 14.1c1.9.7 3 2.3 3.4 5.4"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.2h-4.2"/></symbol>
+<symbol id="i-chip" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/><rect x="9.6" y="9.6" width="4.8" height="4.8" rx="1"/><path d="M9.5 3.2v3.3M14.5 3.2v3.3M9.5 17.5v3.3M14.5 17.5v3.3M3.2 9.5h3.3M3.2 14.5h3.3M17.5 9.5h3.3M17.5 14.5h3.3"/></symbol>
+<symbol id="i-display" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="16" rx="2.6"/><path d="M10 21.5h4M12 18.5v3"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="m6.5 14.5 5.5-5.5 5.5 5.5"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.4-4.4"/></symbol>
+<symbol id="i-open" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M18 14.5v3.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V8a1.5 1.5 0 0 1 1.5-1.5H10"/></symbol>
+</defs></svg>
+<div class="shell">
+<aside class="sidebar glass" aria-label="设置导航">
+<div class="brand"><img src="../favicon.svg" alt=""><div><strong>竖屏动态信息壁纸</strong><span id="bridge-state">正在连接本机桥接…</span></div></div>
+<nav class="nav" aria-label="设置分区">
+<a href="#city-section"><svg class="icon"><use href="#i-weather"/></svg><span>天气城市</span><i class="nav-dot" data-dirty-for="city" hidden></i></a>
+<a href="#cpamp-section"><svg class="icon"><use href="#i-link"/></svg><span>CPAMP 连接</span><i class="nav-dot" data-dirty-for="cpamp" hidden></i></a>
+<a href="#accounts-section"><svg class="icon"><use href="#i-people"/></svg><span>账号</span><i class="nav-dot" data-dirty-for="accounts" hidden></i></a>
+<a href="#refresh-section"><svg class="icon"><use href="#i-refresh"/></svg><span>用量自动刷新</span><i class="nav-dot" data-dirty-for="refresh" hidden></i></a>
+<a href="#sensors-section"><svg class="icon"><use href="#i-chip"/></svg><span>硬件传感器</span><i class="nav-dot" data-dirty-for="sensors" hidden></i></a>
+<a href="#connection-section"><svg class="icon"><use href="#i-display"/></svg><span>壁纸连接</span></a>
+</nav>
+<a class="sidebar-foot" href="/?studio"><span>壁纸预览与外观</span><svg class="icon"><use href="#i-open"/></svg></a>
+</aside>
+<main>
+<header class="page-head"><h1>本机设置</h1><p>天气、套餐余量与硬件传感器。设置保存在当前 Windows 用户的加密配置中。</p></header>
+<section id="city-section" class="panel glass" aria-labelledby="city-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="sky"><svg class="icon"><use href="#i-weather"/></svg></span><div class="panel-title"><h2 id="city-heading">天气城市<span class="dirty-pill" data-dirty-for="city" hidden>未保存</span></h2><p class="panel-sub" id="current-city">默认：苏州 · 江苏</p></div></div>
+<div class="field"><label for="city-query">搜索城市（可用中文、拼音或英文名）</label><div class="inline"><input id="city-query" type="search" placeholder="例如 苏州 / Suzhou" autocomplete="off" enterkeyhint="search"><button id="search-city">搜索</button></div></div>
+<div class="field"><label for="city-results">选择搜索结果</label><select id="city-results"><option value="">先搜索城市</option></select></div>
+<div class="actions"><button id="save-city" class="primary" disabled>使用该城市</button></div>
+<p class="hint">数据由 Open-Meteo 天气模型提供，每 15 分钟读取一次；断网保留上次数据。</p>
+</section>
+<section id="cpamp-section" class="panel glass" aria-labelledby="cpamp-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="indigo"><svg class="icon"><use href="#i-link"/></svg></span><div class="panel-title"><h2 id="cpamp-heading">CPAMP 连接<span class="dirty-pill" data-dirty-for="cpamp" hidden>未保存</span></h2><p class="panel-sub" id="credential-status"></p></div></div>
+<div class="field"><label for="cpamp-url">面板地址</label><input id="cpamp-url" type="url" value="https://cpa.gdp.pw" autocomplete="off" spellcheck="false"></div>
+<div class="field"><label for="management-key">管理凭据</label><input id="management-key" type="password" autocomplete="new-password" placeholder="首次连接时填写；留空保留已保存凭据"></div>
+<div class="actions"><button id="save-cpamp" class="primary" disabled>加密保存连接</button><button id="clear-cpamp" class="quiet danger">清除凭据</button></div>
+<p class="hint">更换面板地址或重新填写凭据会取消全部关注账号，保存前会再次确认。</p>
+</section>
+<section id="accounts-section" class="panel glass" aria-labelledby="accounts-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="violet"><svg class="icon"><use href="#i-people"/></svg></span><div class="panel-title"><h2 id="accounts-heading">账号<span id="account-count" class="heading-note"></span><span class="dirty-pill" data-dirty-for="accounts" hidden>未保存</span></h2><p class="panel-sub">勾选的账号显示在壁纸上，按列表顺序排列，同时用于多账号卡片与单账号轮播。别名只影响壁纸显示；套餐名称来自最近的本机额度快照。</p></div></div>
+<div class="account-toolbar"><div class="search-field"><svg class="icon"><use href="#i-search"/></svg><input id="account-search" type="search" placeholder="搜索别名、平台、套餐或凭据文件" aria-label="搜索账号" autocomplete="off"></div><select id="account-provider" aria-label="按平台筛选"><option value="">全部平台</option></select><select id="account-watch" aria-label="按显示状态筛选"><option value="">全部账号</option><option value="watched">已关注</option><option value="unwatched">未关注</option></select></div>
+<p id="account-filter-status" class="hint" hidden></p>
+<ol id="account-list" class="list-group" aria-label="账号列表"></ol>
+<p id="account-status" role="status" aria-live="polite"></p>
+<div class="actions"><button id="save-accounts" class="primary" disabled>保存账号设置</button><button id="cancel-accounts" class="quiet" disabled>撤销更改</button><button id="discover-accounts">从 CPAMP 读取账号</button></div>
+</section>
+<section id="refresh-section" class="panel glass" aria-labelledby="refresh-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="teal"><svg class="icon"><use href="#i-refresh"/></svg></span><div class="panel-title"><h2 id="refresh-heading">用量自动刷新<span class="dirty-pill" data-dirty-for="refresh" hidden>未保存</span></h2><p class="panel-sub">桥接运行期间刷新关注账号；当前支持 Codex 与 Antigravity。</p></div></div>
+<label class="switch-row" for="quota-refresh-enabled"><span>自动获取上游用量<small>请求失败时保留已有数据，等待下次刷新</small></span><input id="quota-refresh-enabled" type="checkbox" role="switch" checked></label>
+<div class="field"><label for="quota-refresh-minutes">刷新间隔（分钟）</label><input id="quota-refresh-minutes" type="number" min="1" max="10080" step="1" value="10" inputmode="numeric" aria-describedby="quota-refresh-help"></div>
+<p id="quota-refresh-help" class="hint">默认每 10 分钟一次，可设为 1–10080 分钟。</p>
+<div class="actions"><button id="save-quota-refresh" class="primary" disabled>保存刷新设置</button><button id="refresh-quota-now"><svg class="icon"><use href="#i-refresh"/></svg>立即刷新用量</button></div>
+<p id="quota-refresh-summary" role="status" aria-live="polite">正在读取刷新状态…</p><p id="quota-refresh-times" class="meta-line"></p>
+<div id="quota-refresh-failures"></div>
+<details id="quota-refresh-details" hidden><summary id="quota-refresh-details-summary">各账号结果</summary><div id="quota-refresh-accounts"></div></details>
+</section>
+<section id="sensors-section" class="panel glass" aria-labelledby="sensors-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="amber"><svg class="icon"><use href="#i-chip"/></svg></span><div class="panel-title"><h2 id="sensors-heading">硬件传感器<span class="dirty-pill" data-dirty-for="sensors" hidden>未保存</span></h2><p class="panel-sub">默认读取 CPU 总负载、CPU Package、物理 GPU 核心和专用显存；物理内存显示使用率和容量。</p></div></div>
+<div class="field"><label for="gpu-id">显示的物理 GPU</label><select id="gpu-id"><option value="">自动选择</option></select></div>
+<div class="field"><label for="cpu-temp">CPU 温度</label><select id="cpu-temp"><option value="">自动：CPU Package / Core Max</option></select></div>
+<div class="field"><label for="gpu-temp">GPU 温度</label><select id="gpu-temp"><option value="">自动：GPU Core</option></select></div>
+<div class="actions"><button id="save-sensors" class="primary" disabled>保存传感器选择</button><button id="load-sensors">检测传感器</button></div>
+<p id="sensor-hint" class="hint">先检测传感器，再选择要显示的 GPU 与温度来源。</p>
+<details id="sensor-details" hidden><summary id="sensor-summary">原始传感器读数</summary><pre id="sensor-report"></pre></details>
+</section>
+<section id="connection-section" class="panel glass" aria-labelledby="connection-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="rose"><svg class="icon"><use href="#i-display"/></svg></span><div class="panel-title"><h2 id="connection-heading">壁纸连接</h2><p class="panel-sub">展示票据用于读取壁纸数据和手动刷新用量。管理凭据不会提供给壁纸。</p></div></div>
+<div class="field"><label for="ticket">展示票据</label><div class="inline"><input id="ticket" readonly type="password" spellcheck="false"><button id="toggle-ticket" aria-pressed="false">显示</button><button id="copy-ticket">复制</button></div></div>
+<dl id="connection-facts" class="facts" aria-label="壁纸运行状态"></dl>
+<div class="actions"><button id="refresh">重新读取天气与快照</button><a id="studio-link" href="/?studio">打开壁纸预览与外观设置</a></div>
+<details id="advanced-diagnostics"><summary>高级诊断（原始数据）</summary><pre id="diagnostics"></pre></details>
+</section>
+<div class="dock glass" data-tone="busy"><span class="status-dot" aria-hidden="true"></span><div class="dock-text"><div id="status" role="status" aria-live="polite">正在连接本机桥接…</div><div id="unsaved" hidden></div></div></div>
+</main>
+</div>
 </body></html>

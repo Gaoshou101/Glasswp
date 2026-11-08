@@ -10,7 +10,17 @@ const sensorFields = { 'gpu-id': 'gpuId', 'cpu-temp': 'cpuTemperatureId', 'gpu-t
 const providerNames = { codex: 'Codex', antigravity: 'Antigravity', claude: 'Claude', kimi: 'Kimi', xai: 'xAI', devin: 'Devin', meta: 'Meta' };
 const providerName = provider => providerNames[provider] || provider || '未知平台';
 const trimUrl = value => String(value || '').trim().replace(/\/+$/, '');
-const status = message => { $('status').textContent = message; };
+// Tone drives the status dot: progress messages pulse, failures turn red, cancellations stay neutral.
+function status(message, tone = /^正在/.test(message) ? 'busy' : /^已取消/.test(message) ? 'info' : 'ok') {
+  $('status').textContent = message;
+  $('status').closest('.dock').dataset.tone = tone;
+}
+function bridgeState(state, text) { const node = $('bridge-state'); node.dataset.state = state; node.textContent = text; }
+const svgIcon = name => {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'), use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  svg.setAttribute('class', 'icon'); svg.setAttribute('aria-hidden', 'true'); use.setAttribute('href', '#i-' + name); svg.append(use);
+  return svg;
+};
 async function api(path, body = {}, retry = true) {
   const response = await fetch('/v1/setup/' + path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Wallpaper-Setup': '1', 'X-Wallpaper-Admin': session }, body: JSON.stringify(body), cache: 'no-store' });
   const result = await response.json().catch(() => ({}));
@@ -22,18 +32,23 @@ function action(id, fn) {
   $(id).addEventListener('click', async () => {
     if (busy.has(id)) return;
     busy.add(id); $(id).disabled = true;
-    try { await fn(); } catch (error) { status(error.message); }
+    try { await fn(); } catch (error) { status(error.message, 'error'); }
     finally { busy.delete(id); $(id).disabled = false; syncControls(); }
   });
 }
 function syncControls() {
   const set = (id, disabled) => { $(id).disabled = busy.has(id) || disabled; };
   const accountsChanged = accountsDirty();
+  // Save buttons are enabled only while their section differs from the saved configuration.
   set('refresh-quota-now', refreshBusy || !config?.managementConfigured || !config?.accounts.length);
+  set('save-city', !config || !cityDirty());
+  set('save-cpamp', !config || !cpampDirty());
+  set('clear-cpamp', !config?.managementConfigured);
+  set('save-quota-refresh', !config || !refreshDirty());
   set('save-accounts', accountsSaving || !accountsChanged);
   set('cancel-accounts', accountsSaving || !accountsChanged);
   set('discover-accounts', accountsSaving);
-  set('save-sensors', !sensorsLoaded);
+  set('save-sensors', !config || !sensorsDirty());
   updateDirty();
 }
 
@@ -61,14 +76,16 @@ function updateDirty() {
         if (index) box.append('、');
         const link = document.createElement('a'); link.href = '#' + key + '-section'; link.textContent = name; box.append(link);
       });
-      box.append('。离开或刷新页面前请先保存。');
+      const tail = document.createElement('span'); tail.className = 'unsaved-tail'; tail.textContent = '离开或刷新页面前请先保存。';
+      box.append('。', tail);
     }
   }
   return dirty.length > 0;
 }
 addEventListener('beforeunload', event => { if (updateDirty()) { event.preventDefault(); event.returnValue = ''; } });
-document.addEventListener('input', updateDirty);
-document.addEventListener('change', updateDirty);
+// Any edit can change both the unsaved marks and which save buttons are available.
+document.addEventListener('input', syncControls);
+document.addEventListener('change', syncControls);
 
 async function readConfig(reset = []) {
   // Keep other sections' drafts when one section saves and the configuration is read again.
@@ -168,8 +185,8 @@ function accountRow(id, visibleWatched) {
   main.append(alias, meta);
   const controls = document.createElement('div'); controls.className = 'order-controls';
   const at = visibleWatched.indexOf(id);
-  for (const [delta, symbol, label] of [[-1, '↑', '上移'], [1, '↓', '下移']]) {
-    const button = document.createElement('button'); button.type = 'button'; button.textContent = symbol; button.title = label;
+  for (const [delta, symbol, label] of [[-1, 'up', '上移'], [1, 'down', '下移']]) {
+    const button = document.createElement('button'); button.type = 'button'; button.append(svgIcon(symbol)); button.title = label;
     button.dataset.control = 'move' + delta; button.disabled = accountsSaving || !watched || !visibleWatched[at + delta];
     button.addEventListener('click', () => moveAccount(id, delta));
     controls.append(button);
@@ -301,7 +318,7 @@ action('save-quota-refresh', async () => {
 action('refresh-quota-now', async () => { const r = await api('quota-refresh'); renderRefresh(r.refresh); status(r.message); });
 action('search-city', async () => {
   status('正在搜索城市…'); cities = (await api('cities', { query: $('city-query').value })).cities;
-  $('city-results').replaceChildren(...cities.map((city, i) => new Option(city.name + ' (' + city.timezone + ')', String(i))));
+  $('city-results').replaceChildren(...cities.map((city, i) => new Option(city.name + ' (' + city.timezone + ')' + (city.id === config.city?.id ? ' · 当前' : ''), String(i))));
   if (!cities.length) $('city-results').append(new Option('未找到城市', ''));
   status(cities.length ? '请选择城市后保存' : '未找到城市，可尝试拼音或英文名');
 });
@@ -381,22 +398,53 @@ async function readDiagnostics() {
   diagnosticsReadAt = Date.now();
   try { const latest = await api('config/read'); config.diagnostics = latest.diagnostics; renderDiagnostics(); } catch { }
 }
-action('copy-ticket', async () => { await navigator.clipboard.writeText(config.readToken); status('展示票据已复制'); });
-action('toggle-ticket', async () => { $('ticket').type = $('ticket').type === 'password' ? 'text' : 'password'; });
+action('copy-ticket', async () => {
+  await navigator.clipboard.writeText(config.readToken); status('展示票据已复制');
+  $('copy-ticket').textContent = '已复制';
+  setTimeout(() => { $('copy-ticket').textContent = '复制'; }, 1600);
+});
+action('toggle-ticket', async () => {
+  const shown = $('ticket').type === 'password';
+  $('ticket').type = shown ? 'text' : 'password';
+  $('toggle-ticket').textContent = shown ? '隐藏' : '显示'; $('toggle-ticket').setAttribute('aria-pressed', String(shown));
+});
+$('city-query').addEventListener('keydown', event => { if (event.key === 'Enter' && !event.isComposing) { event.preventDefault(); $('search-city').click(); } });
+$('account-search').addEventListener('keydown', event => { if (event.key === 'Escape' && $('account-search').value) { event.preventDefault(); $('account-search').value = ''; renderAccounts(); } });
+// Highlight the section in view; the navigation also carries the unsaved dots.
+const navLinks = [...document.querySelectorAll('.nav a')];
+const spy = new IntersectionObserver(entries => {
+  for (const entry of entries) entry.target.dataset.visible = String(entry.isIntersecting);
+  const current = [...document.querySelectorAll('main section')].find(section => section.dataset.visible === 'true');
+  for (const link of navLinks) { if (current && link.hash === '#' + current.id) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current'); }
+}, { rootMargin: '-20% 0px -55% 0px' });
+for (const section of document.querySelectorAll('main section')) spy.observe(section);
+// Liquid glint: one rAF-throttled CSS variable update for the panel under the pointer.
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  let frame = 0, panel = null, x = 0, y = 0;
+  document.addEventListener('pointermove', event => {
+    panel = event.target.closest?.('.glass'); x = event.clientX; y = event.clientY;
+    if (!panel || frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0; const box = panel.getBoundingClientRect();
+      panel.style.setProperty('--glint-x', `${x - box.left}px`); panel.style.setProperty('--glint-y', `${y - box.top}px`);
+    });
+  }, { passive: true });
+}
 action('refresh', async () => { const r = await api('refresh'); await readConfig(); status(r.message); });
 (async () => {
   try {
     if (!['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname)) throw new Error('本机设置只能从桥接服务打开');
     session = (await api('session')).session; await readConfig(); status('已连接。设置会保存在本机。');
+    bridgeState('ok', '本机桥接已连接');
     diagnosticsReadAt = Date.now();
     let polling = false;
     setInterval(async () => {
       if (document.hidden || polling) return;
       polling = true;
-      try { renderRefresh(await api('quota-refresh/status')); } catch { $('quota-refresh-summary').textContent = '暂时无法读取刷新状态，请检查本机桥接'; }
+      try { renderRefresh(await api('quota-refresh/status')); bridgeState('ok', '本机桥接已连接'); } catch { $('quota-refresh-summary').textContent = '暂时无法读取刷新状态，请检查本机桥接'; bridgeState('error', '本机桥接暂时无响应'); }
       finally { polling = false; }
       if (Date.now() - plansReadAt >= 15000) void readAccountPlans();
       if (Date.now() - diagnosticsReadAt >= 15000) void readDiagnostics();
     }, 3000);
-  } catch (e) { status(e.message); }
+  } catch (e) { status(e.message, 'error'); bridgeState('error', '无法连接本机桥接'); }
 })();

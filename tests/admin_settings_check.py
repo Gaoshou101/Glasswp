@@ -59,6 +59,9 @@ def respond(route):
         route.fulfill(json=cfg)
     elif path == '/v1/setup/quota-refresh/status':
         route.fulfill(json=report)
+    elif path == '/v1/setup/cities':
+        route.fulfill(json={'cities': [dict(id='1', name='苏州 · 江苏', latitude=31.3, longitude=120.6, timezone='Asia/Shanghai'),
+                                       dict(id='2', name='宿州 · 安徽', latitude=33.6, longitude=116.9, timezone='Asia/Shanghai')]})
     elif path == '/v1/setup/sensors':
         route.fulfill(json={'sensors': sensors})
     elif path == '/v1/setup/accounts':
@@ -123,7 +126,10 @@ with sync_playwright() as p:
     assert row('a').get_by_role('button', name='上移 工作账号').is_disabled()
     assert row('c').get_by_role('button', name='下移 备用账号').is_disabled()
     assert page.locator('#save-accounts').is_disabled() and page.locator('#cancel-accounts').is_disabled()
-    assert not unsaved() and page.locator('.dirty-pill:visible').count() == 0 and not unload_blocked()
+    assert not unsaved() and page.locator('[data-dirty-for]:visible').count() == 0 and not unload_blocked()
+    for button in ('save-city', 'save-cpamp', 'save-accounts', 'save-quota-refresh', 'save-sensors'):
+        assert page.locator('#' + button).is_disabled(), button
+    assert page.locator('#clear-cpamp').is_enabled() and page.locator('#bridge-state').get_attribute('data-state') == 'ok'
     assert '/v1/setup/quota-refresh' not in calls and '/v1/setup/accounts' not in calls
     snapshot['quota']['accounts'][2]['plan'] = 'Google AI Pro'
     page.evaluate('readAccountPlans()')
@@ -174,7 +180,7 @@ with sync_playwright() as p:
     page.locator('#account-provider').select_option('')
     assert order() == ['b', 'a', 'c', 'd', 'e'] and page.locator('.order-position').all_text_contents()[:3] == ['1', '2', '3']
     assert page.locator('#save-accounts').is_enabled() and unsaved() == '未保存的更改：账号。离开或刷新页面前请先保存。'
-    assert page.locator('[data-dirty-for=accounts]').is_visible() and unload_blocked()
+    assert page.locator('.dirty-pill[data-dirty-for=accounts]').is_visible() and page.locator('.nav-dot[data-dirty-for=accounts]').is_visible() and unload_blocked()
     assert page.locator('#account-status').inner_text() == '有未保存的账号更改'
     page.locator('#cancel-accounts').click()
     assert order() == ['a', 'b', 'c', 'd', 'e'] and not saved and not unsaved() and not unload_blocked()
@@ -193,6 +199,7 @@ with sync_playwright() as p:
     state['save_failed'] = True
     page.locator('#save-accounts').click()
     wait_status('模拟保存失败')
+    assert page.locator('.dock').get_attribute('data-tone') == 'error'
     assert order() == ['b', 'c', 'd', 'a', 'e'] and page.locator('#save-accounts').is_enabled() and unload_blocked()
     state['save_failed'] = False
     page.locator('#save-accounts').click()
@@ -206,8 +213,9 @@ with sync_playwright() as p:
     row('c').get_by_role('button', name='上移 备用账号').click()
     page.locator('#quota-refresh-minutes').fill('20')
     assert unsaved() == '未保存的更改：账号、用量自动刷新。离开或刷新页面前请先保存。'
+    assert page.locator('#save-quota-refresh').is_enabled() and page.locator('.nav-dot[data-dirty-for=refresh]').is_visible()
     page.locator('#quota-refresh-minutes').fill('10')
-    assert '用量自动刷新' not in unsaved()
+    assert '用量自动刷新' not in unsaved() and page.locator('#save-quota-refresh').is_disabled() and page.locator('.nav-dot[data-dirty-for=refresh]').is_hidden()
     page.locator('#quota-refresh-minutes').fill('15')
     page.locator('#save-quota-refresh').click()
     wait_status('刷新设置已保存')
@@ -227,15 +235,15 @@ with sync_playwright() as p:
     page.locator('#save-cpamp').click()
     wait_status('已取消保存连接')
     assert dialogs[-1][0] == 'confirm' and '取消全部 3 个关注账号' in dialogs[-1][1] and len(saved) == writes
+    assert page.locator('.dock').get_attribute('data-tone') == 'info'
     page.locator('#cpamp-url').fill('https://example.test/')
-    assert not unsaved()
-    prompts = len(dialogs)
-    page.locator('#save-cpamp').click()
-    wait_status('已保存')
-    assert len(dialogs) == prompts and saved[-1] == {'cpampUrl': 'https://example.test/'}
+    assert not unsaved() and page.locator('#save-cpamp').is_disabled()
+    page.locator('#management-key').fill('fixture-key')
+    assert page.locator('#save-cpamp').is_enabled()
+    page.locator('#management-key').fill('')
     page.locator('#clear-cpamp').click()
     wait_status('已取消清除凭据')
-    assert '取消全部 3 个关注账号' in dialogs[-1][1] and len(saved) == writes + 1 and order() == ['b', 'c', 'd']
+    assert '取消全部 3 个关注账号' in dialogs[-1][1] and len(saved) == writes and order() == ['b', 'c', 'd']
     state['confirm'] = True
     results['credential_changes_confirm_before_dropping_accounts'] = True
 
@@ -244,7 +252,9 @@ with sync_playwright() as p:
     wait_status('传感器已检测')
     assert page.locator('#sensor-details').is_visible() and page.locator('#sensor-details').get_attribute('open') is None
     assert page.locator('#sensor-summary').inner_text() == '原始传感器读数（4 项）' and page.locator('#sensor-report').is_hidden()
+    assert page.locator('#save-sensors').is_disabled()
     page.locator('#cpu-temp').select_option('cpu/0/temperature/0')
+    assert page.locator('#save-sensors').is_enabled()
     assert unsaved() == '未保存的更改：硬件传感器。离开或刷新页面前请先保存。'
     page.locator('#save-sensors').click()
     wait_status('已保存')
@@ -272,6 +282,50 @@ with sync_playwright() as p:
     page.wait_for_timeout(3500)
     assert page.locator('#quota-refresh-details').get_attribute('open') is not None and page.locator('#quota-refresh-accounts .result-row').count() == 3
     results['readable_diagnostics_and_folded_refresh_results'] = True
+
+    panel = page.locator('#accounts-section')
+    style = panel.evaluate('''n => [getComputedStyle(n).backdropFilter, getComputedStyle(n).borderRadius,
+        getComputedStyle(document.body, '::before').backgroundImage, getComputedStyle(document.querySelector('.dock')).position]''')
+    assert 'blur(30px)' in style[0] and style[1] == '28px' and 'wallpaper-original.jpg' in style[2] and style[3] == 'sticky', style
+    assert context.request.get(BASE + '/assets/wallpaper-original.jpg').ok and page.locator('.icon-tile').count() == 6
+    assert page.evaluate("[...document.querySelectorAll('use')].every(u => document.querySelector(u.getAttribute('href')))")
+    cdp = context.new_cdp_session(page)
+    cdp.send('Emulation.setEmulatedMedia', {'features': [{'name': 'prefers-reduced-transparency', 'value': 'reduce'}]})
+    assert panel.evaluate('(n) => getComputedStyle(n).backdropFilter') == 'none'
+    cdp.send('Emulation.setEmulatedMedia', {'features': []})
+    assert 'blur' in panel.evaluate('(n) => getComputedStyle(n).backdropFilter')
+    panel.scroll_into_view_if_needed()
+    box = panel.bounding_box()
+    page.mouse.move(box['x'] + 160, box['y'] + 40)
+    page.wait_for_function("document.querySelector('#accounts-section').style.getPropertyValue('--glint-x') !== ''")
+    results['liquid_glass_materials_backdrop_glint_and_transparency_fallback'] = True
+
+    page.locator('.nav a[href="#sensors-section"]').click()
+    page.wait_for_function('document.querySelector(\'.nav a[href="#sensors-section"]\').getAttribute("aria-current") === "true"')
+    assert page.locator('.nav a[aria-current]').count() == 1
+    page.locator('#city-query').fill('su')
+    page.locator('#city-query').press('Enter')
+    page.wait_for_function("document.querySelectorAll('#city-results option').length === 2")
+    assert page.locator('#city-results option').all_text_contents() == ['苏州 · 江苏 (Asia/Shanghai) · 当前', '宿州 · 安徽 (Asia/Shanghai)']
+    assert page.locator('#save-city').is_disabled() and '天气城市' not in unsaved()
+    page.locator('#city-results').select_option('1')
+    assert page.locator('#save-city').is_enabled() and unsaved() == '未保存的更改：天气城市。离开或刷新页面前请先保存。'
+    page.locator('#city-results').select_option('0')
+    assert page.locator('#save-city').is_disabled() and not unsaved()
+    page.locator('#account-search').fill('备用')
+    assert order() == ['c']
+    page.locator('#account-search').press('Escape')
+    assert order() == ['b', 'c', 'd'] and page.locator('#account-search').input_value() == ''
+    page.locator('#toggle-ticket').click()
+    assert page.locator('#ticket').get_attribute('type') == 'text' and page.locator('#toggle-ticket').inner_text() == '隐藏'
+    assert page.locator('#toggle-ticket').get_attribute('aria-pressed') == 'true'
+    page.locator('#toggle-ticket').click()
+    assert page.locator('#ticket').get_attribute('type') == 'password' and page.locator('#toggle-ticket').get_attribute('aria-pressed') == 'false'
+    context.grant_permissions(['clipboard-read', 'clipboard-write'], origin=BASE)
+    page.locator('#copy-ticket').click()
+    page.wait_for_function("document.querySelector('#copy-ticket').textContent === '已复制'")
+    assert page.evaluate('navigator.clipboard.readText()') == 'fixture-only'
+    results['navigation_enter_search_escape_and_ticket_feedback'] = True
 
     cfg['accounts'][0]['alias'] = '很长的账号别名' * 10
     snapshot['quota']['accounts'][0]['plan'] = '<img src=x onerror=alert(1)> Enterprise ' * 4
@@ -304,9 +358,14 @@ with sync_playwright() as p:
     page.locator('#discover-accounts').click()
     page.wait_for_function("document.querySelectorAll('.account-row').length === 5")
     row('e').locator('[data-control=watch]').check()
+    page.wait_for_timeout(400)
     page.locator('#accounts-section').screenshot(path=str(OUT / 'admin-settings-accounts.png'))
-    page.screenshot(path=str(OUT / 'admin-settings-page.png'), full_page=True)
-    page.set_viewport_size({'width': 360, 'height': 900})
+    page.set_viewport_size({'width': 1440, 'height': 1000})
+    page.evaluate('scrollTo(0, 0)')
+    page.wait_for_timeout(400)
+    page.screenshot(path=str(OUT / 'admin-settings-page.png'))
+    page.set_viewport_size({'width': 390, 'height': 900})
+    page.wait_for_timeout(400)
     page.locator('#accounts-section').screenshot(path=str(OUT / 'admin-settings-accounts-mobile.png'))
     page.locator('#cancel-accounts').click()
     cfg['accounts'] = []
@@ -316,7 +375,7 @@ with sync_playwright() as p:
     assert page.locator('#save-accounts').is_disabled() and page.locator('#refresh-quota-now').is_disabled()
     cfg['managementConfigured'] = False
     page.reload(wait_until='networkidle')
-    assert page.locator('#account-status').inner_text() == '先保存 CPAMP 连接，再读取账号。'
+    assert page.locator('#account-status').inner_text() == '先保存 CPAMP 连接，再读取账号。' and page.locator('#clear-cpamp').is_disabled()
     assert not errors, errors
     results['empty_states_and_no_browser_errors'] = True
     browser.close()
