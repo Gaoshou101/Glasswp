@@ -82,8 +82,10 @@ static class ClaudeChecks
 
         using var parsed = JsonDocument.Parse(JsonSerializer.Serialize(new { items = new[] { new { row_key = "claude", windows } } }));
         var account = QuotaAdapter.Parse(parsed.RootElement, [new AccountSelection("claude", "Claude", "claude", "claude.json", "7", "")], observed)[0];
-        check(account.Plan == "Claude Max" && account.Windows.Select(w => w.Label).SequenceEqual(new[] { "5 小时窗口", "周窗口", "周窗口 · haiku beta", "周窗口 · claude-opus-4-1", "周窗口 · Opus", "额外用量" }),
+        check(account.Plan == "Claude Max" && account.Windows.Select(w => w.Label).SequenceEqual(new[] { "5 小时窗口", "周窗口", "周窗口 · Haiku Beta", "周窗口 · claude-opus-4-1", "周窗口 · Opus", "额外用量" }),
             "wallpaper rebuilds Claude labels from window IDs and model scope because CPAMP stores no label");
+        check(ClaudeQuotaAdapter.Label("weekly-scoped-fable", []) == "周窗口 · Fable" && ClaudeQuotaAdapter.Label("weekly-scoped-id-claude-opus-4-1", []) == "周窗口 · claude-opus-4-1",
+            "name-only Claude model windows regain an initial capital while model IDs stay exact");
         var extraWindow = account.Windows[^1];
         check(extraWindow.Mode == "non_window" && extraWindow.RemainingPercent == 75 && extraWindow.UsedValue == 12.5 && extraWindow.LimitValue == 50 && extraWindow.QuotaUnit == "USD" && !extraWindow.Stale,
             "extra usage reaches the wallpaper as a non-window balance with dollar amounts");

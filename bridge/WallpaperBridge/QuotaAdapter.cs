@@ -10,6 +10,27 @@ public static class QuotaAdapter
         if (scope.Length > 0 && scope is not ("all" or "codex_main")) label += " · " + (scope switch { "code_review" => "代码审查", "base_model_inference" => "基础模型", "gpt-5.3-codex-spark" => "Codex Spark", "imagegen" => "绘图", "imagegen_premium" => "绘图（Premium）", _ => scope.StartsWith("imagegen_", StringComparison.Ordinal) ? "绘图（" + scope[9..] + "）" : scope });
         return label;
     }
+    // Readable plan names for the wallpaper and settings page; CPAMP keeps the raw provider keys.
+    // Codex keys follow CPAMP v1.14.10 plans/providers/codex.ts. Unknown or already readable values pass through.
+    public static string PlanName(string provider, string plan) => provider switch
+    {
+        "claude" => ClaudeQuotaAdapter.PlanName(plan),
+        "codex" => plan.Trim().ToLowerInvariant() switch
+        {
+            "" => "",
+            "free" => "GPT Free", "go" => "GPT Go", "plus" => "GPT Plus",
+            "prolite" or "pro-lite" or "pro_lite" or "pro_5x" => "GPT Pro 5x", "pro" or "pro_20x" => "GPT Pro 20x",
+            "team" => "GPT Team", "business" => "GPT Business",
+            "self_serve_business_prolite" or "business_premium_5x" => "GPT Business 5x",
+            "self_serve_business_usage_based" or "business_usage_based" => "GPT Business PAYG",
+            "ent26" or "enterprise" or "hc" => "GPT Enterprise",
+            "enterprise_cbp_automation" or "enterprise_automation" => "GPT Ent. Auto",
+            "enterprise_cbp_usage_based" or "enterprise_usage_based" => "GPT Ent. PAYG",
+            "edu" or "education" => "GPT Edu", "edu_plus" => "GPT Edu Plus", "edu_pro" => "GPT Edu Pro",
+            _ => plan.Trim()
+        },
+        _ => plan
+    };
     public static JsonElement Unwrap(JsonElement root) => root.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object ? data : root;
     public static string Text(JsonElement node, string name, string fallback = "") => node.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? fallback : fallback;
     public static double? Number(JsonElement node, string name) => node.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Number && v.TryGetDouble(out var number) && double.IsFinite(number) ? number : null;
@@ -74,7 +95,7 @@ public static class QuotaAdapter
                 result.Add(new(Text(w, "provider_window_id", kind), label, remaining, Number(w, "used_value"), Number(w, "limit_value"), Text(w, "quota_unit"),
                     Timestamp(w, "cycle_end_ms"), duration is > 0 ? (long)duration : null, Text(w, "window_mode", "unknown"), Text(w, "boundary_accuracy", "unknown"), observed, stale));
             }
-            accounts.Add(new(target.Id, target.Alias, target.Provider, target.Provider == "claude" ? ClaudeQuotaAdapter.PlanName(plan) : plan, result.ToArray(), resetCredits));
+            accounts.Add(new(target.Id, target.Alias, target.Provider, PlanName(target.Provider, plan), result.ToArray(), resetCredits));
         }
         return accounts.ToArray();
     }

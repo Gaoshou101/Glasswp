@@ -33,7 +33,7 @@ public static class CachedHeaderAdapter
         DateTimeOffset? observed = DateTimeOffset.TryParse(QuotaAdapter.Text(quota, "observed_at"), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var at) ? at : null;
         // Header values belong to the historical response observation, never to fetch time.
         double? Value(string key) => double.TryParse(StringOrNumber(signals, key), NumberStyles.Float, CultureInfo.InvariantCulture, out var n) && double.IsFinite(n) ? n : null;
-        plan = QuotaAdapter.Text(signals, "X-Codex-Plan-Type");
+        plan = QuotaAdapter.PlanName("codex", QuotaAdapter.Text(signals, "X-Codex-Plan-Type"));
         var activeLimit = StringOrNumber(signals, "X-Codex-Active-Limit").Trim().ToLowerInvariant();
         var imageScope = activeLimit == "imagegen" || activeLimit.StartsWith("imagegen_", StringComparison.Ordinal) ? activeLimit : "";
         foreach (var name in new[] { "Primary", "Secondary" })

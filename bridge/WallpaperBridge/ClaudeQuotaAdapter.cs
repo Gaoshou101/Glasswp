@@ -255,7 +255,13 @@ public static class ClaudeQuotaAdapter
         if (!windowId.StartsWith("weekly-scoped-", StringComparison.Ordinal)) return null;
         var part = windowId["weekly-scoped-".Length..];
         string model;
-        try { model = modelIds.FirstOrDefault(m => m.Length > 0) ?? Uri.UnescapeDataString(part.StartsWith("id-", StringComparison.Ordinal) ? part[3..] : part); }
+        try
+        {
+            // Model IDs are shown as-is. A name-only window ID holds the lowercased display name,
+            // so restore an initial capital on each word ("fable" -> "Fable").
+            model = modelIds.FirstOrDefault(m => m.Length > 0) ?? (part.StartsWith("id-", StringComparison.Ordinal) ? Uri.UnescapeDataString(part[3..])
+                : string.Join(' ', Uri.UnescapeDataString(part).Split(' ').Select(word => word.Length == 0 ? word : char.ToUpperInvariant(word[0]) + word[1..])));
+        }
         catch (UriFormatException) { model = part; }
         return model.Length > 0 ? "周窗口 · " + model : "周窗口";
     }

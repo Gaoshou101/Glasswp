@@ -28,7 +28,7 @@
 
 `hardware`：`status`、`observedAt`、`message`，四个 `cpu/gpu/vram/ram`。每个设备含 `name`、`load/temperature`（`value/unit/source/sensorId`）、`usedBytes/totalBytes`。null 为未知，0 为真实零。容量统一为字节；UI 显示 GiB 数值（GB 标签）。RAM 为 Windows 可用物理内存口径。RAM 温度已取消采集和展示，兼容 v1 的 `ram.temperature.value` 始终为 null；传感器选择仅保留 GPU ID、CPU/GPU 温度。专用显存不含共享内存，不使用 WMI AdapterRAM。所用 LHM 0.9.6 的 GPU SmallData 字段为 MiB，转换为字节。
 
-`quota`：`status`、`fetchedAt`、`message`、`accounts`。账号仅返回用户别名、provider、plan 和展示窗口（Claude 的 plan 为 `Claude Pro`、`Claude Max` 等可读名称，CPAMP 中仍保存 `plan_max` 等原始键）；不返回物理凭据文件路径、账号身份字段、原始响应或管理凭据。
+`quota`：`status`、`fetchedAt`、`message`、`accounts`。账号仅返回用户别名、provider、plan 和展示窗口（plan 为本机显示用的可读名称：Codex 如 `GPT Plus`、`GPT Team`、`GPT Pro 20x`，Claude 如 `Claude Pro`、`Claude Max`；映射只在桥接读取时进行，CPAMP 中仍保存 `plus`、`team`、`plan_max` 等原始键，未知值原样显示）；不返回物理凭据文件路径、账号身份字段、原始响应或管理凭据。
 
 `accounts` 按加密配置中的关注账号顺序输出；管理页拖动或上移/下移并保存后，卡片、轮播及重启后的缓存展示遵循此顺序。调整顺序不重置用量刷新计划。
 

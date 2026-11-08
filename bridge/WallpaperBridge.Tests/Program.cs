@@ -27,13 +27,14 @@ var selected = new[] { new AccountSelection("row", "Codex", "codex", "local.json
 var now = DateTimeOffset.FromUnixTimeMilliseconds(100000000);
 using var doc = JsonDocument.Parse("""
 {"items":[{"row_key":"row","provider":"codex","windows":[
-{"provider_window_id":"a","used_percent":100,"duration_seconds":18000,"cycle_end_ms":100001000,"observed_at_ms":100000000,"window_mode":"fixed","boundary_accuracy":"exact"},
+{"provider_window_id":"a","used_percent":100,"duration_seconds":18000,"cycle_end_ms":100001000,"observed_at_ms":100000000,"window_mode":"fixed","boundary_accuracy":"exact","plan_type":"plus"},
 {"provider_window_id":"b","remaining_percent":null,"observed_at_ms":1,"window_mode":"rolling","boundary_accuracy":"estimated"},
 {"provider_window_id":"c","remaining_percent":130,"observed_at_ms":100000000,"field_sources":{"remaining_percent":{"observed_at_ms":1}}},
 {"provider_window_id":"d","remaining_percent":10,"availability":"inactive"}]}]}
 """);
 var result = QuotaAdapter.Parse(doc.RootElement, selected, now);
 Check(result.Length == 1 && result[0].Windows.Length == 3, "inactive windows excluded");
+Check(result[0].Plan == "GPT Plus", "Codex snapshot plan_type is shown as a GPT plan name");
 foreach (var unavailable in new[] { "pending_absent", "INACTIVE", "disabled", "removed", "missing" }) {
     using var absent = JsonDocument.Parse(JsonSerializer.Serialize(new { items = new[] { new { row_key = "row", windows = new[] { new { provider_window_id = "old", availability = unavailable, observed_at_ms = 100000000, stale = false, remaining_percent = 75 } } } } }));
     Check(QuotaAdapter.Parse(absent.RootElement, selected, now)[0].Windows.Length == 0, "fresh unavailable window excluded: " + unavailable);
@@ -135,6 +136,10 @@ var identity = CachedHeaderAdapter.Identity(cached.RootElement, selected[0]);
 Check(identity.AccountId == "workspace" && identity.AccountSnapshot == "member@example.test" && identity.AuthIndex == "7", "Codex member and workspace identity normalized");
 var header = CachedHeaderAdapter.ParseCodex(cached.RootElement, selected[0], DateTimeOffset.Parse("2026-10-10T01:00:00Z"));
 Check(header.Windows.Length == 1 && header.Windows[0].RemainingPercent == 85, "cached response header balance; zero-duration window excluded");
+Check(header.Plan == "GPT Team", "cached Codex header plan uses the readable GPT plan name");
+Check(new[] { ("plus", "GPT Plus"), ("TEAM", "GPT Team"), ("prolite", "GPT Pro 5x"), ("pro", "GPT Pro 20x"), ("self_serve_business_usage_based", "GPT Business PAYG"), ("edu_plus", "GPT Edu Plus"), ("GPT Plus", "GPT Plus"), ("future_tier", "future_tier"), ("", "") }
+    .All(pair => QuotaAdapter.PlanName("codex", pair.Item1) == pair.Item2) && QuotaAdapter.PlanName("antigravity", "Google AI Pro") == "Google AI Pro" && QuotaAdapter.PlanName("kimi", "plus") == "plus",
+    "Codex plan keys map to GPT plan names, stay idempotent and leave other providers unchanged");
 Check(header.Windows[0].ResetAt == DateTimeOffset.Parse("2026-10-10T00:02:00Z") && header.Windows[0].Accuracy == "derived" && header.Windows[0].Stale, "relative reset uses observation time, not fetch time");
 var scoped = header with { Windows = header.Windows.Select(w => w with { Label = "5 小时窗口 · model_scope" }).ToArray() };
 Check(CachedHeaderAdapter.Merge(scoped, header).Windows.Length == 1, "generic header does not invent duplicate model-scope quota");

@@ -33,7 +33,7 @@
 - 顶层 5 小时或 7 天窗口缺失时，回退到 `limits[]` 中未停用、无 `scope` 的 `session`（5 小时）与 `weekly`/`weekly_all`（7 天）项；多项时依次取较晚重置、信息更完整、`weekly_all`、更高用量。
 - `limits[]` 中 `weekly_scoped`、`weekly_model_scoped` 或分组为 `weekly` 的 `model_scoped` 项成为模型周额度，插在 `seven_day` 之后并按名称排序；与带模型 ID 项等价的纯名称重复项被合并。无模型 ID 的项按 CPAMP 规则写为不完整范围（`feature` / `scope_unknown`，周期与边界精度 `unknown`），不会被当作全账号额度。
 - 额外用量的金额单位为美分：写入 `used_value`/`limit_value`（美元）与 `quota_unit: USD`；无 `utilization` 时按 `used_credits / monthly_limit` 计算百分比。窗口类型 `billing`、模式 `non_window`，不参与「用尽至重置」判断。
-- CPAMP 不保存窗口标签，壁纸读取快照时按 `provider_window_id` 和 `model_ids` 重建标签；模型周额度显示模型 ID（CPAMP 网页显示的模型展示名不会写入快照）。
+- CPAMP 不保存窗口标签，壁纸读取快照时按 `provider_window_id` 和 `model_ids` 重建标签；模型周额度显示模型 ID（CPAMP 网页显示的模型展示名不会写入快照）。没有模型 ID 的窗口 ID 来自小写名称，显示时把每个单词首字母恢复为大写（`weekly-scoped-fable` → 「周窗口 · Fable」），写入 CPAMP 的窗口 ID 不变。
 
 ### 写回 CPAMP
 
@@ -84,4 +84,10 @@
 - WE 壁纸前端（`wallpaper.js`/`wallpaper.css`）本轮未改动，无需重装壁纸包。
 - 证据：`artifacts/validation/bridge-update.json`、`live-admin-drag-check.json`、`live-claude-read.json`。
 
-已知小问题：没有模型 ID 的模型周额度，其 ID 由小写名称生成，所以标签也是小写（如 `fable`）。
+## 本机显示映射（2026-11-08 追加）
+
+按用户要求，只改本机壁纸与管理页的显示，写入 CPAMP 的原始数据保持不变：
+
+- 只有名称、没有模型 ID 的模型周额度，标签恢复首字母大写：「周窗口 · fable」→「周窗口 · Fable」。
+- Codex 套餐按 CPAMP v1.14.10 `plans/providers/codex.ts` 的键映射为 GPT 套餐名：`free`→GPT Free、`go`→GPT Go、`plus`→GPT Plus、`prolite`/`pro_5x`→GPT Pro 5x、`pro`/`pro_20x`→GPT Pro 20x、`team`→GPT Team、`business`→GPT Business、Business 5x / PAYG、`enterprise`/`ent26`/`hc`→GPT Enterprise、Ent. Auto / Ent. PAYG、`edu`/`edu_plus`/`edu_pro`→GPT Edu / Edu Plus / Edu Pro；不区分大小写，未知值原样显示，已映射的名称再次映射不变。
+- 映射发生在桥接读取快照（`QuotaAdapter.Parse`）和本机响应头缓存（`CachedHeaderAdapter.ParseCodex`）时；刷新写回 CPAMP 的 `plan_type`（`plus`、`team`、`plan_max` 等）与窗口 ID 不变。Antigravity（Google AI Pro 等）不受影响。
