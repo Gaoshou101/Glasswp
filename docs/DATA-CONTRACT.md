@@ -28,9 +28,9 @@
 
 `hardware`：`status`、`observedAt`、`message`，四个 `cpu/gpu/vram/ram`。每个设备含 `name`、`load/temperature`（`value/unit/source/sensorId`）、`usedBytes/totalBytes`。null 为未知，0 为真实零。容量统一为字节；UI 显示 GiB 数值（GB 标签）。RAM 为 Windows 可用物理内存口径。RAM 温度已取消采集和展示，兼容 v1 的 `ram.temperature.value` 始终为 null；传感器选择仅保留 GPU ID、CPU/GPU 温度。专用显存不含共享内存，不使用 WMI AdapterRAM。所用 LHM 0.9.6 的 GPU SmallData 字段为 MiB，转换为字节。
 
-`quota`：`status`、`fetchedAt`、`message`、`accounts`。账号仅返回用户别名、provider、plan 和展示窗口；不返回物理凭据文件路径、账号身份字段、原始响应或管理凭据。
+`quota`：`status`、`fetchedAt`、`message`、`accounts`。账号仅返回用户别名、provider、plan 和展示窗口（Claude 的 plan 为 `Claude Pro`、`Claude Max` 等可读名称，CPAMP 中仍保存 `plan_max` 等原始键）；不返回物理凭据文件路径、账号身份字段、原始响应或管理凭据。
 
-`accounts` 按加密配置中的关注账号顺序输出；管理页上移/下移并保存后，卡片、轮播及重启后的缓存展示遵循此顺序。调整顺序不重置用量刷新计划。
+`accounts` 按加密配置中的关注账号顺序输出；管理页拖动或上移/下移并保存后，卡片、轮播及重启后的缓存展示遵循此顺序。调整顺序不重置用量刷新计划。
 
 每个 Codex 账号可选 `resetCredits:{available,observedAt,stale}`，表示上游确认的**当前可用重置次数**，不是历史重置次数或刷新次数。正常 Codex 用量刷新把 `rate_limit_reset_credits.available_count` 写入原配额快照；读取时采用 `reset_credits_available` 的独立字段时间，超过 15 分钟或证据冲突显示未知。真实 0 保留，不累加各窗口的重复次数；非 Codex 隐藏。旧缓存缺少该字段仍兼容。
 
