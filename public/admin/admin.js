@@ -2,7 +2,7 @@
 const $ = id => document.getElementById(id);
 let session = '', config = null, cities = [], refreshBusy = false, sensorsLoaded = false;
 // Account editor: config.accounts is the saved state; the draft keeps watch order and aliases until saved.
-let discovered = null, draftWatched = [], draftAlias = new Map(), accountsSaving = false, accountNotice = '';
+let discovered = null, draftWatched = [], draftAlias = new Map(), accountsSaving = false, accountNotice = '', drag = null;
 let accountPlans = new Map(), plansUnavailable = false, plansReadAt = 0, plansLoading = false, plansGeneration = 0;
 let diagnosticsReadAt = 0, unsavedKey = '';
 const busy = new Set();
@@ -167,6 +167,14 @@ function accountRow(id, visibleWatched) {
   const info = accountInfo(id), watched = draftWatched.includes(id), position = draftWatched.indexOf(id) + 1;
   const item = document.createElement('li'); item.className = 'account-row';
   Object.assign(item.dataset, { accountId: id, provider: info.provider, watched: String(watched) });
+  // Pointer-only grip; keyboard and screen reader users reorder with the move buttons.
+  const handle = document.createElement('span'); handle.className = 'drag-handle'; handle.append(svgIcon('grip'));
+  handle.setAttribute('aria-hidden', 'true'); handle.title = '拖动调整显示顺序';
+  handle.dataset.disabled = String(accountsSaving || !watched || visibleWatched.length < 2);
+  handle.addEventListener('pointerdown', event => startDrag(event, id, item));
+  handle.addEventListener('pointermove', event => { if (drag?.pointerId === event.pointerId) drag.y = event.clientY; });
+  handle.addEventListener('pointerup', event => { if (drag?.pointerId === event.pointerId) { drag.y = event.clientY; finishDrag(true); } });
+  for (const type of ['pointercancel', 'lostpointercapture']) handle.addEventListener(type, event => { if (drag?.pointerId === event.pointerId) finishDrag(false); });
   const check = document.createElement('input'); check.type = 'checkbox'; check.className = 'watch-toggle'; check.checked = watched; check.dataset.control = 'watch'; check.disabled = accountsSaving;
   check.addEventListener('change', () => toggleWatch(id, check.checked));
   const order = document.createElement('span'); order.className = 'order-position'; order.textContent = watched ? String(position) : '–';
@@ -191,11 +199,13 @@ function accountRow(id, visibleWatched) {
     button.addEventListener('click', () => moveAccount(id, delta));
     controls.append(button);
   }
-  item.append(check, order, main, controls); rowLabels(item, id);
+  item.append(handle, check, order, main, controls); rowLabels(item, id);
   return item;
 }
 function renderAccounts() {
   if (!config) return;
+  // Rebuilding the list detaches the dragged row, so an interrupted drag is cancelled first.
+  if (drag) finishDrag(false);
   const focus = captureFocus(), ids = accountIds();
   syncProviderOptions(ids);
   const visible = ids.filter(accountMatches), visibleWatched = visible.filter(id => draftWatched.includes(id));
@@ -206,7 +216,7 @@ function renderAccounts() {
     const hiddenWatched = draftWatched.length - visibleWatched.length;
     const clear = document.createElement('button'); clear.type = 'button'; clear.textContent = '清除筛选';
     clear.addEventListener('click', () => { $('account-search').value = ''; $('account-provider').value = ''; $('account-watch').value = ''; renderAccounts(); $('account-search').focus(); });
-    filter.replaceChildren(`显示 ${visible.length} / ${ids.length} 个账号` + (!visible.length ? '，没有匹配的账号' : hiddenWatched && visibleWatched.length ? '；上移和下移只在可见的已关注账号之间调整' : ''), clear);
+    filter.replaceChildren(`显示 ${visible.length} / ${ids.length} 个账号` + (!visible.length ? '，没有匹配的账号' : hiddenWatched && visibleWatched.length ? '；拖动和上移、下移只在可见的已关注账号之间调整' : ''), clear);
   }
   updateAccountPlans();
   renderAccountSummary();
@@ -234,6 +244,69 @@ function moveAccount(id, delta) {
   order.splice(delta < 0 ? target : target + 1, 0, id);
   draftWatched = order; accountNotice = ''; renderAccounts();
 }
+// Drag reordering: the grabbed row follows the pointer while the other visible watched rows open a slot.
+// Like moveAccount, a filtered drop lands next to its visible neighbour and hidden accounts keep their relative order.
+const dragEdge = 80;
+function startDrag(event, id, row) {
+  if (drag || accountsSaving || !event.isPrimary || event.button !== 0 || event.currentTarget.dataset.disabled === 'true') return;
+  const rows = [...$('account-list').querySelectorAll('.account-row[data-watched=true]')], from = rows.indexOf(row);
+  if (from < 0 || rows.length < 2) return;
+  event.preventDefault();
+  // Finish any drop animation before measuring, then use document coordinates so auto-scroll keeps the slots aligned.
+  for (const r of rows) r.classList.remove('settling');
+  const tops = rows.map(r => r.getBoundingClientRect().top + scrollY), heights = rows.map(r => r.getBoundingClientRect().height);
+  drag = { id, row, rows, from, to: from, tops, heights, pointerId: event.pointerId, handle: event.currentTarget, startY: event.clientY + scrollY, y: event.clientY, frame: 0 };
+  drag.handle.setPointerCapture(event.pointerId);
+  row.classList.add('dragging'); $('account-list').classList.add('sorting'); document.documentElement.classList.add('row-dragging');
+  drag.frame = requestAnimationFrame(dragFrame);
+}
+function dragLayout() {
+  const { rows, from, tops, heights } = drag, end = rows.length - 1;
+  // The slot follows the pointer itself; only the drawn row is kept inside the watched rows.
+  const moved = drag.y + scrollY - drag.startY, center = tops[from] + moved + heights[from] / 2;
+  const dy = Math.min(Math.max(moved, tops[0] - tops[from]), tops[end] + heights[end] - heights[from] - tops[from]);
+  drag.to = rows.filter((r, j) => j !== from && tops[j] + heights[j] / 2 < center).length;
+  rows.forEach((r, j) => {
+    // 	o counts the other rows above the drop slot; rows between the old and new slot make room.
+    const k = j < from ? j : j - 1, shift = j === from ? dy : j < from && k >= drag.to ? heights[from] : j > from && k < drag.to ? -heights[from] : 0;
+    r.style.transform = shift ? `translateY(${shift}px)` : '';
+  });
+}
+function dragFrame() {
+  if (!drag) return;
+  // Scroll while the pointer rests near the top or bottom of the window (the sticky dock sits at the bottom).
+  const edge = Math.max(-dragEdge, Math.min(dragEdge, drag.y < dragEdge ? drag.y - dragEdge : drag.y > innerHeight - dragEdge ? drag.y - innerHeight + dragEdge : 0));
+  if (edge) scrollBy(0, Math.round(edge / 5));
+  dragLayout();
+  drag.frame = requestAnimationFrame(dragFrame);
+}
+function settleRows(rows, fromTops) {
+  // Animate rows from where they were drawn to their new places; reduced motion disables the transition.
+  rows.forEach((r, i) => {
+    const delta = fromTops[i] - r.getBoundingClientRect().top;
+    r.classList.remove('settling'); r.style.transform = Math.abs(delta) >= 1 ? `translateY(${delta}px)` : '';
+  });
+  void $('account-list').offsetHeight;
+  for (const r of rows) { r.classList.add('settling'); r.style.transform = ''; setTimeout(() => r.classList.remove('settling'), 260); }
+}
+function finishDrag(commit) {
+  if (!drag) return;
+  if (commit) dragLayout();
+  const { id, row, rows, from, to, handle, pointerId } = drag;
+  cancelAnimationFrame(drag.frame);
+  drag = null;
+  if (handle.hasPointerCapture(pointerId)) handle.releasePointerCapture(pointerId);
+  const drawn = rows.map(r => r.getBoundingClientRect().top);
+  row.classList.remove('dragging'); $('account-list').classList.remove('sorting'); document.documentElement.classList.remove('row-dragging');
+  for (const r of rows) r.style.transform = '';
+  if (!commit || to === from || accountsSaving) { settleRows(rows, drawn); return; }
+  const others = rows.map(r => r.dataset.accountId).filter(other => other !== id), order = draftWatched.filter(other => other !== id);
+  order.splice(to > from ? order.indexOf(others[to - 1]) + 1 : order.indexOf(others[to]), 0, id);
+  draftWatched = order; accountNotice = ''; renderAccounts();
+  const moved = [...$('account-list').querySelectorAll('.account-row[data-watched=true]')];
+  settleRows(moved, moved.map(r => { const i = rows.findIndex(old => old.dataset.accountId === r.dataset.accountId); return i < 0 ? r.getBoundingClientRect().top : drawn[i]; }));
+}
+document.addEventListener('keydown', event => { if (drag && event.key === 'Escape') { event.preventDefault(); finishDrag(false); } });
 for (const id of ['account-search', 'account-provider', 'account-watch']) $(id).addEventListener(id === 'account-search' ? 'input' : 'change', renderAccounts);
 action('save-accounts', async () => {
   if (!accountsDirty() || accountsSaving) return;

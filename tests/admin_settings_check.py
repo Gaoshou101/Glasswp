@@ -189,6 +189,84 @@ with sync_playwright() as p:
     assert page.locator('#account-status').inner_text() == '已恢复保存的账号设置'
     results['filtered_reorder_keeps_hidden_order_focus_and_cancel'] = True
 
+    # Pointer drag uses the grip only and follows the move buttons' filtered semantics.
+    def press_grip(ident):
+        row(ident).locator('.drag-handle').scroll_into_view_if_needed()
+        box = row(ident).locator('.drag-handle').bounding_box()
+        x, y = box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
+        page.mouse.move(x, y)
+        page.mouse.down()
+        return x
+
+    def drag_to(ident, x, fraction, release=True):
+        box = row(ident).bounding_box()
+        page.mouse.move(x, box['y'] + box['height'] * fraction, steps=10)
+        if release:
+            page.mouse.up()
+            page.wait_for_timeout(300)
+
+    dragging = lambda: page.evaluate("document.documentElement.classList.contains('row-dragging') || !!document.querySelector('.account-row.dragging')")
+    assert row('d').locator('.drag-handle').evaluate('(n) => getComputedStyle(n).visibility') == 'hidden'
+    assert row('a').locator('.drag-handle').get_attribute('aria-hidden') == 'true' and row('a').locator('.drag-handle').get_attribute('data-disabled') == 'false'
+    assert row('a').locator('.drag-handle').evaluate('(n) => getComputedStyle(n).touchAction') == 'none'
+    x = press_grip('a')
+    assert dragging() and 'dragging' in row('a').get_attribute('class')
+    drag_to('b', x, 0.8, release=False)
+    page.wait_for_function("document.querySelector('.account-row[data-account-id=b]').style.transform.startsWith('translateY(-')")
+    # An element screenshot would scroll the page mid-drag; clip the viewport instead.
+    clip = page.locator('#account-list').bounding_box()
+    page.screenshot(path=str(OUT / 'admin-settings-accounts-dragging.png'), clip={'x': clip['x'] - 12, 'y': clip['y'] - 12, 'width': clip['width'] + 24, 'height': clip['height'] + 24})
+    page.keyboard.press('Escape')
+    page.mouse.up()
+    assert order() == ['a', 'b', 'c', 'd', 'e'] and not dragging() and not unsaved() and page.locator('#save-accounts').is_disabled()
+    page.wait_for_timeout(300)
+    assert all(not value for value in page.locator('.account-row').evaluate_all('(rows) => rows.map(r => r.style.transform)'))
+    x = press_grip('a')
+    drag_to('c', x, 0.85)
+    assert order() == ['b', 'c', 'a', 'd', 'e'] and page.locator('.order-position').all_text_contents()[:3] == ['1', '2', '3'] and not dragging()
+    assert unsaved() == '未保存的更改：账号。离开或刷新页面前请先保存。' and page.locator('#save-accounts').is_enabled()
+    assert page.locator('#account-status').inner_text() == '有未保存的账号更改' and page.locator('.dirty-pill[data-dirty-for=accounts]').is_visible()
+    x = press_grip('c')
+    drag_to('b', x, 0.1)
+    assert order() == ['c', 'b', 'a', 'd', 'e']
+    # Holding the pointer at the window edge scrolls the page while dragging.
+    page.evaluate("scrollTo(0, document.querySelector('#account-list').getBoundingClientRect().top + scrollY - 200)")
+    before = page.evaluate('scrollY')
+    box = row('a').locator('.drag-handle').bounding_box()
+    page.mouse.move(box['x'] + box['width'] / 2, box['y'] + box['height'] / 2)
+    page.mouse.down()
+    page.mouse.move(box['x'] + box['width'] / 2, 5, steps=12)
+    page.wait_for_timeout(400)
+    assert before > 0 and page.evaluate('scrollY') < before
+    page.mouse.up()
+    page.wait_for_timeout(300)
+    assert order() == ['a', 'c', 'b', 'd', 'e'], order()
+    page.locator('#cancel-accounts').click()
+    row('c').get_by_role('button', name='上移 备用账号').click()
+    page.locator('#account-provider').select_option('codex')
+    assert order() == ['a', 'b', 'd']
+    x = press_grip('a')
+    drag_to('b', x, 0.85)
+    assert order() == ['b', 'a', 'd']
+    page.locator('#account-provider').select_option('')
+    assert order() == ['c', 'b', 'a', 'd', 'e']
+    box = row('b').locator('.alias-input').bounding_box()
+    page.mouse.move(box['x'] + 20, box['y'] + box['height'] / 2)
+    page.mouse.down()
+    page.mouse.move(box['x'] + 20, box['y'] + 220, steps=6)
+    page.mouse.up()
+    assert order() == ['c', 'b', 'a', 'd', 'e'] and not dragging()
+    search.fill('工作')
+    assert order() == ['a'] and row('a').locator('.drag-handle').get_attribute('data-disabled') == 'true'
+    x = press_grip('a')
+    page.mouse.move(x, 900, steps=4)
+    page.mouse.up()
+    assert not dragging()
+    search.fill('')
+    page.locator('#cancel-accounts').click()
+    assert order() == ['a', 'b', 'c', 'd', 'e'] and not saved and not unsaved()
+    results['pointer_drag_reorder_filtered_escape_and_disabled'] = True
+
     row('d').locator('[data-control=watch]').check()
     assert row('d').locator('.order-position').inner_text() == '4' and row('d').locator('.order-plan').inner_text() == '保存后同步套餐'
     row('d').locator('.alias-input').fill('新账号')
@@ -339,7 +417,7 @@ with sync_playwright() as p:
         page.set_viewport_size({'width': width, 'height': 1000})
         assert page.locator('#account-list').evaluate('''list => {
             const bounds = list.getBoundingClientRect();
-            return [...list.querySelectorAll('.watch-toggle,.alias-input,.account-meta,.order-plan,.order-controls')].filter(n => n.getClientRects().length).every(n => {
+            return [...list.querySelectorAll('.drag-handle,.watch-toggle,.alias-input,.account-meta,.order-plan,.order-controls')].filter(n => n.getClientRects().length).every(n => {
                 const r = n.getBoundingClientRect(); return r.left >= bounds.left - 1 && r.right <= bounds.right + 1;
             });
         }'''), width

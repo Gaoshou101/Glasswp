@@ -114,6 +114,17 @@ input[type=checkbox][role=switch]:checked::after{transform:translateX(20px)}
 .list-group:empty{display:none}
 .account-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--hairline)}
 .account-row:first-child{border-top:0}
+.drag-handle{display:grid;place-items:center;width:22px;height:36px;margin-right:-4px;flex-shrink:0;border-radius:9px;color:var(--ink-3);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:color .2s,background .2s}
+.drag-handle .icon{width:18px;height:18px;stroke-width:2.4}
+.drag-handle:hover{color:var(--ink);background:rgba(255,255,255,.07)}
+.drag-handle[data-disabled=true]{cursor:default;opacity:.3;background:transparent;color:var(--ink-3)}
+.account-row[data-watched=false] .drag-handle{visibility:hidden}
+#account-list.sorting .account-row{transition:transform .2s var(--ease-out)}
+.account-row.dragging{position:relative;z-index:2;border-top-color:transparent;border-radius:16px;background:rgba(48,38,68,.97);box-shadow:0 0 0 10px rgba(48,38,68,.97),0 18px 44px rgba(6,3,14,.52)}
+#account-list.sorting .account-row.dragging{transition:none}
+.account-row.dragging .drag-handle{color:var(--ink);background:rgba(255,255,255,.1)}
+.account-row.settling{position:relative;z-index:1;transition:transform .2s var(--ease-out)}
+html.row-dragging,html.row-dragging *{cursor:grabbing!important;user-select:none!important;-webkit-user-select:none!important}
 .watch-toggle{appearance:none;-webkit-appearance:none;display:grid;place-content:center;width:24px;height:24px;margin:0;flex-shrink:0;border-radius:50%;border:1.5px solid rgba(255,255,255,.38);background:rgba(255,255,255,.04);cursor:pointer;transition:background .2s,border-color .2s,box-shadow .2s,transform .18s var(--ease)}
 .watch-toggle:checked{border-color:transparent;background:linear-gradient(180deg,#c9a5f5,#9064d6);box-shadow:inset 0 1px 1px rgba(255,255,255,.4),0 0 0 4px rgba(201,165,245,.14)}
 .watch-toggle::after{content:"";width:13px;height:13px;background:#fff;transform:scale(0);transition:transform .22s var(--ease);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat}
@@ -192,6 +203,7 @@ pre{white-space:pre-wrap;font:12px/1.7 "Cascadia Mono",Consolas,monospace;color:
   .search-field{grid-column:1/-1}
   .list-group{padding:0 10px}
   .account-row{gap:8px}
+  .drag-handle{width:18px;margin-right:-2px}
   .order-controls{gap:4px}
   .order-controls button{width:32px;height:32px}
   .facts{grid-template-columns:minmax(0,1fr)}
@@ -214,6 +226,7 @@ pre{white-space:pre-wrap;font:12px/1.7 "Cascadia Mono",Consolas,monospace;color:
 <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.2h-4.2"/></symbol>
 <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/><rect x="9.6" y="9.6" width="4.8" height="4.8" rx="1"/><path d="M9.5 3.2v3.3M14.5 3.2v3.3M9.5 17.5v3.3M14.5 17.5v3.3M3.2 9.5h3.3M3.2 14.5h3.3M17.5 9.5h3.3M17.5 14.5h3.3"/></symbol>
 <symbol id="i-display" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="16" rx="2.6"/><path d="M10 21.5h4M12 18.5v3"/></symbol>
+<symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r=".6"/><circle cx="15" cy="6" r=".6"/><circle cx="9" cy="12" r=".6"/><circle cx="15" cy="12" r=".6"/><circle cx="9" cy="18" r=".6"/><circle cx="15" cy="18" r=".6"/></symbol>
 <symbol id="i-up" viewBox="0 0 24 24"><path d="m6.5 14.5 5.5-5.5 5.5 5.5"/></symbol>
 <symbol id="i-down" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
 <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.4-4.4"/></symbol>
@@ -249,7 +262,7 @@ pre{white-space:pre-wrap;font:12px/1.7 "Cascadia Mono",Consolas,monospace;color:
 <p class="hint">更换面板地址或重新填写凭据会取消全部关注账号，保存前会再次确认。</p>
 </section>
 <section id="accounts-section" class="panel glass" aria-labelledby="accounts-heading">
-<div class="panel-head"><span class="icon-tile" data-tint="violet"><svg class="icon"><use href="#i-people"/></svg></span><div class="panel-title"><h2 id="accounts-heading">账号<span id="account-count" class="heading-note"></span><span class="dirty-pill" data-dirty-for="accounts" hidden>未保存</span></h2><p class="panel-sub">勾选的账号显示在壁纸上，按列表顺序排列，同时用于多账号卡片与单账号轮播。别名只影响壁纸显示；套餐名称来自最近的本机额度快照。</p></div></div>
+<div class="panel-head"><span class="icon-tile" data-tint="violet"><svg class="icon"><use href="#i-people"/></svg></span><div class="panel-title"><h2 id="accounts-heading">账号<span id="account-count" class="heading-note"></span><span class="dirty-pill" data-dirty-for="accounts" hidden>未保存</span></h2><p class="panel-sub">勾选的账号按列表顺序显示在壁纸上，可拖动左侧手柄或用上移、下移按钮调整，同时用于多账号卡片与单账号轮播。别名只影响壁纸显示；套餐名称来自最近的本机额度快照。</p></div></div>
 <div class="account-toolbar"><div class="search-field"><svg class="icon"><use href="#i-search"/></svg><input id="account-search" type="search" placeholder="搜索别名、平台、套餐或凭据文件" aria-label="搜索账号" autocomplete="off"></div><select id="account-provider" aria-label="按平台筛选"><option value="">全部平台</option></select><select id="account-watch" aria-label="按显示状态筛选"><option value="">全部账号</option><option value="watched">已关注</option><option value="unwatched">未关注</option></select></div>
 <p id="account-filter-status" class="hint" hidden></p>
 <ol id="account-list" class="list-group" aria-label="账号列表"></ol>
@@ -257,7 +270,7 @@ pre{white-space:pre-wrap;font:12px/1.7 "Cascadia Mono",Consolas,monospace;color:
 <div class="actions"><button id="save-accounts" class="primary" disabled>保存账号设置</button><button id="cancel-accounts" class="quiet" disabled>撤销更改</button><button id="discover-accounts">从 CPAMP 读取账号</button></div>
 </section>
 <section id="refresh-section" class="panel glass" aria-labelledby="refresh-heading">
-<div class="panel-head"><span class="icon-tile" data-tint="teal"><svg class="icon"><use href="#i-refresh"/></svg></span><div class="panel-title"><h2 id="refresh-heading">用量自动刷新<span class="dirty-pill" data-dirty-for="refresh" hidden>未保存</span></h2><p class="panel-sub">桥接运行期间刷新关注账号；当前支持 Codex 与 Antigravity。</p></div></div>
+<div class="panel-head"><span class="icon-tile" data-tint="teal"><svg class="icon"><use href="#i-refresh"/></svg></span><div class="panel-title"><h2 id="refresh-heading">用量自动刷新<span class="dirty-pill" data-dirty-for="refresh" hidden>未保存</span></h2><p class="panel-sub">桥接运行期间刷新关注账号；当前支持 Codex、Claude 与 Antigravity。</p></div></div>
 <label class="switch-row" for="quota-refresh-enabled"><span>自动获取上游用量<small>请求失败时保留已有数据，等待下次刷新</small></span><input id="quota-refresh-enabled" type="checkbox" role="switch" checked></label>
 <div class="field"><label for="quota-refresh-minutes">刷新间隔（分钟）</label><input id="quota-refresh-minutes" type="number" min="1" max="10080" step="1" value="10" inputmode="numeric" aria-describedby="quota-refresh-help"></div>
 <p id="quota-refresh-help" class="hint">默认每 10 分钟一次，可设为 1–10080 分钟。</p>
