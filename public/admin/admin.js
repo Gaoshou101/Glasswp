@@ -279,13 +279,15 @@ function updateAccountPlans() {
   // Update only metadata: background refreshes must preserve drafts and keyboard focus.
   for (const row of $('account-list').children) {
     const badge = row.querySelector('.order-plan'), id = row.dataset.accountId, plan = accountPlans.get(id);
-    badge.hidden = row.dataset.watched !== 'true';
-    if (badge.hidden) continue;
     const providerFallback = row.dataset.provider === 'antigravity' && (!plan || plan === 'antigravity');
-    const pending = !plan && !providerFallback && !config.accounts.some(a => a.id === id);
-    badge.textContent = providerFallback ? 'antigravity' : plan || (pending ? '保存后同步套餐' : plansUnavailable ? '套餐暂不可用' : '套餐待同步');
-    badge.dataset.state = providerFallback ? 'provider' : plan ? 'known' : plansUnavailable && !pending ? 'unavailable' : 'unknown';
-    badge.title = providerFallback ? '未获取到套餐信息，显示账号平台 antigravity；获取成功后自动更新。' : plan ? `套餐：${plan}${plansUnavailable ? '（暂时无法更新，保留上次读取结果）' : '（最近的本机额度快照）'}` : pending ? '新关注的账号保存后，下一次额度快照会带上套餐名称。' : plansUnavailable ? '暂时无法读取本机快照，将自动重试；仍可调整并保存账号设置。' : '暂无套餐信息；可在下方立即刷新用量，或等待自动刷新。';
+    // The wallpaper shows "antigravity" when no plan is known; here the provider chip already says so.
+    row.querySelector('.provider-badge').title = providerFallback && row.dataset.watched === 'true' ? '暂未获取到套餐信息；获取成功后在旁边显示套餐名称。' : '';
+    badge.hidden = row.dataset.watched !== 'true' || providerFallback;
+    if (badge.hidden) continue;
+    const pending = !plan && !config.accounts.some(a => a.id === id);
+    badge.textContent = plan || (pending ? '保存后同步套餐' : plansUnavailable ? '套餐暂不可用' : '套餐待同步');
+    badge.dataset.state = plan ? 'known' : plansUnavailable && !pending ? 'unavailable' : 'unknown';
+    badge.title = plan ? `套餐：${plan}${plansUnavailable ? '（暂时无法更新，保留上次读取结果）' : '（最近的本机额度快照）'}` : pending ? '新关注的账号保存后，下一次额度快照会带上套餐名称。' : plansUnavailable ? '暂时无法读取本机快照，将自动重试；仍可调整并保存账号设置。' : '暂无套餐信息；可在下方立即刷新用量，或等待自动刷新。';
   }
 }
 function resultRow(account) {

@@ -118,7 +118,8 @@ with sync_playwright() as p:
     wait_status = lambda text: page.wait_for_function('(text) => document.querySelector("#status").textContent === text', arg=text)
 
     assert order() == ['a', 'b', 'c']
-    assert page.locator('.order-plan').all_text_contents() == ['Team', 'Plus', 'antigravity']
+    assert page.locator('.order-plan:visible').all_text_contents() == ['Team', 'Plus']
+    assert row('c').locator('.order-plan').is_hidden() and '暂未获取到套餐信息' in row('c').locator('.provider-badge').get_attribute('title')
     assert page.locator('.provider-badge').all_text_contents() == ['Codex', 'Codex', 'Antigravity']
     assert page.locator('.order-position').all_text_contents() == ['1', '2', '3']
     assert page.locator('#account-count').inner_text() == '已关注 3 个账号'
@@ -133,10 +134,11 @@ with sync_playwright() as p:
     assert '/v1/setup/quota-refresh' not in calls and '/v1/setup/accounts' not in calls
     snapshot['quota']['accounts'][2]['plan'] = 'Google AI Pro'
     page.evaluate('readAccountPlans()')
-    assert row('c').locator('.order-plan').inner_text() == 'Google AI Pro'
+    assert row('c').locator('.order-plan').inner_text() == 'Google AI Pro' and row('c').locator('.order-plan').is_visible()
+    assert row('c').locator('.provider-badge').get_attribute('title') == ''
     snapshot['quota']['accounts'][2]['plan'] = ''
     page.evaluate('readAccountPlans()')
-    assert row('c').locator('.order-plan').inner_text() == 'antigravity'
+    assert row('c').locator('.order-plan').is_hidden() and row('c').locator('.provider-badge').inner_text() == 'Antigravity'
     results['unified_list_joins_plans_and_providers_by_id'] = True
 
     page.locator('#discover-accounts').click()
