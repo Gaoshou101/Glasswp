@@ -74,4 +74,14 @@
 
 ## 部署
 
-本轮只提交代码，未改动 `E:\WallpaperDashboard\current` 和私有配置。桥接与管理页一同随发布包安装：先 `scripts/build.ps1` 生成 `artifacts/staging`，再运行 `scripts/update-bridge.ps1`（一次 UAC 确认，安装后核对哈希与权限）。
+桥接与管理页一同随发布包安装：先 `scripts/build.ps1` 生成 `artifacts/staging`，再运行 `scripts/update-bridge.ps1`（一次 UAC 确认，安装后核对哈希与权限）。
+
+2026-11-08 20:02 经用户同意完成正式安装：
+
+- 干净构建 `20261108115756-c24fc579`（提交 `e8e4fcb`，`dirty=false`）替换 `20261108064802-3b4716a8`；回退副本在 `E:\WallpaperDashboard\backups\previous-92392b96d54b4b42984c7c262c078e18`。更新脚本完成健康检查、构建 ID 与私有配置一致性核对；桥接仍以管理员身份由计划任务运行。
+- 运行中的 `/admin/admin.js` 与 `/admin/index.html` 与发布清单哈希一致。只读浏览器验收（拦截全部写入接口，实际无拦截请求、无浏览器错误）：12 个关注账号均有可用手柄；Esc 取消后顺序不变，放下后前两项互换并标记未保存，撤销后恢复保存顺序；刷新说明已含 Claude。
+- 首次自动刷新 11/12 成功。Claude 账号「CC」写入 3 个窗口：5 小时（剩余 86%）、周窗口（剩余 55%），以及一个仅有名称、没有模型 ID 的模型周额度（显示「周窗口 · fable」，按不完整范围记录）；套餐显示 `Claude Max`。另一个失败账号是已有的 Codex 账号，其快照停在安装前一天（2026-11-07 19:45），与本次改动无关。
+- WE 壁纸前端（`wallpaper.js`/`wallpaper.css`）本轮未改动，无需重装壁纸包。
+- 证据：`artifacts/validation/bridge-update.json`、`live-admin-drag-check.json`、`live-claude-read.json`。
+
+已知小问题：没有模型 ID 的模型周额度，其 ID 由小写名称生成，所以标签也是小写（如 `fable`）。
