@@ -63,11 +63,18 @@ public static class QuotaAdapter
                 var label = WindowLabel(duration is > 0 ? (long)duration : null, kind, scope);
                 if (target.Provider == "antigravity" && scope is "claude_gpt" or "gemini")
                     label = (scope == "claude_gpt" ? "Claude/GPT" : Text(w, "provider_window_id").StartsWith("gemini-4-argon:", StringComparison.OrdinalIgnoreCase) ? "Gemini 4 Argon" : "Gemini") + " · " + (duration == 18000 ? "5 小时" : duration == 604800 ? "周额度" : duration == 86400 ? "日额度" : Text(w, "provider_window_id").EndsWith("-shared", StringComparison.Ordinal) ? "共享额度" : kind);
+                if (target.Provider == "claude")
+                {
+                    // CPAMP stores no window label. Rebuild it from the stable window ID and model scope.
+                    var models = w.TryGetProperty("model_ids", out var ids) && ids.ValueKind == JsonValueKind.Array
+                        ? ids.EnumerateArray().Where(id => id.ValueKind == JsonValueKind.String).Select(id => id.GetString()!.Trim()).ToArray() : [];
+                    label = ClaudeQuotaAdapter.Label(Text(w, "provider_window_id"), models) ?? label;
+                }
                 plan = Text(w, "plan_type", plan);
                 result.Add(new(Text(w, "provider_window_id", kind), label, remaining, Number(w, "used_value"), Number(w, "limit_value"), Text(w, "quota_unit"),
                     Timestamp(w, "cycle_end_ms"), duration is > 0 ? (long)duration : null, Text(w, "window_mode", "unknown"), Text(w, "boundary_accuracy", "unknown"), observed, stale));
             }
-            accounts.Add(new(target.Id, target.Alias, target.Provider, plan, result.ToArray(), resetCredits));
+            accounts.Add(new(target.Id, target.Alias, target.Provider, target.Provider == "claude" ? ClaudeQuotaAdapter.PlanName(plan) : plan, result.ToArray(), resetCredits));
         }
         return accounts.ToArray();
     }

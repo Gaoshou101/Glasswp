@@ -20,6 +20,9 @@ public sealed class UpstreamQuotaRefresher
     private string sourceKey;
     private QuotaRefreshState state;
     private bool queued;
+    // Claude plan metadata changes rarely. Only Tick reads or writes this cache.
+    private sealed record ClaudePlan(string? Plan, DateTimeOffset? ObservedAt, DateTimeOffset NextAttempt);
+    private readonly Dictionary<string, ClaudePlan> claudePlans = new(StringComparer.Ordinal);
 
     public UpstreamQuotaRefresher(PrivateStore store, HttpClient client, Func<DateTimeOffset>? clock = null)
     {
@@ -89,6 +92,7 @@ public sealed class UpstreamQuotaRefresher
                 }
             }
             var results = new List<RefreshAccountResult>();
+            foreach (var stale in claudePlans.Keys.Where(k => !k.StartsWith(key + "\n", StringComparison.Ordinal)).ToArray()) claudePlans.Remove(stale);
             try
             {
                 using var listRequest = Request(cfg, HttpMethod.Get, "/v0/management/auth-files");
@@ -101,7 +105,7 @@ public sealed class UpstreamQuotaRefresher
                     if (!Current(key, manual)) break;
                     token.ThrowIfCancellationRequested();
                     RefreshAccountResult result;
-                    if (selection.Provider is not ("codex" or "antigravity")) result = new(selection.Alias, "unsupported", "该平台暂不支持自动刷新；继续展示已有快照");
+                    if (selection.Provider is not ("codex" or "antigravity" or "claude")) result = new(selection.Alias, "unsupported", "该平台暂不支持自动刷新；继续展示已有快照");
                     else
                     {
                         try
@@ -116,6 +120,10 @@ public sealed class UpstreamQuotaRefresher
                                 var project = AntigravityQuotaAdapter.Project(file);
                                 account = account with { ProjectId = project };
                                 (windows, completeInventory) = await ReadAntigravity(cfg, account, project, token);
+                            } else if (account.Provider == "claude") {
+                                // A readable usage response is the whole current Claude inventory.
+                                windows = await ReadClaude(cfg, key, account, token);
+                                completeInventory = true;
                             } else windows = UpstreamQuotaAdapter.Windows(await ReadUsage(cfg, UpstreamQuotaAdapter.Request(account), token), clock());
                             if (!Current(key, manual)) break;
                             using var writeRequest = Request(cfg, HttpMethod.Post, "/v0/management/quota-snapshots", UpstreamQuotaAdapter.SnapshotWrite(account, windows, completeInventory));
@@ -198,6 +206,28 @@ public sealed class UpstreamQuotaRefresher
             catch (Exception e) when (e is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException) { last = e; }
         }
         throw last ?? new JsonException("No Antigravity response");
+    }
+    private async Task<Dictionary<string, object?>[]> ReadClaude(BridgeConfig cfg, string key, AccountSelection account, CancellationToken token)
+    {
+        var observed = clock();
+        // Read usage first: a failed or limited usage call does not spend a profile request.
+        var usage = await ReadUsage(cfg, ClaudeQuotaAdapter.Request(account, ClaudeQuotaAdapter.UsageUrl), token);
+        var identity = key + "\n" + account.Id + "\n" + account.AuthIndex;
+        claudePlans.TryGetValue(identity, out var cached);
+        var plan = cached?.ObservedAt is { } at && clock() - at < TimeSpan.FromDays(1) ? cached.Plan : null;
+        if (cached is null || clock() >= cached.NextAttempt)
+        {
+            // The plan is best effort: profile failures never hide a readable usage inventory.
+            try
+            {
+                plan = ClaudeQuotaAdapter.ParsePlan(await ReadUsage(cfg, ClaudeQuotaAdapter.Request(account, ClaudeQuotaAdapter.ProfileUrl), token));
+                claudePlans[identity] = new(plan, clock(), clock().AddHours(1));
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+            catch (Exception e) when (e is HttpRequestException or JsonException or TaskCanceledException or KeyNotFoundException or InvalidOperationException)
+            { claudePlans[identity] = new(plan, cached?.ObservedAt, clock().AddMinutes(10)); }
+        }
+        return ClaudeQuotaAdapter.Windows(usage, observed, plan);
     }
     private static string Failure(HttpRequestException e) => e.StatusCode switch
     {

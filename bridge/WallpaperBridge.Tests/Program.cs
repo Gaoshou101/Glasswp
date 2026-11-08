@@ -203,7 +203,7 @@ var refreshTemp = Path.Combine(Path.GetTempPath(), "wallpaper-refresh-test-" + G
 try
 {
     var refreshStore = new PrivateStore(refreshTemp);
-    var refreshSelections = new[] { new AccountSelection("row", "Healthy", "codex", "healthy.json", "old", ""), new AccountSelection("bad", "Limited", "codex", "limited.json", "old", ""), new AccountSelection("third", "After failure", "codex", "third.json", "old", ""), new AccountSelection("other", "Other provider", "claude", "other.json", "old", "") };
+    var refreshSelections = new[] { new AccountSelection("row", "Healthy", "codex", "healthy.json", "old", ""), new AccountSelection("bad", "Limited", "codex", "limited.json", "old", ""), new AccountSelection("third", "After failure", "codex", "third.json", "old", ""), new AccountSelection("other", "Other provider", "kimi", "other.json", "old", "") };
     refreshStore.Save(configured with { Accounts = refreshSelections });
     var clock = now;
     var calls = new List<string>();
@@ -388,6 +388,7 @@ Check(JsonSerializer.Deserialize<QuotaAccount>(legacyAccountDoc.RootElement, Pri
 await ResilienceChecks.Run(Check);
 await AntigravityChecks.Run(Check);
 await AntigravitySubscriptionChecks.Run(Check);
+await ClaudeChecks.Run(Check);
 Console.WriteLine($"{checks} bridge checks passed");
 
 sealed class StubHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler
