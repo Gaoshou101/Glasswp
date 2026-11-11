@@ -15,6 +15,7 @@ builder.Logging.ClearProviders();
 builder.WebHost.UseKestrel(o => { o.Listen(IPAddress.Loopback, port); o.Limits.MaxRequestBodySize = 64 * 1024; });
 builder.Services.AddSingleton(store);
 builder.Services.AddSingleton<DataHub>();
+builder.Services.AddSingleton<DisplayTimeSync>();
 builder.Services.AddSingleton<AccountActivityReader>();
 builder.Services.AddSingleton<DesktopInputGuard>();
 builder.Services.AddSingleton<DesktopWindowEvents>();
@@ -23,6 +24,8 @@ builder.Services.AddSingleton<HardwareSampler>();
 builder.Services.AddHostedService(p => p.GetRequiredService<HardwareSampler>());
 builder.Services.AddSingleton<RemoteSources>();
 builder.Services.AddHostedService(p => p.GetRequiredService<RemoteSources>());
+builder.Services.AddSingleton<AiQuotaSources>();
+builder.Services.AddHostedService(p => p.GetRequiredService<AiQuotaSources>());
 var app = builder.Build();
 var sessions = new System.Collections.Concurrent.ConcurrentDictionary<string, DateTimeOffset>();
 var candidates = new System.Collections.Concurrent.ConcurrentDictionary<string, AccountSelection>();
@@ -73,10 +76,13 @@ app.MapPost("/v1/desktop-input", async (DesktopInputPoint point, DesktopInputGua
     await Task.Delay(20, token);
     return Results.Json(new { allowed = input.Allows(point), available = input.Available });
 });
-app.MapGet("/v1/accounts/{id}/activity", async (string id, HttpRequest request, AccountActivityReader reader, CancellationToken token) => {
+app.MapGet("/v1/accounts/{id}/activity", async (string id, HttpRequest request, AccountActivityReader reader, DataHub hub, CancellationToken token) => {
     ActivityQuery query;
     try { query = ActivityQuery.Parse(request.Query); }
     catch (ArgumentException e) { return Results.BadRequest(new { message = e.Message }); }
+    if (hub.AiQuotaSnapshot().Accounts.Any(a => a.Id == id))
+        return Results.Json(new AccountActivity(id, "unsupported", null, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow,
+            null, null, null, null, null, [], false, "此账号来自独立 AI 来源，未接入 CPAMP 请求记录"));
     return await reader.Read(id, token, query) is { } data ? Results.Json(data) : Results.NotFound(new { message = "账号已不在关注列表中" });
 });
 app.MapPost("/v1/client", (ClientReport report) =>
@@ -86,14 +92,14 @@ app.MapPost("/v1/client", (ClientReport report) =>
     return Results.NoContent();
 });
 // A display ticket may request only this fixed refresh; setup and credentials stay admin-only.
-object WallpaperRefreshReport(RemoteSources remote, DataHub hub) => new {
-    canRefresh = !string.IsNullOrEmpty(store.Config.ManagementKey) && store.Config.Accounts.Length > 0,
-    refresh = remote.RefreshStatus(), snapshotFetchedAt = hub.Snapshot().Quota.FetchedAt
+object WallpaperRefreshReport(RemoteSources remote, AiQuotaSources ai, DataHub hub) => new {
+    canRefresh = (AiSourceSettings.UsesCpamp(store.Config) && !string.IsNullOrEmpty(store.Config.ManagementKey) && store.Config.Accounts.Length > 0) || store.Config.AiSources?.AnyEnabled == true,
+    refresh = AiSourceSettings.UsesCpamp(store.Config) ? remote.RefreshStatus() : ai.RefreshStatus(), snapshotFetchedAt = hub.Snapshot().Quota.FetchedAt
 };
-app.MapGet("/v1/quota-refresh/status", (RemoteSources remote, DataHub hub) => Results.Json(WallpaperRefreshReport(remote, hub)));
-app.MapPost("/v1/quota-refresh", (RemoteSources remote, DataHub hub) => {
-    remote.QueueQuotaRefresh();
-    return Results.Json(WallpaperRefreshReport(remote, hub));
+app.MapGet("/v1/quota-refresh/status", (RemoteSources remote, AiQuotaSources ai, DataHub hub) => Results.Json(WallpaperRefreshReport(remote, ai, hub)));
+app.MapPost("/v1/quota-refresh", (RemoteSources remote, AiQuotaSources ai, DataHub hub) => {
+    if (AiSourceSettings.UsesCpamp(store.Config)) remote.QueueQuotaRefresh(); else ai.Queue();
+    return Results.Json(WallpaperRefreshReport(remote, ai, hub));
 });
 app.MapPost("/v1/setup/session", (HttpContext c) =>
 {
@@ -105,11 +111,17 @@ app.MapPost("/v1/setup/session", (HttpContext c) =>
 });
 app.MapPost("/v1/setup/config/read", (RemoteSources remote, DesktopInputGuard input, DesktopWindowEvents windowEvents) => Results.Json(new {
     cpampUrl = store.Config.CpampUrl, managementConfigured = !string.IsNullOrEmpty(store.Config.ManagementKey),
+    aiSources = new { source = (store.Config.AiSources ?? new()).EffectiveSource, codexEnabled = store.Config.AiSources?.CodexEnabled ?? false, claudeEnabled = store.Config.AiSources?.ClaudeEnabled ?? false,
+        magpieEnabled = store.Config.AiSources?.MagpieEnabled ?? false, magpieUrl = store.Config.AiSources?.MagpieUrl ?? "http://127.0.0.1:3425", magpieKeyConfigured = !string.IsNullOrEmpty(store.Config.AiSources?.MagpieApiKey),
+        localOptions = (store.Config.AiSources ?? new()).Options("local"), magpieOptions = (store.Config.AiSources ?? new()).Options("magpie"),
+        cpaUrl = store.Config.AiSources?.CpaUrl ?? "", cpaKeyConfigured = !string.IsNullOrEmpty(store.Config.AiSources?.CpaKey), cpaApiVersion = store.Config.AiSources?.CpaApiVersion ?? "v0", cpaOptions = (store.Config.AiSources ?? new()).Options("cpa"),
+        sub2apiUrl = store.Config.AiSources?.Sub2apiUrl ?? "", sub2apiKeyConfigured = !string.IsNullOrEmpty(store.Config.AiSources?.Sub2apiKey), sub2apiOptions = (store.Config.AiSources ?? new()).Options("sub2api") },
     city = store.Config.City, accounts = store.Config.Accounts.Select(a => new { a.Id, a.Alias, a.Provider }), sensors = store.Config.Sensors,
+    clock = store.Config.Clock, appearance = (store.Config.Appearance ?? WallpaperAppearance.Default).Normalize(), weather = new { provider = (store.Config.Weather ?? new()).Provider, apiKeyConfigured = !string.IsNullOrEmpty(store.Config.Weather?.ApiKey), apiHost = store.Config.Weather?.ApiHost, cityCode = store.Config.Weather?.CityCode },
     quotaRefreshEnabled = store.Config.QuotaRefreshEnabled, quotaRefreshMinutes = store.Config.QuotaRefreshMinutes, quotaRefresh = remote.RefreshStatus(),
     bridgeUrl = $"http://127.0.0.1:{port}", readToken = store.ReadToken, diagnostics = new { lastClient, lastSnapshotRead, cacheFaults = store.CacheFaults, desktopInput = input.LastCheck, lastMinimize = windowEvents.LastMinimize, lastWindowDisappearance = windowEvents.LastWindowDisappearance }
 }));
-app.MapPost("/v1/setup/config", (SetupInput input, RemoteSources remote) =>
+app.MapPost("/v1/setup/config", (SetupInput input) =>
 {
     var cfg = store.Config;
     var urlChanged = input.CpampUrl is not null && input.CpampUrl.TrimEnd('/') != cfg.CpampUrl.TrimEnd('/');
@@ -121,9 +133,11 @@ app.MapPost("/v1/setup/config", (SetupInput input, RemoteSources remote) =>
     }).ToArray() ?? (sourceChanged ? [] : cfg.Accounts);
     store.Save(cfg with { CpampUrl = input.CpampUrl?.Trim().TrimEnd('/') ?? cfg.CpampUrl, ManagementKey = input.ClearManagementKey ? null : input.ManagementKey?.Trim() ?? (urlChanged ? null : cfg.ManagementKey),
         City = input.City ?? cfg.City, Accounts = selected, Sensors = input.Sensors ?? cfg.Sensors,
-        QuotaRefreshEnabled = input.QuotaRefreshEnabled ?? cfg.QuotaRefreshEnabled, QuotaRefreshMinutes = input.QuotaRefreshMinutes ?? cfg.QuotaRefreshMinutes });
+        QuotaRefreshEnabled = input.QuotaRefreshEnabled ?? cfg.QuotaRefreshEnabled, QuotaRefreshMinutes = input.QuotaRefreshMinutes ?? cfg.QuotaRefreshMinutes,
+        Clock = input.Clock ?? cfg.Clock, Weather = input.Weather?.Apply(cfg.Weather) ?? cfg.Weather,
+        AiSources = input.AiSources?.Apply(cfg.AiSources) ?? cfg.AiSources, Appearance = input.Appearance?.Normalize() ?? cfg.Appearance });
     if (sourceChanged) candidates.Clear();
-    remote.RefreshCachedSources();
+    // Source revisions queue their own refresh. Display-only edits need no upstream request.
     return Results.Json(new { message = "已加密保存；数据将在数秒内更新" });
 });
 app.MapPost("/v1/setup/accounts", async (RemoteSources remote, CancellationToken ct) =>
@@ -133,6 +147,10 @@ app.MapPost("/v1/setup/accounts", async (RemoteSources remote, CancellationToken
     return Results.Json(new { accounts = accounts.Select(a => new { a.Id, a.Alias, a.Provider, label = a.AuthFile, selected = store.Config.Accounts.Any(s => s.Id == a.Id) }) });
 });
 app.MapPost("/v1/setup/cities", async (CityQuery query, RemoteSources remote, CancellationToken ct) => Results.Json(new { cities = await remote.SearchCities(query.Query, ct) }));
+app.MapPost("/v1/setup/ai-sources/status", (DataHub hub) => Results.Json(hub.AiQuotaSnapshot()));
+app.MapPost("/v1/setup/ai-sources/refresh-status", (AiQuotaSources ai) => Results.Json(ai.RefreshStatus()));
+app.MapPost("/v1/setup/ai-sources/refresh", (AiQuotaSources ai) => { ai.Queue(); return Results.Json(new { message = "已请求读取 AI 来源；同一来源最短间隔 60 秒" }); });
+app.MapPost("/v1/setup/time/sync", async (DisplayTimeSync sync, CancellationToken ct) => Results.Json(await sync.Measure(ct)));
 app.MapPost("/v1/setup/sensors", (HardwareSampler sampler) => Results.Json(new { sensors = sampler.Inventory }));
 app.MapPost("/v1/setup/refresh", (RemoteSources remote) => { remote.RefreshCachedSources(); return Results.Json(new { message = "正在重新读取缓存与天气；未触发 Provider 刷新" }); });
 app.MapPost("/v1/setup/quota-refresh/status", (RemoteSources remote) => Results.Json(remote.RefreshStatus()));
@@ -158,7 +176,7 @@ if (Option("--probe") is { } probePath)
 }
 await app.RunAsync();
 
-public sealed record SetupInput(string? CpampUrl = null, string? ManagementKey = null, bool ClearManagementKey = false, City? City = null, SelectionInput[]? Accounts = null, SensorSelection? Sensors = null, bool? QuotaRefreshEnabled = null, int? QuotaRefreshMinutes = null);
+public sealed record SetupInput(string? CpampUrl = null, string? ManagementKey = null, bool ClearManagementKey = false, City? City = null, SelectionInput[]? Accounts = null, SensorSelection? Sensors = null, bool? QuotaRefreshEnabled = null, int? QuotaRefreshMinutes = null, ClockSettings? Clock = null, WeatherSettingsInput? Weather = null, AiSourceSettingsInput? AiSources = null, WallpaperAppearance? Appearance = null);
 public sealed record SelectionInput(string Id, string Alias);
 public sealed record CityQuery(string Query);
 public sealed record ClientReport(bool WallpaperEngine, int Width, int Height, double Fps, bool Paused, Dictionary<string, double[]>? Materials = null, string? BuildId = null);

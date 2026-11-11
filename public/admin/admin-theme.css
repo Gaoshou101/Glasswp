@@ -1,0 +1,19 @@
+/* Theme controls are kept outside the legacy admin stylesheet so future wallpaper
+   presets can change tokens without editing the settings page markup. */
+.appearance-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;margin-top:16px}
+.appearance-grid .field{margin-top:0}
+.appearance-grid input[type=color]{width:54px;height:42px;padding:4px;vertical-align:middle;cursor:pointer}
+.color-value{display:inline-block;margin-left:10px;font:12px/1.2 "Cascadia Mono",Consolas,monospace;color:var(--ink-3);vertical-align:middle;text-transform:uppercase}
+.appearance-preview{display:flex;align-items:center;gap:12px;margin-top:18px;padding:12px 14px;border:1px solid var(--hairline);border-radius:16px;background:var(--well)}
+.appearance-swatch{display:block;width:36px;height:36px;flex:none;border-radius:11px;background:var(--accent);box-shadow:0 0 18px rgba(var(--accent-rgb),.45),inset 0 1px rgba(255,255,255,.55)}
+.appearance-preview strong,.appearance-preview small{display:block}.appearance-preview strong{font-size:14px}.appearance-preview small{margin-top:2px;color:var(--ink-3);font-size:12px}
+body::before{background-image:var(--admin-background, url(../assets/wallpaper-original.jpg))!important}
+html[data-admin-theme=light]{--ink:#19202a;--ink-2:#3c4654;--ink-3:#697586;--hairline:rgba(24,40,56,.16);--hairline-strong:rgba(24,40,56,.28);--field:rgba(255,255,255,.7);--field-hover:rgba(255,255,255,.95);--fill:rgba(31,91,117,.09);--well:rgba(255,255,255,.48);--page-bg:#edf4f5;color-scheme:light;background:var(--page-bg);color:var(--ink)}
+html[data-admin-theme=light] body::before{filter:blur(9px) saturate(1.08) brightness(1.1);opacity:.44}
+html[data-admin-theme=light] body::after{background:linear-gradient(180deg,rgba(241,248,249,.52),rgba(233,241,243,.78))}
+html[data-admin-theme=light] .glass{background:linear-gradient(155deg,rgba(255,255,255,.74),rgba(255,255,255,.36)),rgba(244,249,250,.63);border-color:rgba(27,65,83,.18);box-shadow:inset 0 1px 2px rgba(255,255,255,.94),0 22px 60px rgba(30,75,92,.14),0 2px 6px rgba(30,75,92,.1)}
+html[data-admin-theme=light] .glass::after{opacity:.34}html[data-admin-theme=light] a{color:var(--accent)}
+html[data-admin-theme=light] .dock[data-tone=error] #status{color:#a53b3b}
+html[data-admin-theme=light] .nav a[aria-current]{background:rgba(24,91,117,.13);box-shadow:inset 0 1px 0 rgba(255,255,255,.72)}
+html[data-admin-theme=light] input::placeholder,html[data-admin-theme=light] textarea::placeholder{color:rgba(42,57,70,.42)}
+@media(max-width:540px){.appearance-grid{grid-template-columns:1fr}.appearance-preview{align-items:flex-start}}

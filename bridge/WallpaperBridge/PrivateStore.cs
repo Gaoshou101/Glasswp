@@ -50,6 +50,10 @@ public sealed class PrivateStore
         if (value.Accounts.Length > 100 || value.Accounts.Any(a => a.Alias.Length > 60 || a.Id.Length > 128)) throw new ArgumentException("账号配置超出范围");
         if (value.QuotaRefreshMinutes is < 1 or > 10080) throw new ArgumentException("用量刷新间隔需为 1–10080 分钟");
         if (value.ManagementKey?.Length > 4096) throw new ArgumentException("凭据长度无效");
+        if (value.Clock is { } clock) ClockSettings.Validate(clock);
+        if (value.Appearance is { } appearance && appearance != appearance.Normalize()) throw new ArgumentException("壁纸主题无效");
+        WeatherProviders.ValidateSettings(value.Weather ?? new());
+        AiSourceSettings.Validate(value.AiSources ?? new());
     }
     public T? Read<T>(string name)
     {

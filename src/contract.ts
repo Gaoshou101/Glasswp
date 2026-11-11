@@ -11,6 +11,7 @@ export interface QuotaWindow {
   id: string; label: string; remainingPercent: number | null; usedValue: number | null;
   limitValue: number | null; quotaUnit: string; resetAt: string | null; durationSeconds: number | null;
   mode: string; accuracy: string; observedAt: string | null; stale: boolean;
+  remainingValue?: number | null; displayText?: string | null;
 }
 export interface ResetCreditData { available: number | null; observedAt: string | null; stale: boolean }
 export interface QuotaAccount { id: string; alias: string; provider: string; plan: string; windows: QuotaWindow[]; resetCredits?: ResetCreditData | null }
@@ -21,7 +22,8 @@ export interface WeatherHour { time: string; temperature: number | null; precipi
 export interface WeatherData {
   status: DataStatus; fetchedAt: string | null; observedAt: string | null; city: string; temperature: number | null;
   low: number | null; high: number | null; code: number | null; isDay: boolean; message: string;
-  hourly?: WeatherHour[] | null; timezone?: string | null;
+  hourly?: WeatherHour[] | null; timezone?: string | null; provider?: string | null;
 }
-export interface Snapshot { schemaVersion: 1; generatedAt: string; hardware: HardwareData; quota: QuotaData; weather: WeatherData; revisions?: { epoch: string; hardware: number; quota: number; weather: number } }
+export interface ClockConfig { timezone: string; offsetSeconds: number; seconds: boolean; hour12: boolean; worldZones: string[] }
+export interface Snapshot { schemaVersion: 1; generatedAt: string; hardware: HardwareData; quota: QuotaData; weather: WeatherData; clock?: ClockConfig | null; appearance?: { preset: 'original' | 'neon' | 'pool'; accent: string; surface: 'dark' | 'light'; background: string } | null; revisions?: { epoch: string; hardware: number; quota: number; weather: number } }
 export interface City { id: string; name: string; latitude: number; longitude: number; timezone: string }

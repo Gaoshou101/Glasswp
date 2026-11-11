@@ -1,11 +1,14 @@
+import { defaultWorldZones, validTimezone, normalizeWorldZones } from './clock-format';
+import type { ClockConfig } from './contract';
+import type { Theme } from '../public/theme.js';
 export type Group = 'top' | 'quota' | 'hardware';
 export interface Material { transparency: number; blur: number; edge: number }
 export interface Widget { enabled: boolean; scale: number; x: number; y: number }
 export interface Settings {
   version: 2; material: Record<Group, Material>; widgets: Record<Group, Widget>; bridgeUrl: string;
-  readToken: string; timezone: string; seconds: boolean; hour12: boolean; motion: boolean; trends: boolean;
+  readToken: string; timezone: string; seconds: boolean; hour12: boolean; offsetSeconds: number; worldZones: string[]; motion: boolean; trends: boolean;
   rotateSeconds: number; quotaLayout: 'carousel' | 'cards'; ignoreCodexBaseWeekly: boolean; ignoreCodexImageQuota: boolean; safeBottom: number; resolution: string;
-  materialMode: 'liquid' | 'frosted';
+  materialMode: 'liquid' | 'frosted'; theme: Theme;
 }
 export const groups: Group[] = ['top', 'quota', 'hardware'];
 export const defaultMaterial: Material = { transparency: 75, blur: 34, edge: 50 };
@@ -13,8 +16,8 @@ export const clamp = (value: unknown, min: number, max: number, fallback: number
 export function defaults(): Settings {
   return { version: 2, material: Object.fromEntries(groups.map(g => [g, { ...defaultMaterial }])) as Settings['material'],
     widgets: Object.fromEntries(groups.map(g => [g, { enabled: true, scale: 1, x: 0, y: 0 }])) as Settings['widgets'],
-    bridgeUrl: 'http://127.0.0.1:17632', readToken: '', timezone: 'Asia/Shanghai', seconds: false, hour12: false,
-    motion: true, trends: true, rotateSeconds: 0, quotaLayout: 'cards', ignoreCodexBaseWeekly: false, ignoreCodexImageQuota: false, safeBottom: 3.9, resolution: '1600x2560', materialMode: 'liquid' };
+    bridgeUrl: 'http://127.0.0.1:17632', readToken: '', timezone: 'Asia/Shanghai', seconds: false, hour12: false, offsetSeconds: 0, worldZones: [...defaultWorldZones],
+    motion: true, trends: true, rotateSeconds: 0, quotaLayout: 'cards', ignoreCodexBaseWeekly: false, ignoreCodexImageQuota: false, safeBottom: 3.9, resolution: '1600x2560', materialMode: 'liquid', theme: { preset: 'original', accent: '#dcc6ff', surface: 'dark', background: 'assets/wallpaper-original.jpg' } };
 }
 export function loopbackUrl(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -34,7 +37,9 @@ export function loadSettings(): Settings {
     if (saved) {
       settings.bridgeUrl = loopbackUrl(saved.bridgeUrl) || settings.bridgeUrl;
       settings.readToken = typeof saved.readToken === 'string' ? saved.readToken.slice(0, 128) : '';
-      try { new Intl.DateTimeFormat('zh-CN', { timeZone: saved.timezone }); settings.timezone = saved.timezone || settings.timezone; } catch { /* Keep default timezone. */ }
+      if (validTimezone(saved.timezone)) settings.timezone = saved.timezone.trim();
+      settings.offsetSeconds = clamp(saved.offsetSeconds, -86400, 86400, 0);
+      settings.worldZones = normalizeWorldZones(saved.worldZones);
       for (const key of ['seconds', 'hour12', 'motion', 'trends', 'ignoreCodexBaseWeekly', 'ignoreCodexImageQuota'] as const) if (typeof saved[key] === 'boolean') settings[key] = saved[key];
       settings.rotateSeconds = saved.version === 2 ? clamp(saved.rotateSeconds, 0, 300, 0) : 0;
       if (saved.quotaLayout === 'carousel' || saved.quotaLayout === 'cards') settings.quotaLayout = saved.quotaLayout;
@@ -47,4 +52,15 @@ export function loadSettings(): Settings {
 }
 export function saveSettings(settings: Settings): boolean {
   try { localStorage.setItem('wallpaper.dashboard.v1', JSON.stringify(settings)); return true; } catch { return false; }
+}
+
+/** Missing clock data means an older bridge or an admin configuration not yet enabled. */
+export function applyClockConfig(settings: Settings, input: ClockConfig | null | undefined): boolean {
+  if (!validClockConfig(input)) return false;
+  const next = { timezone: input.timezone.trim(), offsetSeconds: clamp(input.offsetSeconds, -86400, 86400, 0), seconds: input.seconds, hour12: input.hour12, worldZones: normalizeWorldZones(input.worldZones) };
+  if (JSON.stringify([settings.timezone, settings.offsetSeconds, settings.seconds, settings.hour12, settings.worldZones]) === JSON.stringify([next.timezone, next.offsetSeconds, next.seconds, next.hour12, next.worldZones])) return false;
+  Object.assign(settings, next); return true;
+}
+export function validClockConfig(input: ClockConfig | null | undefined): input is ClockConfig {
+  return !!input && validTimezone(input.timezone) && Number.isFinite(input.offsetSeconds) && typeof input.seconds === 'boolean' && typeof input.hour12 === 'boolean' && Array.isArray(input.worldZones);
 }

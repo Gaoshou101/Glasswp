@@ -1,0 +1,929 @@
+[
+  {
+    "brand": "codex",
+    "name": "Codex",
+    "file": "codex.svg",
+    "source": "https://chatgpt.com/cdn/assets/favicon.6a33781f61.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 180 180",
+    "bytes": 4381,
+    "sha256": "2021463df9935dda89cef407aa564bced9d83b4f9b6ae8945d649e56676624f0",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "claude",
+    "name": "Claude",
+    "file": "claude.svg",
+    "source": "https://claude.com/icon.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 248 248",
+    "bytes": 2558,
+    "sha256": "b150888bc7257af83e3b85d3c2be4294f88986026f8168f6c12fc1fde6697350",
+    "aliases": [
+      "claude-code",
+      "claude-code-cli"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "antigravity",
+    "name": "Antigravity",
+    "file": "antigravity.svg",
+    "source": "https://antigravity.google/favicon.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 136 136",
+    "bytes": 4839,
+    "sha256": "cd12fa64fc0029716c016792c6a65d1e082e312d6184a43cac88542722dd10f3",
+    "aliases": [
+      "agy-cli",
+      "antigravity-cli"
+    ],
+    "note": "Retained earlier user-requested transparent mark without favicon circle."
+  },
+  {
+    "brand": "kimi",
+    "name": "Kimi",
+    "file": "kimi.svg",
+    "source": "https://moonshotai.github.io/Branding-Guide/scenarios/04-k-only/k-only-dark.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 24 25",
+    "bytes": 1083,
+    "sha256": "937616746780d0c7c4bda92820db39f503f6a3e9b7cfebe438a5fb61b62d3991",
+    "aliases": [
+      "kimi-work"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "xai",
+    "name": "xAI",
+    "file": "xai.png",
+    "source": "https://docs.x.ai/_next/static/media/icon.2jebtfdg6783w.png?dpl=f42878fa3449c4ffee9e3c02fac8a11736523c68",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      512,
+      512
+    ],
+    "bytes": 5026,
+    "sha256": "e54b4baf2aaca29eb182cb51d22be3dbad5ab09c86ccee4183fefd8326e6ee28",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "devin",
+    "name": "Devin",
+    "file": "devin.svg",
+    "source": "https://devin.ai/favicon.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 425 425",
+    "bytes": 1405,
+    "sha256": "fe0753d2e3823bc1eb8a37943234fac63733b8c9e8abff0ca0402a6c7ddcd682",
+    "aliases": [],
+    "note": "Official SVG uses black fill; apply CSS brightness(0) invert(1) to show white on dark glass, retaining geometry, or put on light icon plate."
+  },
+  {
+    "brand": "meta",
+    "name": "Meta",
+    "file": "meta.svg",
+    "source": "https://static.xx.fbcdn.net/rsrc.php/yf/r/-7pQO6hUGK_.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 32 32",
+    "bytes": 8912,
+    "sha256": "9c354dc7d40f7862df2dfb34df05ae08c3e956d55a450379803d6cac6878a63e",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "copilot",
+    "name": "GitHub Copilot",
+    "file": "github-copilot.svg",
+    "source": "https://raw.githubusercontent.com/primer/octicons/main/icons/copilot-24.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 24 24",
+    "bytes": 1689,
+    "sha256": "eeafb3c2f333e04ccf7d031ae215f7adafaed4c6352556b0bf79496e048bcdd7",
+    "aliases": [
+      "github-copilot",
+      "githubcopilot"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "gemini",
+    "name": "Gemini",
+    "file": "gemini.png",
+    "source": "https://www.gstatic.com/lamda/images/gemini_sparkle_4g_512_lt_f94943af3be039176192d.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      512,
+      512
+    ],
+    "bytes": 61823,
+    "sha256": "5e7cfecaa53f4f65a313fe89b0f389548126544a78fad8489510c70ae641a4a1",
+    "aliases": [
+      "gemini-cli",
+      "google-gemini"
+    ],
+    "note": "Official site link rel=icon specifies 512x512. Real Gemini sparkle, not Google G."
+  },
+  {
+    "brand": "cursor",
+    "name": "Cursor",
+    "file": "cursor.png",
+    "source": "https://cursor.com/favicon.ico",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      256,
+      256
+    ],
+    "bytes": 14830,
+    "sha256": "03c38901bfadff6da0f1163e232d259262c72ca771809bbbbceb7118e9ca84ee",
+    "aliases": [],
+    "note": "Largest original ICO frame encoded losslessly as PNG; no resizing."
+  },
+  {
+    "brand": "workbuddy",
+    "name": "WorkBuddy",
+    "file": "workbuddy.svg",
+    "source": "https://download.codebuddy.ai/web/workbuddy/05fd33c3609bc9cf5ae1fc387a142a2ad0fab64e/assets/logo.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 40 40",
+    "bytes": 4142,
+    "sha256": "10ccbc099e7bc3d5ff12c315c4edd7b21386aa7166c1ec19997b3d55010d5c7d",
+    "aliases": [
+      "workbuddy-ai"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "trae",
+    "name": "Trae",
+    "file": "trae.svg",
+    "source": "https://lf16-web-neutral.traecdn.ai/obj/trae-ai-static/trae_website/static/js/main.cec28a9f4b.js",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 48 35",
+    "bytes": 575,
+    "sha256": "23ab6ceaa42ea38ae0bc13c7caa57b4c6ec11ab144237ba4fc1b180d86bb9d0f",
+    "aliases": [
+      "trae-cn",
+      "trae-global"
+    ],
+    "note": "Unmodified embedded icon-logo SVG from official website bundle"
+  },
+  {
+    "brand": "kiro",
+    "name": "Kiro",
+    "file": "kiro.svg",
+    "source": "https://kiro.dev/icon.svg?fe599162bb293ea0",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 1200 1200",
+    "bytes": 1527,
+    "sha256": "774cbc1c7ecec8c935a6091595583d7a92fc8289d6f1db3f071c0f50c61c369f",
+    "aliases": [
+      "kiro-cli",
+      "kiro-ide"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "zcode",
+    "name": "ZCode",
+    "file": "zcode.png",
+    "source": "https://zcode.z.ai/favicon-192x192.png?v=20260707-transparent",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      192,
+      192
+    ],
+    "bytes": 6479,
+    "sha256": "089bdfa74910eaed241eac46bf5d02bb5718f15d8d6b247a1ee61b3372c9c82c",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "commandcode",
+    "name": "Command Code",
+    "file": "commandcode.png",
+    "source": "https://commandcode.ai/apple-touch-icon.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      180,
+      180
+    ],
+    "bytes": 1783,
+    "sha256": "f3a50e2d93b0a50b937cf47f1a98c01274cc8bb660eef7a7e10b6a77fd9af771",
+    "aliases": [
+      "commandcode-plan"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "grok",
+    "name": "Grok",
+    "file": "xai.png",
+    "source": "https://docs.x.ai/_next/static/media/icon.2jebtfdg6783w.png?dpl=f42878fa3449c4ffee9e3c02fac8a11736523c68",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      512,
+      512
+    ],
+    "bytes": 5026,
+    "sha256": "e54b4baf2aaca29eb182cb51d22be3dbad5ab09c86ccee4183fefd8326e6ee28",
+    "aliases": [
+      "grok-build"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "catpaw",
+    "name": "CatPaw",
+    "file": "catpaw.png",
+    "source": "https://s3plus.meituan.net/catpaw-external-resources/login/logo.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      110,
+      108
+    ],
+    "bytes": 5652,
+    "sha256": "56e9cd216dd197d7bc960e4d290627ddf26909002cf6e6f3b5d4ad5b39eaee55",
+    "aliases": [],
+    "note": "official homepage icon and apple-touch link, unchanged PNG"
+  },
+  {
+    "brand": "raccoon",
+    "name": "商汤小浣熊",
+    "file": "raccoon.svg",
+    "source": "https://sta-volc.xiaohuanxiong.com/raccoon-website/prod/mime-v1/favicon.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "50 5 200 200",
+    "bytes": 1757,
+    "sha256": "dad76a28601f4f632d4975506d48a5618ac82b22819b3590b8a56dbcba6ed2d0",
+    "aliases": [
+      "raccoon-cn"
+    ],
+    "note": "official homepage SVG, unchanged vector"
+  },
+  {
+    "brand": "atomcode",
+    "name": "AtomCode",
+    "file": "atomcode.svg",
+    "source": "https://raw.githubusercontent.com/atomgit-atomcode/atomcode/main/extensions/vscode/resources/icon.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 24 24",
+    "bytes": 607,
+    "sha256": "0bb328d5d0735e807181702ea8871be7b0cfefeaaa49c842cbd7a326c8f71b83",
+    "aliases": [],
+    "note": "Official AtomCode VS Code extension icon. Blue atom mark. The separate homepage favicon is only 96x96; use this vector instead."
+  },
+  {
+    "brand": "warp",
+    "name": "Warp",
+    "file": "warp.svg",
+    "source": "https://www.warp.dev/img/logos/warp-pixel-icon.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 37 35",
+    "bytes": 4443,
+    "sha256": "cbf3e7d8bffb3133e323e09f85906e6be4ccda285b490ab366d174c7ce291848",
+    "aliases": [],
+    "note": "Official website navigation icon. White foreground for dark background."
+  },
+  {
+    "brand": "agnes",
+    "name": "Agnes",
+    "file": "agnes.png",
+    "source": "https://www.agnes-ai.com/images/biglogo.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      1134,
+      1134
+    ],
+    "bytes": 32856,
+    "sha256": "7176e9463992c3a43387019b43aa69bf9deadad144bfcec97510107a49b886f9",
+    "aliases": [],
+    "note": "Official Agnes AI big logo, referenced by homepage favicon link."
+  },
+  {
+    "brand": "agnes-code",
+    "name": "Agnes Code",
+    "file": "agnes-code.png",
+    "source": "https://agnes-ai.com/images/biglogo.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      1134,
+      1134
+    ],
+    "bytes": 32856,
+    "sha256": "7176e9463992c3a43387019b43aa69bf9deadad144bfcec97510107a49b886f9",
+    "aliases": [],
+    "note": "official Agnes Code page favicon, unchanged PNG"
+  },
+  {
+    "brand": "astudio",
+    "name": "AStudio",
+    "file": "astudio.svg",
+    "source": "https://agent.xfyun.cn/studio-portal/assets/logo-B-DIhbmk.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 570 570",
+    "bytes": 6898,
+    "sha256": "6b124e849d0c70f8a36b0a7bc536b8bd94c6f7aff8c979840cd73e0d810eebf5",
+    "aliases": [
+      "hub-astudio"
+    ],
+    "note": "Removed Figma foreignObject backdrop blur placeholders; all paths and vector filters retained."
+  },
+  {
+    "brand": "codar",
+    "name": "Codar",
+    "file": "codar.png",
+    "source": "https://codar.speedai.com/assets/codar-icon.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      256,
+      256
+    ],
+    "bytes": 13694,
+    "sha256": "0e6710fe55a034db3b1fc62b0240e7c6c59c579f0a05b6ad736541f3caf8b59a",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "deepaicode",
+    "name": "DeepAI Code",
+    "file": "deepaicode.png",
+    "source": "https://deepai-code-downloads.kmbaragona.workers.dev/deepai-code/releases/DeepAI-Code-0.3.35-x64.exe",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      256,
+      256
+    ],
+    "bytes": 11242,
+    "sha256": "7c704e1468c82b082e5f1f61fec919868479b1863e34e2062a0709e5172709bf",
+    "aliases": [
+      "deepai-code"
+    ],
+    "note": "official Windows installer RT_ICON type 3 / id 1 / language 1033 extracted verbatim; installer never executed; read only HTTP bytes 0-4194303"
+  },
+  {
+    "brand": "teleagent",
+    "name": "TeleAgent",
+    "file": "teleagent.jpg",
+    "source": "https://cdn02.teleai.com.cn/ssr_static/img/logo.CZ4CmPHw.jpg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      116,
+      116
+    ],
+    "bytes": 14705,
+    "sha256": "018ec302d054ee184d610a71bd4dfcf5e064db2f744abe022c369ff4dbdb9785",
+    "aliases": [],
+    "note": "official TeleAgent product-page logo, unchanged JPEG"
+  },
+  {
+    "brand": "autoclaw",
+    "name": "AutoClaw",
+    "file": "autoclaw.png",
+    "source": "https://autoclaw.zhipuai.cn/apple-touch-icon.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      180,
+      180
+    ],
+    "bytes": 11861,
+    "sha256": "a1ba1e26f49b11ece4f988c9c2d83f5d132d5bc531694da7917b627979cb03a4",
+    "aliases": [
+      "autoclaw-cn",
+      "hub-autoclaw",
+      "hub-autoclaw-cn"
+    ],
+    "note": "official apple-touch icon, unchanged PNG"
+  },
+  {
+    "brand": "qoder",
+    "name": "Qoder",
+    "file": "qoder.svg",
+    "source": "https://qoder.com/favIcon.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 206 206",
+    "bytes": 73379,
+    "sha256": "5e1843cb50c4613855024453e76d5c06d2ca5562efebc12b4fcd80cf9ece1dd0",
+    "aliases": [
+      "qoder-cn",
+      "qwenwork",
+      "qwenwork-enterprise"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "cline",
+    "name": "Cline",
+    "file": "cline.png",
+    "source": "https://cline.bot/assets/branding/favicons/apple-touch-icon.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      180,
+      180
+    ],
+    "bytes": 2598,
+    "sha256": "be425bfbb8df74e23618ea25a691a53036826ee36e0418fda78989144787924c",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "minimax",
+    "name": "MiniMax Code",
+    "file": "minimax.jpg",
+    "source": "https://github.com/MiniMax-AI.png?size=512",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      460,
+      460
+    ],
+    "bytes": 18199,
+    "sha256": "d095a4fff8770ace5d8b537a9f642e3c4f1230a56a36177a16537d36d84b2e33",
+    "aliases": [
+      "minimax-code",
+      "minimax-code-global"
+    ],
+    "note": "Official GitHub organization MiniMax-AI linked by minimax.io homepage; original avatar JPEG; API URL has png suffix but actual response is JPEG"
+  },
+  {
+    "brand": "opencode",
+    "name": "OpenCode",
+    "file": "opencode.svg",
+    "source": "https://opencode.ai/brand/files/opencode-logo-dark-square.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 300 300",
+    "bytes": 631,
+    "sha256": "6a5e91d7e8f306280a4f4f6acd32e8761fae698e56165602c7f0714ef1a315b3",
+    "aliases": [
+      "opencode-zen-free"
+    ],
+    "note": "Official brand download: square logo for dark surfaces."
+  },
+  {
+    "brand": "zed",
+    "name": "Zed",
+    "file": "zed.png",
+    "source": "https://zed.dev/_next/static/media/stable-app-logo.0lgsg40_u_1r5.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      1646,
+      1646
+    ],
+    "bytes": 163466,
+    "sha256": "7989264b3ab157d4ec3a183f5e48b5a4840757d5b72d2f27969dfd2674d76e07",
+    "aliases": [],
+    "note": "Official brand guidelines downloadable stable application icon."
+  },
+  {
+    "brand": "factory",
+    "name": "Factory",
+    "file": "factory.svg",
+    "source": "https://factory.ai/favicon.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": null,
+    "bytes": 6348,
+    "sha256": "416ea4962d7b0b8be8bec7f7190c13c22d5f20fdcac401aa72886fd5c81d2fb2",
+    "aliases": [],
+    "note": "Official homepage favicon SVG, original bytes retained."
+  },
+  {
+    "brand": "doubao",
+    "name": "豆包工作",
+    "file": "doubao.png",
+    "source": "https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/favicon/new-doubao/192x192.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      192,
+      192
+    ],
+    "bytes": 34367,
+    "sha256": "dabb2abd94e3a6c11e7f1a42c9343839b6ef643c086751b71afbc68f615aec38",
+    "aliases": [
+      "doubao-work"
+    ],
+    "note": "Official homepage explicitly declares this 192x192 favicon."
+  },
+  {
+    "brand": "sensenova",
+    "name": "SenseNova",
+    "file": "sensenova.png",
+    "source": "https://www.sensenova.ai/apple-icon.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      300,
+      300
+    ],
+    "bytes": 41717,
+    "sha256": "428784107df6539d1d5bc98eba6ed999863814b8042d4ec88fd6bfb2e7361c6c",
+    "aliases": [
+      "sensenova-token-plan"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "inkstone",
+    "name": "书生·端砚",
+    "file": "inkstone.svg",
+    "source": "https://static.intern-ai.org.cn/platform-config-upload/discoverypublic/tab_logo_1789096347416.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 32 32",
+    "bytes": 10551,
+    "sha256": "cac467df146f9e235f7221ea2d8f68a23101339443ecaf6c708d05b6f007e35f",
+    "aliases": [
+      "intern-inkstone"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "xfyun",
+    "name": "讯飞星辰",
+    "file": "xfyun.svg",
+    "source": "https://maas.xfyun.cn/svg/common-logo-13ec678e.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 25 25",
+    "bytes": 10579,
+    "sha256": "62c72e37db80f613295be4d8ab8afb840bcf5f5592c183887be5cb91230d1612",
+    "aliases": [
+      "xfyun-maas",
+      "xfyun-coding",
+      "xfyun-token"
+    ],
+    "note": "Official Xingchen MaaS header logo SVG from BasicLayout bundle. Set root viewport to first 25x25 square emblem; original symbol paths, masks, gradients and brand colors unchanged; wordmark outside viewport clipped, no redraw."
+  },
+  {
+    "brand": "muse",
+    "name": "Muse",
+    "file": "meta.svg",
+    "source": "https://static.xx.fbcdn.net/rsrc.php/yf/r/-7pQO6hUGK_.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 32 32",
+    "bytes": 8912,
+    "sha256": "9c354dc7d40f7862df2dfb34df05ae08c3e956d55a450379803d6cac6878a63e",
+    "aliases": [
+      "muse-meta"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "tabbit",
+    "name": "Tabbit",
+    "file": "tabbit.png",
+    "source": "https://web.tabbit.com/favicon.ico",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      160,
+      160
+    ],
+    "bytes": 7764,
+    "sha256": "542dee4333226b9aa63dbc527a93057949fc7d2e5e79d7394f8e1d8bc3ad0409",
+    "aliases": [],
+    "note": "Original 160px favicon bitmap extracted without resizing."
+  },
+  {
+    "brand": "aws",
+    "name": "AWS Bedrock",
+    "file": "aws.png",
+    "source": "https://a0.awsstatic.com/libra-css/images/site/touch-icon-ipad-144-smile.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      144,
+      144
+    ],
+    "bytes": 3061,
+    "sha256": "f80d3ec6c5b2adee55267ecfcf2fc4131aa8551a546b7a1971b5e465c05c2403",
+    "aliases": [
+      "bedrock-sso"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "cloudflare",
+    "name": "Cloudflare",
+    "file": "cloudflare.svg",
+    "source": "https://www.cloudflare.com/icons.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 341 156",
+    "bytes": 1451,
+    "sha256": "41a35c9ec40600895b1021d4077aa1a7e2f14086e51534d6a81fe794d84903d4",
+    "aliases": [
+      "cloudflare-workers-ai"
+    ],
+    "note": "Extracted official cloudflare symbol and kept its colored group, excluding overlapping monochrome alternative."
+  },
+  {
+    "brand": "gcp",
+    "name": "Google Cloud",
+    "file": "gcp.png",
+    "source": "https://www.gstatic.com/cgc/super_cloud_gradient.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      192,
+      192
+    ],
+    "bytes": 9447,
+    "sha256": "a332b54b620a2fa04413561c01c925cd40f936581c7bed52df424ecccc9c08b4",
+    "aliases": [
+      "gcp-ai"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "qiniu",
+    "name": "七牛云",
+    "file": "qiniu.svg",
+    "source": "https://www.qiniu.com/",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 33 22",
+    "bytes": 638,
+    "sha256": "fa55fb6b76f26bf764bd8f5b66afbdff3b1a8eec48331a8dbbcdbd47c45ac66b",
+    "aliases": [
+      "hub-qiniu"
+    ],
+    "note": "Extracted the original official bull-symbol path from the homepage inline SVG; removed the separate text paths and tightened the viewBox. No path redraw or recolour."
+  },
+  {
+    "brand": "loomy",
+    "name": "Loomy",
+    "file": "loomy.png",
+    "source": "https://loomy.xunfei.cn/icon.png?5f7e7b8be5d4c76b",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "bytes": 670506,
+    "sha256": "0d26afe1c650807f52ba47f0c750a480b75cd554d7edd44ab871856c13d17499",
+    "aliases": [
+      "hub-loomy"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "joycode",
+    "name": "JoyCode",
+    "file": "joycode.png",
+    "source": "https://JoyCoder.gallerycdn.vsassets.io/extensions/joycoder/joycoder-fe/3.8.71/1789738628706/Microsoft.VisualStudio.Services.Icons.Default",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      654,
+      654
+    ],
+    "bytes": 20392,
+    "sha256": "67aaf2f777c2874f88abf4d88792a75eabc70b7b4639a97504bbf198789f8ffd",
+    "aliases": [],
+    "note": "Original 654×654 icon from the JoyCoder.joycoder-fe publisher package on Visual Studio Marketplace; official JoyCode plugin installation page identifies this exact plugin. Matches the official site 32px favicon geometry."
+  },
+  {
+    "brand": "mimo",
+    "name": "Xiaomi MiMo",
+    "file": "mimo.png",
+    "source": "https://platform.xiaomimimo.com/favicon.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      535,
+      534
+    ],
+    "bytes": 12428,
+    "sha256": "30f5305380e8a2f85c652b905ef5e155e0c00c7d56d7ab6bd8b1eb40dad61ba7",
+    "aliases": [
+      "mimo-app"
+    ],
+    "note": "Official Xiaomi MiMo platform HTML references /favicon.png. Original near-square 535x534 PNG uses stacked Xiaomi / MiMo white wordmark on black; visually checked. Preserve original ratio with object-fit:contain. Higher resolution and more legible at small size than public docs 282x36 horizontal header logo. Official GitHub organization avatar also verified but uses a horizontal wordmark inside square canvas."
+  },
+  {
+    "brand": "nous",
+    "name": "Nous Portal",
+    "file": "nous.svg",
+    "source": "https://raw.githubusercontent.com/NousResearch/hermes-agent/main/assets/nous-girl-white.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 5487.0615 5558.8086",
+    "bytes": 139596,
+    "sha256": "d84d87421e321d94bb210f914e6fd55307e045655ab122446547f516d3aaf06e",
+    "aliases": [
+      "nous-portal"
+    ],
+    "note": "Official Nous Research compact girl mark in white, published in official Hermes Agent assets. Current corporate website favicon is also the girl mark, not an N. Use original near-square vector for dark surfaces. Replaces prior wide blue hand illustration."
+  },
+  {
+    "brand": "orcaterm",
+    "name": "OrcaTerm",
+    "file": "orcaterm.svg",
+    "source": "https://cloudcache.tencent-cloud.com/qcloud/orcaterm/website/favicon.d6ced2b3.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 100 100",
+    "bytes": 6471,
+    "sha256": "575b56499ea51c3df69d7cfe63817de159b2510b749a9993ebde890cb467926d",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "mclaw",
+    "name": "MClaw",
+    "file": "mclaw.png",
+    "source": "https://yun.139.com/w/static/img/LOGO.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      80,
+      80
+    ],
+    "bytes": 2728,
+    "sha256": "9bfce7ccdaaaa0fed5843db2590cb029286220066fc802892f12661aef192a56",
+    "aliases": [],
+    "note": "Official original 80×80; no larger official asset found. 3.6× the 22px display size, not upscaled."
+  },
+  {
+    "brand": "river",
+    "name": "River",
+    "file": "river.png",
+    "source": "https://river.ai/assets/favicon-192.png?v=2",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      192,
+      192
+    ],
+    "bytes": 6365,
+    "sha256": "3581dc78dc11b3013b32cebe5be117d7e00d4fec2755d0c30bb35c800455278d",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "opendesign",
+    "name": "Open Design",
+    "file": "opendesign.png",
+    "source": "https://r.open-design.ai/files/f6843349fba478ad7249f9c71cc5ae0a9ff9986b081b5b3a40eb8e0e86eadd5c",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      180,
+      180
+    ],
+    "bytes": 5539,
+    "sha256": "f6843349fba478ad7249f9c71cc5ae0a9ff9986b081b5b3a40eb8e0e86eadd5c",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "codearts",
+    "name": "CodeArts",
+    "file": "codearts.svg",
+    "source": "https://res-static.hc-cdn.cn/cloudbu-site/intl/zh-cn/codearts/logo.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 48 48",
+    "bytes": 21147,
+    "sha256": "39f8577cf706d2a8934df09ee7f51db9531b1ea034a0e7a066331330d61d6e8d",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "officeace",
+    "name": "OfficeAce",
+    "file": "officeace.png",
+    "source": "https://res-static.hc-cdn.cn/cloudbu-site/china/zh-cn/智果AgentArts/OfficeAce/新图标.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      176,
+      176
+    ],
+    "bytes": 20603,
+    "sha256": "1d5f9ca524ca74e988edad4667f78fcfde32a53ec05f9031f9c6bb4f0da2d335",
+    "aliases": [],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "sap",
+    "name": "SAP AI Core",
+    "file": "sap.svg",
+    "source": "https://raw.githubusercontent.com/SAP/openui5/master/src/sap.m/test/sap/m/demokit/sample/Image/images/sap-logo.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 92 45",
+    "bytes": 1560,
+    "sha256": "4146d5df8fc04673049281dfd85569324a49e4ba68968acfbe125a126c93800a",
+    "aliases": [
+      "sap-aicore"
+    ],
+    "note": "Original scalable SAP logo from SAP-maintained OpenUI5 repository; PNG candidate retained locally but SVG is preferred."
+  },
+  {
+    "brand": "accio",
+    "name": "Accio",
+    "file": "accio.svg",
+    "source": "https://s.alicdn.com/@img/imgextra/i4/O1CN01L3EOoU1IfPQXGpYhJ_!!6000000000920-55-tps-24-24.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 24 24",
+    "bytes": 1372,
+    "sha256": "6eacbeacdfc1e69164dfa67edfb785681087a3ac9e56fd98c8ab171bb134b610",
+    "aliases": [
+      "hub-accio"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "lobsterai",
+    "name": "LobsterAI",
+    "file": "lobsterai.png",
+    "source": "https://lobsterai.youdao.com/icon-192.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      192,
+      192
+    ],
+    "bytes": 36562,
+    "sha256": "a0c7d629fb2d77a909fe2229bc057ec5ca3175eeca6272617aaa0aa91d0d82a7",
+    "aliases": [
+      "hub-lobsterai"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "magicrew",
+    "name": "MagiCrew",
+    "file": "magicrew.svg",
+    "source": "https://www.magicrew.ai/web/favicon-intl.svg",
+    "verifiedAt": "2026-11-11",
+    "resolution": "vector",
+    "dimensions": "0 0 459 459",
+    "bytes": 3146,
+    "sha256": "a7f75937b7b2e9f12c3813f12f860fe31598311d45dd956714dcb8c68ab65bad",
+    "aliases": [
+      "hub-magicrew",
+      "hub-magicrew-intl"
+    ],
+    "note": "Original official artwork; no upscaling."
+  },
+  {
+    "brand": "monkeycode",
+    "name": "MonkeyCode",
+    "file": "monkeycode.png",
+    "source": "https://monkeycode-ai.com/logo-light.png",
+    "verifiedAt": "2026-11-11",
+    "resolution": "raster",
+    "dimensions": [
+      600,
+      602
+    ],
+    "bytes": 137016,
+    "sha256": "3010adfbb1c7651e60dd574fb38b9eedfc237494b0ec21a94ae2dc75c8065bbc",
+    "aliases": [
+      "hub-monkeycode",
+      "hub-monkeycode-intl"
+    ],
+    "note": "Original official artwork; no upscaling."
+  }
+]

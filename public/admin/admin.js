@@ -5,11 +5,47 @@ let session = '', config = null, cities = [], refreshBusy = false, sensorsLoaded
 let discovered = null, draftWatched = [], draftAlias = new Map(), accountsSaving = false, accountNotice = '', drag = null;
 let accountPlans = new Map(), plansUnavailable = false, plansReadAt = 0, plansLoading = false, plansGeneration = 0;
 let diagnosticsReadAt = 0, unsavedKey = '';
+let aiSourcesReadAt = 0, aiSourcesLoading = false, aiSourceVersion = 0;
+const readerSources = ['local', 'magpie', 'cpa', 'sub2api'], remoteAiSources = ['cpa', 'sub2api'];
+const aiDetected = Object.fromEntries(readerSources.map(s => [s, []])), aiSelections = Object.fromEntries(readerSources.map(s => [s, []]));
+const aiOptionDefault = source => ({ autoRefreshEnabled: true, refreshMinutes: source === 'magpie' ? 1 : 10, accounts: null });
+const savedAiOptions = source => ({ ...aiOptionDefault(source), ...savedAiSources()[source + 'Options'] });
+const aiOptionsDraft = source => ({ autoRefreshEnabled: $(source + '-auto-refresh').checked, refreshMinutes: Number($(source + '-refresh-minutes').value), accounts: $(source + '-all-accounts').checked ? null : aiSelections[source].map(a => ({ id: a.id, alias: a.alias.trim() })) });
 const busy = new Set();
 const sensorFields = { 'gpu-id': 'gpuId', 'cpu-temp': 'cpuTemperatureId', 'gpu-temp': 'gpuTemperatureId' };
 const providerNames = { codex: 'Codex', antigravity: 'Antigravity', claude: 'Claude', kimi: 'Kimi', xai: 'xAI', devin: 'Devin', meta: 'Meta' };
 const providerName = provider => providerNames[provider] || provider || '未知平台';
 const trimUrl = value => String(value || '').trim().replace(/\/+$/, '');
+const clockDefault = { timezone: 'Asia/Shanghai', offsetSeconds: 0, seconds: false, hour12: false, worldZones: ['Asia/Shanghai', 'Asia/Tokyo', 'Asia/Singapore', 'Europe/London', 'America/New_York', 'America/Los_Angeles'] };
+const savedClock = () => config?.clock || clockDefault;
+const savedWeather = () => config?.weather || { provider: 'open-meteo', apiKeyConfigured: false };
+const aiSourcesDefault = { source: 'cpamp', magpieUrl: 'http://127.0.0.1:3425', magpieKeyConfigured: false, cpaUrl: '', cpaKeyConfigured: false, cpaApiVersion: 'v0', sub2apiUrl: '', sub2apiKeyConfigured: false };
+const aiSourceNames = { cpamp: 'CPAMP', local: '本机自动读取', magpie: 'Magpie', cpa: 'CPA', sub2api: 'Sub2API' };
+const savedAiSources = () => ({ ...aiSourcesDefault, ...config?.aiSources });
+const aiSourcesDraft = () => ({ source: $('ai-source').value, magpieUrl: trimUrl($('ai-magpie-url').value), ...Object.fromEntries(readerSources.map(source => [source + 'Options', aiOptionsDraft(source)])), ...Object.fromEntries(remoteAiSources.map(source => [source + 'Url', trimUrl($('ai-' + source + '-url').value)])), cpaApiVersion: $('ai-cpa-version').value });
+const aiSourcesDirty = () => {
+  const draft = aiSourcesDraft(), saved = savedAiSources();
+  return draft.source !== saved.source || draft.magpieUrl !== trimUrl(saved.magpieUrl) ||
+    readerSources.some(source => JSON.stringify(draft[source + 'Options']) !== JSON.stringify(savedAiOptions(source))) ||
+    $('ai-magpie-key').value !== '' || $('ai-magpie-clear-key').checked || draft.cpaApiVersion !== saved.cpaApiVersion ||
+    remoteAiSources.some(source => draft[source + 'Url'] !== trimUrl(saved[source + 'Url']) || $('ai-' + source + '-key').value !== '' || $('ai-' + source + '-clear-key').checked);
+};
+const worldZones = () => [...new Set($('clock-world-zones').value.split(/[\r\n,]+/).map(zone => zone.trim()).filter(Boolean))];
+const clockDraft = () => ({ timezone: $('clock-timezone').value.trim(), offsetSeconds: $('clock-offset').value.trim() === '' ? null : Number($('clock-offset').value), seconds: $('clock-seconds').checked, hour12: $('clock-hour12').checked, worldZones: worldZones() });
+const validTimezone = zone => { try { if (!zone) return false; new Intl.DateTimeFormat('zh-CN', { timeZone: zone }); return true; } catch { return false; } };
+const clockDirty = () => {
+  const draft = clockDraft(), saved = savedClock();
+  return ['timezone', 'offsetSeconds', 'seconds', 'hour12'].some(key => draft[key] !== saved[key]) || JSON.stringify(draft.worldZones) !== JSON.stringify(saved.worldZones);
+};
+const weatherApiHost = () => $('weather-api-host').value.trim().toLowerCase();
+const validWeatherApiHost = host => host.length <= 253 && host.endsWith('.qweatherapi.com') &&
+  host.split('.').every(label => /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label));
+const weatherCityCode = () => $('weather-city-code').value.trim();
+const weatherCanRetainKey = () => $('weather-provider').value === savedWeather().provider && savedWeather().apiKeyConfigured &&
+  ($('weather-provider').value !== 'qweather' || weatherApiHost() === String(savedWeather().apiHost || '').trim().toLowerCase());
+const weatherDirty = () => $('weather-provider').value !== savedWeather().provider || $('weather-api-key').value !== '' || $('weather-clear-key').checked ||
+  ($('weather-provider').value === 'qweather' && weatherApiHost() !== (savedWeather().apiHost || '')) ||
+  ($('weather-provider').value === 'amap' && weatherCityCode() !== (savedWeather().cityCode || ''));
 // Tone drives the status dot: progress messages pulse, failures turn red, cancellations stay neutral.
 function status(message, tone = /^正在/.test(message) ? 'busy' : /^已取消/.test(message) ? 'info' : 'ok') {
   $('status').textContent = message;
@@ -40,8 +76,23 @@ function syncControls() {
   const set = (id, disabled) => { $(id).disabled = busy.has(id) || disabled; };
   const accountsChanged = accountsDirty();
   // Save buttons are enabled only while their section differs from the saved configuration.
-  set('refresh-quota-now', refreshBusy || !config?.managementConfigured || !config?.accounts.length);
+  set('refresh-quota-now', savedAiSources().source !== 'cpamp' || refreshBusy || !config?.managementConfigured || !config?.accounts.length);
   set('save-city', !config || !cityDirty());
+  set('save-clock', !config || (Boolean(config.clock) && !clockDirty()));
+  set('cancel-clock', !config || !clockDirty());
+  set('sync-clock', !config);
+  set('reset-clock-offset', !config || Number($('clock-offset').value) === 0);
+  set('save-weather', !config || !weatherDirty());
+  set('cancel-weather', !config || !weatherDirty());
+  set('save-ai-sources', !config || !aiSourcesDirty());
+  set('cancel-ai-sources', !config || !aiSourcesDirty());
+  const savedAi = savedAiSources();
+  set('refresh-ai-sources', !config || aiSourcesLoading || savedAi.source === 'cpamp');
+  for (const source of readerSources) {
+    set('save-' + source + '-settings', !config || !aiSourcesDirty());
+    set('cancel-' + source + '-settings', !config || !aiSourcesDirty());
+    set('refresh-' + source + '-settings', !config || aiSourcesLoading || savedAi.source !== source);
+  }
   set('save-cpamp', !config || !cpampDirty());
   set('clear-cpamp', !config?.managementConfigured);
   set('save-quota-refresh', !config || !refreshDirty());
@@ -62,7 +113,7 @@ function accountsDirty() {
   const saved = config.accounts;
   return draftWatched.length !== saved.length || draftWatched.some((id, i) => id !== saved[i].id || effectiveAlias(id) !== saved[i].alias);
 }
-const sections = [['city', '天气城市', cityDirty], ['cpamp', 'CPAMP 连接', cpampDirty], ['accounts', '账号', accountsDirty], ['refresh', '用量自动刷新', refreshDirty], ['sensors', '硬件传感器', sensorsDirty]];
+const sections = [['clock', '时间', clockDirty], ['city', '天气城市', cityDirty], ['weather', '天气来源', weatherDirty], ['ai-sources', 'AI 来源', aiSourcesDirty], ['cpamp', 'CPAMP 连接', cpampDirty], ['accounts', '账号', accountsDirty], ['refresh', '用量自动刷新', refreshDirty], ['sensors', '硬件传感器', sensorsDirty]];
 const dirtySections = () => config ? sections.filter(([, , changed]) => changed()) : [];
 function updateDirty() {
   const dirty = dirtySections(), keys = dirty.map(([key]) => key);
@@ -90,7 +141,22 @@ document.addEventListener('change', syncControls);
 async function readConfig(reset = []) {
   // Keep other sections' drafts when one section saves and the configuration is read again.
   const keep = new Set(dirtySections().map(([key]) => key).filter(key => !reset.includes(key)));
+  const previousAi = config?.aiSources;
   config = await api('config/read');
+  if (reset.includes('ai-sources') || previousAi?.source !== config.aiSources?.source) aiSourceVersion++;
+  for (const source of ['magpie', ...remoteAiSources]) {
+    const connectionChanged = previousAi && (previousAi[source + 'Url'] !== config.aiSources?.[source + 'Url'] ||
+      source === 'cpa' && previousAi.cpaApiVersion !== config.aiSources?.cpaApiVersion ||
+      reset.includes('ai-sources') && ($('ai-' + source + '-key').value !== '' || $('ai-' + source + '-clear-key').checked));
+    if (connectionChanged) {
+      aiSourceVersion++; aiDetected[source] = [];
+      if (savedAiSources().source === source) $('ai-sources-accounts').replaceChildren();
+    }
+  }
+  if (!keep.has('clock')) applyClockDraft();
+  if (!keep.has('weather')) applyWeatherDraft();
+  if (!keep.has('ai-sources')) applyAiSourcesDraft();
+  else renderAiSourcesDraft();
   if (!keep.has('cpamp')) $('cpamp-url').value = config.cpampUrl;
   $('current-city').textContent = '当前：' + config.city.name;
   $('credential-status').textContent = config.managementConfigured ? '已保存加密凭据。留空可保留。' : '尚未填写管理凭据。';
@@ -105,7 +171,260 @@ async function readConfig(reset = []) {
   // Same-origin preview remembers only the limited display ticket.
   try { const s = JSON.parse(localStorage.getItem('wallpaper.dashboard.v1') || '{}'); s.readToken = config.readToken; s.bridgeUrl = config.bridgeUrl; localStorage.setItem('wallpaper.dashboard.v1', JSON.stringify(s)); } catch { }
   void readAccountPlans();
+  if (config.aiSources && savedAiSources().source !== 'cpamp') void readAiSources();
 }
+
+function applyAiSourcesDraft() {
+  const saved = savedAiSources();
+  $('ai-source').value = saved.source;
+  $('ai-magpie-url').value = saved.magpieUrl;
+  $('ai-magpie-key').value = ''; $('ai-magpie-clear-key').checked = false;
+  for (const source of remoteAiSources) { $('ai-' + source + '-url').value = saved[source + 'Url']; $('ai-' + source + '-key').value = ''; $('ai-' + source + '-clear-key').checked = false; }
+  $('ai-cpa-version').value = saved.cpaApiVersion;
+  for (const source of readerSources) {
+    const options = savedAiOptions(source);
+    $(source + '-auto-refresh').checked = options.autoRefreshEnabled;
+    $(source + '-refresh-minutes').value = options.refreshMinutes;
+    $(source + '-all-accounts').checked = options.accounts === null;
+    aiSelections[source] = (options.accounts || []).map(a => ({ ...a }));
+    renderAiAccountEditor(source);
+  }
+  renderAiSourcesDraft();
+}
+function renderAiSourcesDraft() {
+  const saved = savedAiSources(), source = $('ai-source').value, changedUrl = trimUrl($('ai-magpie-url').value) !== trimUrl(saved.magpieUrl);
+  $('ai-magpie-fields').hidden = source !== 'magpie';
+  $('ai-source-help').textContent = {
+    cpamp: '使用下方 CPAMP 连接和关注列表，按保存的顺序显示账号。',
+    local: '自动检测本机支持的 AI agent，读取当前 Windows 用户已登录账号的套餐与用量；可在下方配置账号显示、别名、顺序和刷新频率。',
+    magpie: '读取 Magpie 已保留（kept）的账号缓存，可配置显示账号与刷新频率；更新上游缓存请使用 Magpie。',
+    cpa: '直接通过 CPA 的管理接口读取托管账号，不经过 CPAMP。连接与账号设置见下方。',
+    sub2api: '读取 Sub2API 后台托管的上游账号套餐与余量，不读取站内用户订阅或消费余额。'
+  }[source] || '';
+  $('ai-sources-current-source').textContent = `当前生效：${aiSourceNames[saved.source] || saved.source}` + (source !== saved.source ? `；保存后切换为${aiSourceNames[source]}。` : '。');
+  for (const id of ['cpamp-section', 'accounts-section', 'refresh-section']) {
+    $(id).hidden = source !== 'cpamp';
+    document.querySelector(`.nav a[href="#${id}"]`).hidden = source !== 'cpamp';
+  }
+  for (const kind of readerSources) {
+    $(kind + '-settings-section').hidden = source !== kind;
+    document.querySelector(`.nav a[href="#${kind}-settings-section"]`).hidden = source !== kind;
+    $(kind + '-accounts-hint').textContent = saved.source === kind ? '账号来自最近一次读取；隐藏只影响壁纸显示，不会停止对该账号的查询。' : '先保存来源切换，再读取此来源账号。';
+  }
+  $('ai-sources-refresh-help').hidden = source === 'cpamp';
+  $('ai-sources-accounts').hidden = saved.source === 'cpamp';
+  if ($('ai-sources-accounts').dataset.source !== saved.source) {
+    $('ai-sources-accounts').dataset.source = saved.source;
+    $('ai-sources-accounts').replaceChildren();
+    $('ai-sources-status').textContent = `正在读取${aiSourceNames[saved.source] || saved.source}的账号…`;
+  }
+  if (saved.source === 'cpamp') $('ai-sources-status').textContent = '当前使用 CPAMP；连接、关注账号与用量刷新设置见下方。';
+  $('ai-magpie-clear-key').disabled = !saved.magpieKeyConfigured;
+  $('ai-magpie-key').disabled = $('ai-magpie-clear-key').checked;
+  for (const kind of remoteAiSources) {
+    const savedKey = saved[kind + 'KeyConfigured'], changed = trimUrl($('ai-' + kind + '-url').value) !== trimUrl(saved[kind + 'Url']);
+    $('ai-' + kind + '-clear-key').disabled = !savedKey;
+    $('ai-' + kind + '-key').disabled = $('ai-' + kind + '-clear-key').checked;
+    $('ai-' + kind + '-key-status').textContent = savedKey && !changed ? '密钥已加密保存；留空保留，填写新值替换。' : changed && savedKey ? '地址已更改，请填写新密钥或勾选清除。' : '尚未配置管理密钥。';
+  }
+  $('ai-magpie-key-status').textContent = saved.magpieKeyConfigured && !changedUrl ? '当前地址的密钥已加密保存；留空保留，填写新值替换。' : changedUrl && saved.magpieKeyConfigured ? '地址已更改；请填写新地址的密钥，或勾选清除后保存。' : '如 Magpie 已启用 API 鉴权，请填写只读密钥。';
+}
+function renderAiAccountEditor(source) {
+  const all = $(source + '-all-accounts').checked;
+  const selected = aiSelections[source], detected = aiDetected[source];
+  const byId = new Map(detected.map(a => [a.id, a]));
+  const ids = [...selected.map(a => a.id), ...detected.filter(a => !selected.some(s => s.id === a.id)).map(a => a.id)];
+  $(source + '-account-editor').replaceChildren(...ids.map((id, index) => {
+    const account = byId.get(id), selection = selected.find(a => a.id === id);
+    const row = document.createElement('li'); row.className = 'ai-account-editor-row'; row.dataset.accountId = id;
+    const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.checked = all || Boolean(selection); checkbox.disabled = all;
+    checkbox.setAttribute('aria-label', '显示 ' + (account?.alias || selection?.alias || '暂未发现的账号'));
+    checkbox.addEventListener('change', () => {
+      aiSelections[source] = checkbox.checked ? [...aiSelections[source], { id, alias: '' }] : aiSelections[source].filter(a => a.id !== id);
+      renderAiAccountEditor(source); syncControls();
+    });
+    const field = document.createElement('div'); field.className = 'field';
+    const label = document.createElement('label'); label.textContent = account?.alias || selection?.alias || '暂未发现的账号';
+    const input = document.createElement('input'); input.type = 'text'; input.maxLength = 60; input.value = selection?.alias || ''; input.placeholder = '显示别名（留空使用原名称）'; input.disabled = all || !selection;
+    input.id = `ai-${source}-alias-${index}`; label.htmlFor = input.id;
+    input.addEventListener('input', () => { const item = aiSelections[source].find(a => a.id === id); if (item) item.alias = input.value; });
+    field.append(label, input);
+    const controls = document.createElement('div'); controls.className = 'actions';
+    for (const [delta, title] of [[-1, '上移'], [1, '下移']]) {
+      const button = document.createElement('button'); button.className = 'quiet'; button.textContent = title; button.setAttribute('aria-label', title + ' ' + label.textContent);
+      const position = selected.findIndex(a => a.id === id); button.disabled = all || position < 0 || position + delta < 0 || position + delta >= selected.length;
+      button.addEventListener('click', () => { const items = aiSelections[source]; [items[position], items[position + delta]] = [items[position + delta], items[position]]; renderAiAccountEditor(source); syncControls(); });
+      controls.append(button);
+    }
+    const meta = document.createElement('div'); meta.className = 'account-meta'; meta.textContent = account ? `${providerName(account.provider)} · ${account.plan || '套餐待获取'} · ${account.windows?.length || 0} 个额度窗口` : '最近一次读取未发现，保留已保存的显示设置';
+    row.append(checkbox, field, controls, meta); return row;
+  }));
+}
+for (const source of readerSources) {
+  $(source + '-all-accounts').addEventListener('change', () => {
+    if (!$(source + '-all-accounts').checked && savedAiOptions(source).accounts === null && aiSelections[source].length === 0)
+      aiSelections[source] = aiDetected[source].map(a => ({ id: a.id, alias: '' }));
+    renderAiAccountEditor(source); syncControls();
+  });
+  action('save-' + source + '-settings', saveAiSources);
+  action('cancel-' + source + '-settings', async () => { applyAiSourcesDraft(); status('已恢复保存的 AI 配置'); });
+  action('refresh-' + source + '-settings', async () => { const result = await api('ai-sources/refresh'); status(result.message); await readAiSources(); });
+}
+function validMagpieUrl(value) {
+  try { const url = new URL(value); return (url.protocol === 'https:' || url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)) && !url.username && !url.password && !url.search && !url.hash && (url.pathname === '/' || url.pathname === ''); } catch { return false; }
+}
+for (const source of remoteAiSources) {
+  $('ai-' + source + '-url').addEventListener('input', () => { $('ai-' + source + '-key').value = ''; renderAiSourcesDraft(); });
+  $('ai-' + source + '-clear-key').addEventListener('change', () => { if ($('ai-' + source + '-clear-key').checked) $('ai-' + source + '-key').value = ''; renderAiSourcesDraft(); });
+}
+$('ai-source').addEventListener('change', renderAiSourcesDraft);
+$('ai-magpie-url').addEventListener('input', () => { $('ai-magpie-key').value = ''; renderAiSourcesDraft(); });
+$('ai-magpie-clear-key').addEventListener('change', () => { if ($('ai-magpie-clear-key').checked) $('ai-magpie-key').value = ''; renderAiSourcesDraft(); });
+async function saveAiSources() {
+  const draft = aiSourcesDraft(), magpieApiKey = $('ai-magpie-key').value.trim(), clearMagpieApiKey = $('ai-magpie-clear-key').checked;
+  if (!Object.hasOwn(aiSourceNames, draft.source)) throw new Error('请选择有效的 AI 套餐来源');
+  for (const source of readerSources) {
+    const options = draft[source + 'Options'];
+    if (!Number.isInteger(options.refreshMinutes) || options.refreshMinutes < 1 || options.refreshMinutes > 10080) throw new Error(aiSourceNames[source] + '刷新间隔需为 1–10080 的整数分钟');
+  }
+  if (!validMagpieUrl(draft.magpieUrl)) throw new Error('Magpie 地址须为 HTTPS 或本机回环 HTTP 地址，不含路径、凭据、查询参数或片段');
+  if (magpieApiKey.length > 4096 || /[\u0000-\u001f\u007f]/.test(magpieApiKey)) throw new Error('Magpie API Key 格式无效');
+  if (draft.magpieUrl !== trimUrl(savedAiSources().magpieUrl) && savedAiSources().magpieKeyConfigured && !magpieApiKey && !clearMagpieApiKey) throw new Error('Magpie 地址已更改，请填写新密钥或勾选清除已保存的密钥');
+  const remoteKeys = {};
+  for (const source of remoteAiSources) {
+    const url = draft[source + 'Url'], key = $('ai-' + source + '-key').value.trim(), clear = $('ai-' + source + '-clear-key').checked;
+    if (url && !validMagpieUrl(url)) throw new Error(aiSourceNames[source] + ' 地址须为 HTTPS 或本机回环 HTTP 根地址');
+    if (key.length > 4096 || /[\u0000-\u001f\u007f]/.test(key)) throw new Error('管理密钥格式无效');
+    if (url !== trimUrl(savedAiSources()[source + 'Url']) && savedAiSources()[source + 'KeyConfigured'] && !key && !clear) throw new Error(aiSourceNames[source] + ' 地址已更改，请填写新密钥或勾选清除');
+    if (key) remoteKeys[source + 'Key'] = key;
+    if (clear) remoteKeys['clear' + source[0].toUpperCase() + source.slice(1) + 'Key'] = true;
+  }
+  const result = await api('config', { aiSources: { ...draft, ...remoteKeys, ...(magpieApiKey ? { magpieApiKey } : {}), ...(clearMagpieApiKey ? { clearMagpieApiKey: true } : {}) } });
+  for (const source of remoteAiSources) if (remoteKeys[source + 'Key'] || remoteKeys['clear' + source[0].toUpperCase() + source.slice(1) + 'Key']) aiDetected[source] = [];
+  await readConfig(['ai-sources']); status(result.message || 'AI 来源已保存，正在检测账号');
+}
+action('save-ai-sources', saveAiSources);
+action('cancel-ai-sources', async () => { applyAiSourcesDraft(); status('已恢复保存的 AI 来源'); });
+async function readAiSources() {
+  if (aiSourcesLoading || !config?.aiSources || savedAiSources().source === 'cpamp') return;
+  const source = savedAiSources().source, origin = savedAiSources()[savedAiSources().source + 'Url'], version = aiSourceVersion;
+  const isCurrent = () => aiSourceVersion === version && savedAiSources().source === source && (source === 'local' || savedAiSources()[source + 'Url'] === origin);
+  aiSourcesLoading = true; aiSourcesReadAt = Date.now(); syncControls();
+  try {
+    const data = await api('ai-sources/status');
+    if (!isCurrent()) return;
+    aiDetected[source] = Array.isArray(data.accounts) ? data.accounts : [];
+    // Never replace an editor while a user is typing or has an unsaved selection.
+    if (!aiSourcesDirty() && !$(source + '-account-editor').contains(document.activeElement)) renderAiAccountEditor(source);
+    $('ai-sources-status').textContent = data.message || '暂无可展示的本机账号';
+    $('ai-sources-accounts').replaceChildren(...(Array.isArray(data.accounts) ? data.accounts : []).map(account => {
+      const row = document.createElement('li'); row.className = 'result-row'; row.dataset.accountId = account.id;
+      const title = document.createElement('strong'); title.textContent = account.alias || providerName(account.provider);
+      const meta = document.createElement('div'); meta.className = 'account-meta';
+      for (const label of [providerName(account.provider), account.plan || '套餐待获取', `${Array.isArray(account.windows) ? account.windows.length : 0} 个额度窗口`]) {
+        const badge = document.createElement('span'); badge.textContent = label; meta.append(badge);
+      }
+      row.append(title, meta); return row;
+    }));
+    const report = await api('ai-sources/refresh-status');
+    if (isCurrent()) {
+      const stamp = value => value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '暂无';
+      $(source + '-refresh-state').textContent = `${report.state.message} · 最近成功：${stamp(report.state.lastSuccessAt)} · 下次：${report.nextRefreshAt ? stamp(report.nextRefreshAt) : report.enabled ? '等待读取' : '自动刷新已关闭'}`;
+    }
+  } catch { if (isCurrent()) $('ai-sources-status').textContent = '暂时无法读取 AI 来源状态，请稍后重试'; }
+  finally { aiSourcesLoading = false; syncControls(); if (!isCurrent()) void readAiSources(); }
+}
+action('refresh-ai-sources', async () => {
+  const result = await api('ai-sources/refresh'); status(result.message || '正在刷新已保存的 AI 来源'); await readAiSources();
+});
+
+function applyClockDraft() {
+  const clock = savedClock();
+  $('clock-mode-status').textContent = config?.clock ? '已启用管理页时间设置，保存后自动同步到壁纸。' : '管理页时间设置尚未启用，壁纸继续使用已有设置。点击保存可启用这里的时区与校准配置。';
+  $('clock-timezone').value = clock.timezone;
+  $('clock-offset').value = String(clock.offsetSeconds);
+  $('clock-seconds').checked = clock.seconds;
+  $('clock-hour12').checked = clock.hour12;
+  $('clock-world-zones').value = clock.worldZones.join('\n');
+  renderClockPreview();
+}
+function renderClockPreview() {
+  const clock = clockDraft();
+  if (!validTimezone(clock.timezone) || clock.offsetSeconds === null || !Number.isFinite(clock.offsetSeconds) || Math.abs(clock.offsetSeconds) > 86400) {
+    $('clock-preview-time').textContent = '请检查时区或校准值'; $('clock-preview-date').textContent = '输入有效值后显示预览'; return;
+  }
+  const now = new Date(Date.now() + clock.offsetSeconds * 1000);
+  $('clock-preview-time').textContent = new Intl.DateTimeFormat('en-GB', { timeZone: clock.timezone, hour: '2-digit', minute: '2-digit', ...(clock.seconds ? { second: '2-digit' } : {}), hour12: clock.hour12 }).format(now);
+  $('clock-preview-date').textContent = new Intl.DateTimeFormat('zh-CN', { timeZone: clock.timezone, year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'long' }).format(now) + ' · ' + clock.timezone;
+}
+function applyWeatherDraft() {
+  $('weather-provider').value = savedWeather().provider;
+  $('weather-api-key').value = ''; $('weather-clear-key').checked = false;
+  applyWeatherLocationFields();
+  renderWeatherProvider();
+}
+function applyWeatherLocationFields() {
+  const same = $('weather-provider').value === savedWeather().provider;
+  $('weather-api-host').value = same && savedWeather().provider === 'qweather' ? savedWeather().apiHost || '' : '';
+  $('weather-city-code').value = same && savedWeather().provider === 'amap' ? savedWeather().cityCode || '' : '';
+}
+function renderWeatherProvider() {
+  const provider = $('weather-provider').value, keyed = ['openweathermap', 'weatherapi', 'amap', 'qweather'].includes(provider);
+  const same = provider === savedWeather().provider, savedHasKey = same && savedWeather().apiKeyConfigured, hasKey = weatherCanRetainKey();
+  $('weather-city-code-field').hidden = provider !== 'amap';
+  $('weather-api-host-field').hidden = provider !== 'qweather';
+  $('weather-api-key').placeholder = provider === 'amap' ? '填写高德 Web 服务 Key（不是 JS API Key）' : '填写所选天气来源的 API Key';
+  $('weather-key-field').hidden = !keyed;
+  $('weather-clear-key').disabled = !savedHasKey;
+  $('weather-api-key').disabled = $('weather-clear-key').checked;
+  $('weather-key-status').textContent = hasKey ? '已加密保存当前来源的密钥；留空保留，输入新值替换。' : provider === 'qweather' && savedHasKey ? 'API Host 已更改，请重新填写该主机的 API Key；原主机的密钥不会沿用。也可清除已保存密钥后保存为未配置。' : '请填写当前来源的 API Key；其他来源的密钥不会沿用。';
+  $('weather-provider-help').textContent = {
+    'open-meteo': 'Open-Meteo 天气模型，无需 API Key。',
+    'met-no': 'MET Norway / Yr 天气预报，无需 API Key。',
+    'openweathermap': '使用 OpenWeatherMap 的天气与预报接口，需要有效 API Key。',
+    'weatherapi': '使用 WeatherAPI 天气与预报接口，需要有效 API Key。',
+    'amap': '高德天气支持国内城市的实况与每日预报，需要 Web 服务 Key（不是 JS API Key）；不提供小时预报。',
+    'qweather': '和风天气使用控制台 API Key 与专属 API Host，按所选城市坐标读取天气。'
+  }[provider] || '';
+}
+for (const id of ['clock-timezone', 'clock-offset', 'clock-seconds', 'clock-hour12']) $(id).addEventListener('input', renderClockPreview);
+setInterval(() => { if (!document.hidden) renderClockPreview(); }, 1000);
+$('weather-provider').addEventListener('change', () => {
+  // A typed credential belongs only to the provider selected when it was entered.
+  $('weather-api-key').value = ''; $('weather-clear-key').checked = false; applyWeatherLocationFields(); renderWeatherProvider(); syncControls();
+});
+$('weather-clear-key').addEventListener('change', () => { if ($('weather-clear-key').checked) $('weather-api-key').value = ''; renderWeatherProvider(); syncControls(); });
+$('weather-api-host').addEventListener('input', renderWeatherProvider);
+action('save-clock', async () => {
+  const clock = clockDraft();
+  if (!validTimezone(clock.timezone)) throw new Error('请输入有效时区，例如 Asia/Shanghai 或 Europe/London');
+  if (clock.offsetSeconds === null || !Number.isFinite(clock.offsetSeconds) || Math.abs(clock.offsetSeconds) > 86400) throw new Error('时间校准须为 -86400 到 86400 之间的秒数');
+  if (clock.worldZones.length > 24) throw new Error('世界时钟最多填写 24 个时区');
+  const invalid = clock.worldZones.find(zone => !validTimezone(zone));
+  if (invalid) throw new Error('世界时钟时区无效：' + invalid);
+  await api('config', { clock }); await readConfig(['clock']); status('时间设置已保存，壁纸将自动更新');
+});
+action('cancel-clock', async () => { applyClockDraft(); status('已恢复保存的时间设置'); });
+action('reset-clock-offset', async () => { $('clock-offset').value = '0'; renderClockPreview(); $('clock-sync-status').textContent = '已恢复使用系统时间；保存时间设置后生效。'; });
+action('sync-clock', async () => {
+  status('正在获取网络时间…');
+  const result = await api('time/sync');
+  if (!Number.isFinite(result.offsetSeconds) || Math.abs(result.offsetSeconds) > 86400) throw new Error('网络校时结果超出可用范围，请手动填写校准值');
+  $('clock-offset').value = String(Math.round(result.offsetSeconds * 1000) / 1000); renderClockPreview();
+  $('clock-sync-status').textContent = `${result.source || 'HTTPS 时间'} · 校准 ${$('clock-offset').value} 秒` + (Number.isFinite(result.roundTripMs) ? ` · 往返 ${Math.round(result.roundTripMs)} 毫秒` : '') + '。已填入预览，保存时间设置后生效。';
+  status('网络校时结果已填入，请预览后保存时间设置');
+});
+action('save-weather', async () => {
+  const provider = $('weather-provider').value, apiKey = $('weather-api-key').value.trim(), clearApiKey = $('weather-clear-key').checked;
+  const keyed = ['openweathermap', 'weatherapi', 'amap', 'qweather'].includes(provider);
+  if (apiKey.length > 512 || /[\u0000-\u001f\u007f]/.test(apiKey)) throw new Error('天气 API Key 格式无效');
+  if (keyed && !clearApiKey && !apiKey && !weatherCanRetainKey()) throw new Error(provider === 'qweather' && provider === savedWeather().provider && savedWeather().apiKeyConfigured ? 'API Host 已更改，请重新填写对应的 API Key，或清除已保存密钥后保存' : '请填写当前天气来源的 API Key');
+  if (provider === 'amap' && !/^[0-9]{6}$/.test(weatherCityCode())) throw new Error('请填写高德的 6 位城市行政区代码，例如苏州 320500');
+  if (provider === 'qweather' && !validWeatherApiHost(weatherApiHost())) throw new Error('请填写有效和风 API Host，例如 demo.re.qweatherapi.com，不含协议、端口或路径');
+  await api('config', { weather: { provider, ...(apiKey ? { apiKey } : {}), ...(clearApiKey ? { clearApiKey: true } : {}), ...(provider === 'amap' ? { cityCode: weatherCityCode() } : {}), ...(provider === 'qweather' ? { apiHost: weatherApiHost() } : {}) } });
+  $('weather-api-key').value = ''; await readConfig(['weather']); status('天气来源已保存，正在更新天气');
+});
+action('cancel-weather', async () => { applyWeatherDraft(); status('已恢复保存的天气来源'); });
 
 function resetAccountDraft() {
   draftWatched = config.accounts.map(a => a.id);
@@ -520,6 +839,7 @@ action('refresh', async () => { const r = await api('refresh'); await readConfig
       finally { polling = false; }
       if (Date.now() - plansReadAt >= 15000) void readAccountPlans();
       if (Date.now() - diagnosticsReadAt >= 15000) void readDiagnostics();
+      if (config.aiSources && savedAiSources().source !== 'cpamp' && Date.now() - aiSourcesReadAt >= 5000) void readAiSources();
     }, 3000);
   } catch (e) { status(e.message, 'error'); bridgeState('error', '无法连接本机桥接'); }
 })();

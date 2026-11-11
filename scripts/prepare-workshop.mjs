@@ -5,10 +5,12 @@ const root = resolve(import.meta.dirname, '..');
 const source = join(root, 'dist');
 const output = join(root, 'artifacts', 'workshop');
 await mkdir(join(output, 'assets'), { recursive: true });
-for (const file of ['index.html', 'wallpaper.js', 'wallpaper.css']) {
+for (const file of ['index.html', 'wallpaper.js', 'wallpaper.css', 'theme.js']) {
   await cp(join(source, file), join(output, file));
 }
 await cp(join(source, 'assets', 'wallpaper-original.jpg'), join(output, 'assets', 'wallpaper-original.jpg'));
+await cp(join(source, 'assets', 'wallpapers'), join(output, 'assets', 'wallpapers'), { recursive: true });
+await cp(join(source, 'assets', 'providers'), join(output, 'assets', 'providers'), { recursive: true });
 const project = JSON.parse(await readFile(join(source, 'project.json'), 'utf8'));
 if (project.general.properties.bridge_token.value !== '') throw new Error('The distribution ticket must be empty.');
 project.title = '竖屏动态信息壁纸 · 磨砂玻璃仪表盘';
@@ -33,7 +35,7 @@ await writeFile(join(output, 'project.json'), JSON.stringify(project, null, 2) +
 await writeFile(join(root, 'artifacts', 'workshop-description.txt'), project.description + '\n');
 await writeFile(join(output, '使用说明.txt'), project.description + '\n');
 
-const allowed = ['assets', 'index.html', 'project.json', 'wallpaper.css', 'wallpaper.js', '使用说明.txt', 'preview.png'];
+const allowed = ['assets', 'index.html', 'project.json', 'wallpaper.css', 'wallpaper.js', 'theme.js', '使用说明.txt', 'preview.png'];
 const unexpected = (await readdir(output)).filter(file => !allowed.includes(file));
 if (unexpected.length) throw new Error('Unexpected Workshop files: ' + unexpected.join(', '));
 console.log('Private Workshop package prepared: ' + output);

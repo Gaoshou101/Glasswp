@@ -8,9 +8,12 @@
     <WallpaperBuildId Condition="'$(WallpaperBuildId)' == ''">development</WallpaperBuildId>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="../../docs/THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <AssemblyMetadata Include="WallpaperBuildId" Value="$(WallpaperBuildId)" />
     <InternalsVisibleTo Include="WallpaperBridge.Tests" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.0" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
   </ItemGroup>
 </Project>

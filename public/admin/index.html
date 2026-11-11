@@ -77,7 +77,12 @@ input,select,button,textarea{font:inherit;color:var(--ink)}
 input:not([type=checkbox]),select{width:100%;padding:11px 14px;border-radius:var(--radius-control);border:1px solid var(--hairline);background:var(--field);box-shadow:inset 0 1px 2px rgba(0,0,0,.25);transition:border-color .2s,background .2s,box-shadow .2s}
 input:not([type=checkbox]):hover,select:hover{background:var(--field-hover)}
 input:not([type=checkbox]):focus,select:focus{outline:none;border-color:rgba(212,180,255,.7);box-shadow:inset 0 1px 2px rgba(0,0,0,.25),0 0 0 4px rgba(212,180,255,.2)}
-input::placeholder{color:rgba(246,243,255,.38)}
+input::placeholder,textarea::placeholder{color:rgba(246,243,255,.38)}
+textarea{width:100%;resize:vertical;min-height:150px;padding:11px 14px;border-radius:var(--radius-control);border:1px solid var(--hairline);background:var(--field);line-height:1.65}
+textarea:focus{outline:none;border-color:rgba(212,180,255,.7);box-shadow:0 0 0 4px rgba(212,180,255,.2)}
+.clock-preview{margin-top:16px;padding:16px;border:1px solid var(--hairline);border-radius:var(--radius-group);background:var(--well);font-variant-numeric:tabular-nums}
+.clock-preview strong{display:block;font-size:30px;font-weight:500;letter-spacing:.02em;line-height:1.4}
+.clock-preview span{font-size:13px;color:var(--ink-3);overflow-wrap:anywhere}
 input[readonly]{color:var(--ink-2)}
 select{appearance:none;-webkit-appearance:none;padding-right:38px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4b4ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px}
 select option{background:#231d2c;color:var(--ink)}
@@ -218,9 +223,12 @@ pre{white-space:pre-wrap;font:12px/1.7 "Cascadia Mono",Consolas,monospace;color:
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 @media(prefers-reduced-transparency:reduce){.glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:#241e2e}body::before{filter:blur(16px) brightness(.3)}}
 @media(forced-colors:active){.glass,button,input,select,details,.list-group,.facts{border:1px solid CanvasText}.watch-toggle:checked,input[type=checkbox][role=switch]:checked{background:Highlight}}
-</style><script defer src="admin.js"></script></head><body>
+.ai-account-editor-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--hairline)}
+.ai-account-editor-row .field{flex:1;min-width:160px;margin:0}.ai-account-editor-row .account-meta{width:100%}.ai-account-editor-row .actions{margin:0}
+</style><link rel="stylesheet" href="admin-theme.css"><script defer src="admin.js"></script><script type="module" src="theme-admin.js"></script></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-weather" viewBox="0 0 24 24"><circle cx="8.5" cy="8.5" r="3"/><path d="M8.5 2.5v1.3M2.5 8.5h1.3M4.3 4.3l.9.9M12.7 4.3l-.9.9"/><path d="M9 20h8.5a3.5 3.5 0 0 0 .3-7 5 5 0 0 0-9.4 1.6A2.75 2.75 0 0 0 9 20Z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5V12l3.5 2"/></symbol>
 <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1.2 1.2"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1.2-1.2"/></symbol>
 <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c.6-3.4 3-5.3 6-5.3s5.4 1.9 6 5.3"/><path d="M15.5 4.9a3.2 3.2 0 0 1 0 6.2M17.6 14.1c1.9.7 3 2.3 3.4 5.4"/></symbol>
 <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v4.2h-4.2"/></symbol>
@@ -231,28 +239,145 @@ pre{white-space:pre-wrap;font:12px/1.7 "Cascadia Mono",Consolas,monospace;color:
 <symbol id="i-down" viewBox="0 0 24 24"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></symbol>
 <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.4-4.4"/></symbol>
 <symbol id="i-open" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5 11 13M18 14.5v3.5a1.5 1.5 0 0 1-1.5 1.5h-10A1.5 1.5 0 0 1 5 18V8a1.5 1.5 0 0 1 1.5-1.5H10"/></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3Z"/><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z"/></symbol>
 </defs></svg>
 <div class="shell">
 <aside class="sidebar glass" aria-label="设置导航">
 <div class="brand"><img src="../favicon.svg" alt=""><div><strong>竖屏动态信息壁纸</strong><span id="bridge-state">正在连接本机桥接…</span></div></div>
 <nav class="nav" aria-label="设置分区">
+<a href="#clock-section"><svg class="icon"><use href="#i-clock"/></svg><span>时间与世界时钟</span><i class="nav-dot" data-dirty-for="clock" hidden></i></a>
 <a href="#city-section"><svg class="icon"><use href="#i-weather"/></svg><span>天气城市</span><i class="nav-dot" data-dirty-for="city" hidden></i></a>
+<a href="#weather-section"><svg class="icon"><use href="#i-weather"/></svg><span>天气来源</span><i class="nav-dot" data-dirty-for="weather" hidden></i></a>
+<a href="#ai-sources-section"><svg class="icon"><use href="#i-link"/></svg><span>AI 套餐来源</span><i class="nav-dot" data-dirty-for="ai-sources" hidden></i></a>
+<a href="#local-settings-section"><svg class="icon"><use href="#i-link"/></svg><span>本机 AI Agent 配置</span><i class="nav-dot" data-dirty-for="ai-sources" hidden></i></a>
+<a href="#magpie-settings-section"><svg class="icon"><use href="#i-link"/></svg><span>Magpie 配置</span><i class="nav-dot" data-dirty-for="ai-sources" hidden></i></a>
+<a href="#cpa-settings-section"><svg class="icon"><use href="#i-link"/></svg><span>CPA 配置</span><i class="nav-dot" data-dirty-for="ai-sources" hidden></i></a>
+<a href="#sub2api-settings-section"><svg class="icon"><use href="#i-link"/></svg><span>Sub2API 配置</span><i class="nav-dot" data-dirty-for="ai-sources" hidden></i></a>
 <a href="#cpamp-section"><svg class="icon"><use href="#i-link"/></svg><span>CPAMP 连接</span><i class="nav-dot" data-dirty-for="cpamp" hidden></i></a>
 <a href="#accounts-section"><svg class="icon"><use href="#i-people"/></svg><span>账号</span><i class="nav-dot" data-dirty-for="accounts" hidden></i></a>
 <a href="#refresh-section"><svg class="icon"><use href="#i-refresh"/></svg><span>用量自动刷新</span><i class="nav-dot" data-dirty-for="refresh" hidden></i></a>
 <a href="#sensors-section"><svg class="icon"><use href="#i-chip"/></svg><span>硬件传感器</span><i class="nav-dot" data-dirty-for="sensors" hidden></i></a>
 <a href="#connection-section"><svg class="icon"><use href="#i-display"/></svg><span>壁纸连接</span></a>
+<a href="#appearance-section"><svg class="icon"><use href="#i-sparkles"/></svg><span>壁纸主题与管理页</span><i class="nav-dot" data-theme-dirty hidden></i></a>
 </nav>
 <a class="sidebar-foot" href="/?studio"><span>壁纸预览与外观</span><svg class="icon"><use href="#i-open"/></svg></a>
 </aside>
 <main>
-<header class="page-head"><h1>本机设置</h1><p>天气、套餐余量与硬件传感器。设置保存在当前 Windows 用户的加密配置中。</p></header>
+<header class="page-head"><h1>本机设置</h1><p>时间、天气、套餐余量与硬件传感器。设置保存在当前 Windows 用户的加密配置中。</p></header>
+<section id="appearance-section" class="panel glass appearance-panel" aria-labelledby="appearance-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="violet"><svg class="icon"><use href="#i-sparkles"/></svg></span><div class="panel-title"><h2 id="appearance-heading">壁纸主题与管理页</h2><p class="panel-sub">更换壁纸时只需选择预设；管理页主题可以跟随当前壁纸，也可以固定为浅色或深色。</p></div></div>
+<div class="appearance-grid">
+<div class="field"><label for="wallpaper-theme-preset">壁纸预设</label><select id="wallpaper-theme-preset"><option value="original">原版紫色玻璃</option><option value="neon">荧光黄绿</option><option value="pool">泳池青蓝</option></select></div>
+<div class="field"><label for="wallpaper-theme-surface">壁纸表面</label><select id="wallpaper-theme-surface"><option value="dark">深色玻璃</option><option value="light">浅色玻璃</option></select></div>
+<div class="field"><label for="wallpaper-theme-accent">强调色</label><input id="wallpaper-theme-accent" type="color" value="#dcc6ff"><span id="wallpaper-theme-accent-value" class="color-value">#dcc6ff</span></div>
+<div class="field"><label for="admin-theme-mode">管理页主题</label><select id="admin-theme-mode"><option value="follow">跟随当前壁纸</option><option value="light">Light 浅色</option><option value="dark">Dark 深色</option></select></div>
+</div>
+<div class="appearance-preview" id="appearance-preview"><span class="appearance-swatch"></span><div><strong id="appearance-preview-title">原版紫色玻璃</strong><small id="appearance-preview-copy">深色玻璃 · 管理页跟随壁纸</small></div></div>
+<div class="actions"><button id="save-appearance" class="primary" disabled>保存主题设置</button><button id="cancel-appearance" class="quiet" disabled>撤销更改</button></div>
+<p id="appearance-status" class="hint" role="status" aria-live="polite">正在读取主题设置…</p>
+</section>
+<section id="clock-section" class="panel glass" aria-labelledby="clock-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="violet"><svg class="icon"><use href="#i-clock"/></svg></span><div class="panel-title"><h2 id="clock-heading">时间与世界时钟<span class="dirty-pill" data-dirty-for="clock" hidden>未保存</span></h2><p class="panel-sub">点击壁纸上的时间展开世界时钟；保存后各壁纸会自动读取。</p></div></div>
+<p id="clock-mode-status" class="hint"></p>
+<div class="field"><label for="clock-timezone">显示时区</label><input id="clock-timezone" list="clock-timezones" value="Asia/Shanghai" autocomplete="off" spellcheck="false" aria-describedby="clock-timezone-help"><datalist id="clock-timezones"><option value="Asia/Shanghai">北京 / 上海</option><option value="Asia/Tokyo">东京</option><option value="Asia/Singapore">新加坡</option><option value="Europe/London">伦敦</option><option value="Europe/Paris">巴黎</option><option value="America/New_York">纽约</option><option value="America/Los_Angeles">洛杉矶</option><option value="Australia/Sydney">悉尼</option><option value="UTC">协调世界时</option></datalist></div>
+<p id="clock-timezone-help" class="hint">可选常用时区，也可输入任意有效 IANA 时区，例如 Asia/Kolkata；夏令时自动调整。</p>
+<label class="switch-row" for="clock-seconds"><span>显示秒数</span><input id="clock-seconds" type="checkbox" role="switch"></label>
+<label class="switch-row" for="clock-hour12"><span>12 小时制</span><input id="clock-hour12" type="checkbox" role="switch"></label>
+<div class="field"><label for="clock-offset">时间校准（秒）</label><input id="clock-offset" type="number" min="-86400" max="86400" step="any" value="0" inputmode="decimal" aria-describedby="clock-offset-help"></div>
+<p id="clock-offset-help" class="hint">正数调快、负数调慢，范围 ±86400 秒。仅校准壁纸显示，不修改 Windows 时间。</p>
+<div class="actions"><button id="sync-clock"><svg class="icon"><use href="#i-refresh"/></svg>网络校时</button><button id="reset-clock-offset" class="quiet">恢复系统时间</button></div>
+<p id="clock-sync-status" class="hint" role="status" aria-live="polite">网络校时参考 HTTPS 响应时间，精度约 1 秒；校准结果先预览，保存后生效。</p>
+<div class="clock-preview" aria-label="时间预览"><strong id="clock-preview-time">—</strong><span id="clock-preview-date">—</span></div>
+<div class="field"><label for="clock-world-zones">世界时钟列表（每行一个时区，按填写顺序显示）</label><textarea id="clock-world-zones" rows="6" spellcheck="false" aria-describedby="clock-world-help"></textarea></div>
+<p id="clock-world-help" class="hint">最多 24 个，留空时显示主时区。可填 Asia/Shanghai、Europe/London、America/New_York 等。</p>
+<div class="actions"><button id="save-clock" class="primary" disabled>保存时间设置</button><button id="cancel-clock" class="quiet" disabled>撤销更改</button></div>
+</section>
 <section id="city-section" class="panel glass" aria-labelledby="city-heading">
 <div class="panel-head"><span class="icon-tile" data-tint="sky"><svg class="icon"><use href="#i-weather"/></svg></span><div class="panel-title"><h2 id="city-heading">天气城市<span class="dirty-pill" data-dirty-for="city" hidden>未保存</span></h2><p class="panel-sub" id="current-city">默认：苏州 · 江苏</p></div></div>
 <div class="field"><label for="city-query">搜索城市（可用中文、拼音或英文名）</label><div class="inline"><input id="city-query" type="search" placeholder="例如 苏州 / Suzhou" autocomplete="off" enterkeyhint="search"><button id="search-city">搜索</button></div></div>
 <div class="field"><label for="city-results">选择搜索结果</label><select id="city-results"><option value="">先搜索城市</option></select></div>
 <div class="actions"><button id="save-city" class="primary" disabled>使用该城市</button></div>
-<p class="hint">数据由 Open-Meteo 天气模型提供，每 15 分钟读取一次；断网保留上次数据。</p>
+<p class="hint">所选城市用于各天气来源；每 15 分钟读取一次，断网保留上次数据。</p>
+</section>
+<section id="weather-section" class="panel glass" aria-labelledby="weather-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="sky"><svg class="icon"><use href="#i-weather"/></svg></span><div class="panel-title"><h2 id="weather-heading">天气来源<span class="dirty-pill" data-dirty-for="weather" hidden>未保存</span></h2><p class="panel-sub">切换后按当前城市获取天气，数据源可随时更换。</p></div></div>
+<div class="field"><label for="weather-provider">数据源</label><select id="weather-provider"><option value="open-meteo">Open-Meteo · 无需密钥</option><option value="met-no">MET Norway · 无需密钥</option><option value="openweathermap">OpenWeatherMap · 需要 API Key</option><option value="weatherapi">WeatherAPI · 需要 API Key</option><option value="amap">高德天气 · 需要 Web 服务 Key</option><option value="qweather">和风天气 · 需要 API Key 与 API Host</option></select></div>
+<p id="weather-provider-help" class="hint"></p>
+<div id="weather-city-code-field" class="field" hidden><label for="weather-city-code">高德城市行政区代码</label><input id="weather-city-code" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="off" spellcheck="false" placeholder="例如 320500" aria-describedby="weather-city-code-help"><p id="weather-city-code-help" class="hint">填写 6 位 adcode，例如苏州 320500。高德使用此代码决定天气城市；切换上方搜索城市后，请同步调整这里的代码。</p></div>
+<div id="weather-api-host-field" class="field" hidden><label for="weather-api-host">和风 API Host</label><input id="weather-api-host" type="text" maxlength="253" autocomplete="off" spellcheck="false" placeholder="例如 demo.re.qweatherapi.com" aria-describedby="weather-api-host-help"><p id="weather-api-host-help" class="hint">从和风控制台复制完整 API Host，包括 re 等区域层级，例如 demo.re.qweatherapi.com。仅填主机名，不含 https://、端口或路径。更换 Host 须重填对应 API Key。天气位置使用上方所选城市的经纬度。</p></div>
+<div id="weather-key-field" class="field" hidden><label for="weather-api-key">API Key</label><input id="weather-api-key" type="password" maxlength="512" autocomplete="new-password" spellcheck="false" placeholder="填写所选天气来源的 API Key"><p id="weather-key-status" class="hint"></p><label class="switch-row" for="weather-clear-key"><span>清除已保存的天气密钥<small>保存后执行</small></span><input id="weather-clear-key" type="checkbox" role="switch"></label></div>
+<div class="actions"><button id="save-weather" class="primary" disabled>保存天气来源</button><button id="cancel-weather" class="quiet" disabled>撤销更改</button></div>
+<p class="hint">密钥仅由本机桥接加密保存。切换来源时需填写对应密钥，网络可用性与调用额度取决于服务商。</p>
+</section>
+<section id="ai-sources-section" class="panel glass" aria-labelledby="ai-sources-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="teal"><svg class="icon"><use href="#i-link"/></svg></span><div class="panel-title"><h2 id="ai-sources-heading">AI 套餐来源<span class="dirty-pill" data-dirty-for="ai-sources" hidden>未保存</span></h2><p class="panel-sub">选择一种方式获取套餐与余量，保存后切换。各来源的连接与账号设置会保留。</p></div></div>
+<div class="field"><label for="ai-source">获取方式</label><select id="ai-source" aria-describedby="ai-source-help"><option value="cpamp">CPAMP · 读取已关注账号</option><option value="local">本机自动读取 · 检测已登录的 AI agent</option><option value="magpie">Magpie · 读取账号缓存</option><option value="cpa">CPA · 直接读取托管账号</option><option value="sub2api">Sub2API · 读取后台托管账号</option></select></div>
+<p id="ai-source-help" class="hint"></p>
+<p id="ai-sources-current-source" class="hint" role="status" aria-live="polite"></p>
+<div class="actions"><button id="save-ai-sources" class="primary" disabled>保存 AI 来源</button><button id="cancel-ai-sources" class="quiet" disabled>撤销更改</button><button id="refresh-ai-sources"><svg class="icon"><use href="#i-refresh"/></svg>刷新已保存来源</button></div>
+<p class="hint">仅查询套餐与用量。凭据到期后，请回到原工具检查登录；Antigravity 的登录状态由原 CLI 管理。Magpie 显示缓存中的最新结果；更新缓存请使用 Magpie。</p>
+<p id="ai-sources-refresh-help" class="hint">自动刷新频率可在各来源配置中调整。手动刷新最短间隔 60 秒。</p>
+<p id="ai-sources-status" role="status" aria-live="polite">当前使用 CPAMP。</p>
+<ul id="ai-sources-accounts" class="list-group" aria-label="自动检测到的 AI 账号"></ul>
+</section>
+<section id="local-settings-section" class="panel glass" aria-labelledby="local-settings-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="teal"><svg class="icon"><use href="#i-link"/></svg></span><div class="panel-title"><h2 id="local-settings-heading">本机 AI Agent 配置<span class="dirty-pill" data-dirty-for="ai-sources" hidden>未保存</span></h2><p class="panel-sub">独立保存刷新与账号显示设置。仅在选择此来源并保存后读取账号。</p></div></div>
+<p class="hint">自动检测当前 Windows 用户已登录的 AI Agent。请在原工具完成登录；这里仅设置壁纸显示与查询频率。</p>
+<label class="switch-row" for="local-auto-refresh"><span>自动刷新<small>查询已登录账号的套餐与余量</small></span><input id="local-auto-refresh" type="checkbox" role="switch" checked></label>
+<div class="field"><label for="local-refresh-minutes">刷新间隔（分钟）</label><input id="local-refresh-minutes" type="number" min="1" max="10080" step="1" value="10"></div>
+<label class="switch-row" for="local-all-accounts"><span>自动显示全部账号<small>关闭后勾选显示账号，编辑别名并调整顺序；新发现的账号不会自动加入。</small></span><input id="local-all-accounts" type="checkbox" role="switch" checked></label>
+<p id="local-accounts-hint" class="hint"></p>
+<ul id="local-account-editor" class="list-group" aria-label="本机 AI Agent 账号配置"></ul>
+<div class="actions"><button id="save-local-settings" class="primary" disabled>保存 本机 AI Agent 配置</button><button id="cancel-local-settings" class="quiet" disabled>撤销更改</button><button id="refresh-local-settings">读取账号与余量</button></div>
+<p id="local-refresh-state" class="hint" role="status" aria-live="polite"></p>
+</section>
+<section id="magpie-settings-section" class="panel glass" aria-labelledby="magpie-settings-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="teal"><svg class="icon"><use href="#i-link"/></svg></span><div class="panel-title"><h2 id="magpie-settings-heading">Magpie 配置<span class="dirty-pill" data-dirty-for="ai-sources" hidden>未保存</span></h2><p class="panel-sub">独立保存刷新与账号显示设置。仅在选择此来源并保存后读取账号。</p></div></div>
+<div id="ai-magpie-fields">
+<div class="field"><label for="ai-magpie-url">Magpie API 地址</label><input id="ai-magpie-url" type="url" value="http://127.0.0.1:3425" autocomplete="off" spellcheck="false" aria-describedby="ai-magpie-help"></div>
+<p id="ai-magpie-help" class="hint">使用 Magpie 的只读 API。本机回环地址可用 HTTP，远程地址须用 HTTPS。更换地址后不会沿用原地址的密钥。</p>
+<div class="field"><label for="ai-magpie-key">Magpie 只读 API Key</label><input id="ai-magpie-key" type="password" maxlength="4096" autocomplete="new-password" spellcheck="false" placeholder="留空保留当前地址已保存的密钥"><p id="ai-magpie-key-status" class="hint"></p></div>
+<label class="switch-row" for="ai-magpie-clear-key"><span>清除已保存的 Magpie 密钥<small>保存后执行</small></span><input id="ai-magpie-clear-key" type="checkbox" role="switch"></label>
+</div>
+<label class="switch-row" for="magpie-auto-refresh"><span>自动刷新<small>读取 Magpie 已缓存的套餐与余量，不触发 Magpie 上游刷新</small></span><input id="magpie-auto-refresh" type="checkbox" role="switch" checked></label>
+<div class="field"><label for="magpie-refresh-minutes">刷新间隔（分钟）</label><input id="magpie-refresh-minutes" type="number" min="1" max="10080" step="1" value="1"></div>
+<label class="switch-row" for="magpie-all-accounts"><span>自动显示全部账号<small>关闭后勾选显示账号，编辑别名并调整顺序；新发现的账号不会自动加入。</small></span><input id="magpie-all-accounts" type="checkbox" role="switch" checked></label>
+<p id="magpie-accounts-hint" class="hint"></p>
+<ul id="magpie-account-editor" class="list-group" aria-label="Magpie 账号配置"></ul>
+<div class="actions"><button id="save-magpie-settings" class="primary" disabled>保存 Magpie 配置</button><button id="cancel-magpie-settings" class="quiet" disabled>撤销更改</button><button id="refresh-magpie-settings">读取账号与余量</button></div>
+<p id="magpie-refresh-state" class="hint" role="status" aria-live="polite"></p>
+</section>
+<section id="cpa-settings-section" class="panel glass" aria-labelledby="cpa-settings-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="teal"><svg class="icon"><use href="#i-link"/></svg></span><div class="panel-title"><h2 id="cpa-settings-heading">CPA 配置<span class="dirty-pill" data-dirty-for="ai-sources" hidden>未保存</span></h2><p class="panel-sub">独立保存刷新与账号显示设置。仅在选择此来源并保存后读取账号。</p></div></div>
+<p class="hint">直接读取后台托管账号的真实套餐与余量。普通模型调用 API Key 不能作为管理密钥。</p>
+<div class="field"><label for="ai-cpa-url">CPA 服务地址</label><input id="ai-cpa-url" type="url" autocomplete="off" spellcheck="false" placeholder="https://your-service.example"></div>
+<p class="hint">填写服务根地址。远程使用 HTTPS，本机回环地址可用 HTTP。更换地址或密钥将清除原账号筛选。</p>
+<div class="field"><label for="ai-cpa-key">CPA 管理密钥</label><input id="ai-cpa-key" type="password" maxlength="4096" autocomplete="new-password" placeholder="留空保留当前地址已保存的密钥"><p id="ai-cpa-key-status" class="hint"></p></div>
+<label class="switch-row" for="ai-cpa-clear-key"><span>清除已保存的 CPA 密钥<small>保存后执行</small></span><input id="ai-cpa-clear-key" type="checkbox" role="switch"></label>
+<div class="field"><label for="ai-cpa-version">CPA 管理接口版本</label><select id="ai-cpa-version"><option value="v0">v0 · auth-files / api-call</option><option value="v8">v8 · credentials / requests/api-call</option></select></div><p class="hint">优先使用账号的配额插件；无插件时支持 Codex、Claude、Antigravity。无需 CPAMP。</p>
+<label class="switch-row" for="cpa-auto-refresh"><span>自动刷新<small>查询已登录账号的套餐与余量</small></span><input id="cpa-auto-refresh" type="checkbox" role="switch" checked></label>
+<div class="field"><label for="cpa-refresh-minutes">刷新间隔（分钟）</label><input id="cpa-refresh-minutes" type="number" min="1" max="10080" step="1" value="10"></div>
+<label class="switch-row" for="cpa-all-accounts"><span>自动显示全部账号<small>关闭后勾选显示账号，编辑别名并调整顺序；新发现的账号不会自动加入。</small></span><input id="cpa-all-accounts" type="checkbox" role="switch" checked></label>
+<p id="cpa-accounts-hint" class="hint"></p>
+<ul id="cpa-account-editor" class="list-group" aria-label="CPA 账号配置"></ul>
+<div class="actions"><button id="save-cpa-settings" class="primary" disabled>保存 CPA 配置</button><button id="cancel-cpa-settings" class="quiet" disabled>撤销更改</button><button id="refresh-cpa-settings">读取账号与余量</button></div>
+<p id="cpa-refresh-state" class="hint" role="status" aria-live="polite"></p>
+</section>
+<section id="sub2api-settings-section" class="panel glass" aria-labelledby="sub2api-settings-heading">
+<div class="panel-head"><span class="icon-tile" data-tint="teal"><svg class="icon"><use href="#i-link"/></svg></span><div class="panel-title"><h2 id="sub2api-settings-heading">Sub2API 配置<span class="dirty-pill" data-dirty-for="ai-sources" hidden>未保存</span></h2><p class="panel-sub">独立保存刷新与账号显示设置。仅在选择此来源并保存后读取账号。</p></div></div>
+<p class="hint">直接读取后台托管账号的真实套餐与余量。普通模型调用 API Key 不能作为管理密钥。</p>
+<div class="field"><label for="ai-sub2api-url">Sub2API 服务地址</label><input id="ai-sub2api-url" type="url" autocomplete="off" spellcheck="false" placeholder="https://your-service.example"></div>
+<p class="hint">填写服务根地址。远程使用 HTTPS，本机回环地址可用 HTTP。更换地址或密钥将清除原账号筛选。</p>
+<div class="field"><label for="ai-sub2api-key">Sub2API 管理员 API Key（x-api-key）</label><input id="ai-sub2api-key" type="password" maxlength="4096" autocomplete="new-password" placeholder="留空保留当前地址已保存的密钥"><p id="ai-sub2api-key-status" class="hint"></p></div>
+<label class="switch-row" for="ai-sub2api-clear-key"><span>清除已保存的 Sub2API 密钥<small>保存后执行</small></span><input id="ai-sub2api-clear-key" type="checkbox" role="switch"></label>
+<p class="hint">支持 OAuth 类型的 Codex、Claude、Antigravity 托管账号；其他类型显示账号但不推算余量。推荐使用具有账号列表和额度读取权限的管理员 API Key。</p>
+<label class="switch-row" for="sub2api-auto-refresh"><span>自动刷新<small>查询已登录账号的套餐与余量</small></span><input id="sub2api-auto-refresh" type="checkbox" role="switch" checked></label>
+<div class="field"><label for="sub2api-refresh-minutes">刷新间隔（分钟）</label><input id="sub2api-refresh-minutes" type="number" min="1" max="10080" step="1" value="10"></div>
+<label class="switch-row" for="sub2api-all-accounts"><span>自动显示全部账号<small>关闭后勾选显示账号，编辑别名并调整顺序；新发现的账号不会自动加入。</small></span><input id="sub2api-all-accounts" type="checkbox" role="switch" checked></label>
+<p id="sub2api-accounts-hint" class="hint"></p>
+<ul id="sub2api-account-editor" class="list-group" aria-label="Sub2API 账号配置"></ul>
+<div class="actions"><button id="save-sub2api-settings" class="primary" disabled>保存 Sub2API 配置</button><button id="cancel-sub2api-settings" class="quiet" disabled>撤销更改</button><button id="refresh-sub2api-settings">读取账号与余量</button></div>
+<p id="sub2api-refresh-state" class="hint" role="status" aria-live="polite"></p>
 </section>
 <section id="cpamp-section" class="panel glass" aria-labelledby="cpamp-heading">
 <div class="panel-head"><span class="icon-tile" data-tint="indigo"><svg class="icon"><use href="#i-link"/></svg></span><div class="panel-title"><h2 id="cpamp-heading">CPAMP 连接<span class="dirty-pill" data-dirty-for="cpamp" hidden>未保存</span></h2><p class="panel-sub" id="credential-status"></p></div></div>

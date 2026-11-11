@@ -1,0 +1,66 @@
+/* Top detail sheets: quiet violet glass, warm time markers, blue precipitation.
+   Geometry stays inside the existing top region to preserve the portrait. */
+.card-details[data-kind=clock],.card-details[data-kind=weather]{--sheet-line:rgba(237,223,255,.13);--sheet-soft:#c6bcd5;padding:calc(10 * var(--u)) calc(22 * var(--u))}
+.card-details[data-kind=clock] h2,.card-details[data-kind=weather] h2{flex:1;min-width:0;font-size:calc(21 * var(--u))}
+.card-details[data-kind=clock] .details-action,.card-details[data-kind=weather] .details-action{font-size:calc(13 * var(--u));white-space:nowrap;border-radius:calc(20 * var(--u));padding:calc(5 * var(--u)) calc(12 * var(--u))}
+.card-details[data-kind=clock] .card-details-heading,.card-details[data-kind=weather] .card-details-heading{padding-bottom:calc(6 * var(--u));border-bottom:calc(1 * var(--u)) solid var(--sheet-line)}
+.card-details[data-kind=clock] .card-details-body,.card-details[data-kind=weather] .card-details-body{margin-top:calc(8 * var(--u));flex:1;scrollbar-color:rgba(225,208,248,.3) transparent}
+.card-details[data-kind=clock] .details-action:focus-visible,.card-details[data-kind=weather] .details-action:focus-visible{outline:calc(2 * var(--u)) solid #dcc6ff;outline-offset:calc(3 * var(--u))}
+.world-clock-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);gap:calc(25 * var(--u));align-items:start;min-height:calc(148 * var(--u))}
+.world-clock-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:calc(22 * var(--u));row-gap:calc(10 * var(--u));min-height:calc(148 * var(--u));align-content:space-between}
+.world-clock-row{min-width:0;position:relative;line-height:1.15;font-variant-numeric:tabular-nums}
+.world-clock-heading,.world-clock-meta{display:flex;align-items:baseline;justify-content:space-between;gap:calc(7 * var(--u));min-width:0}
+.world-clock-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:calc(15 * var(--u));color:#eee4fa}
+.world-clock-time{flex-shrink:0;font-family:var(--font-display);font-size:calc(25 * var(--u));line-height:1.1;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.035em;color:#fbf8ff}
+.world-clock-row[data-seconds=true] .world-clock-time,.world-clock-row[data-hour12=true] .world-clock-time{font-size:calc(22 * var(--u))}
+.world-clock-row[data-seconds=true][data-hour12=true] .world-clock-time{font-size:calc(19 * var(--u))}
+.world-clock-meta{margin-top:calc(2 * var(--u));font-size:calc(9 * var(--u));line-height:1.1;color:var(--sheet-soft);white-space:nowrap}
+.world-clock-rail{height:calc(2 * var(--u));margin-top:calc(3 * var(--u));position:relative;border-radius:999px;background:linear-gradient(90deg,#7e7bad44 0 25%,#e5c39455 25% 75%,#7e7bad44 75%)}
+.world-clock-rail i{position:absolute;left:clamp(2px,var(--day-position),calc(100% - 2px));top:50%;width:calc(5 * var(--u));height:calc(5 * var(--u));transform:translate(-50%,-50%);border-radius:50%;background:#c7c7f5;box-shadow:0 0 calc(5 * var(--u)) #c7c7f540}
+.world-clock-row[data-period=day] .world-clock-rail i{background:#f4d5a9;box-shadow:0 0 calc(5 * var(--u)) #f4d5a940}
+.world-clock-row[data-primary=true]{padding-right:calc(25 * var(--u));border-right:calc(1 * var(--u)) solid var(--sheet-line);min-height:calc(148 * var(--u))}
+.world-clock-primary-label{position:absolute;right:calc(25 * var(--u));top:calc(5 * var(--u));font-size:calc(10 * var(--u));color:#e6c9a1}
+.world-clock-row[data-primary=true] .world-clock-heading{display:flex;flex-direction:column;gap:calc(5 * var(--u))}
+.world-clock-row[data-primary=true] .world-clock-name{font-size:calc(20 * var(--u));max-width:100%}
+.world-clock-row[data-primary=true] .world-clock-time{font-size:calc(44 * var(--u));font-weight:350;line-height:1.1;letter-spacing:-.045em}
+.world-clock-row[data-primary=true][data-hour12=true] .world-clock-time{font-size:calc(34 * var(--u))}
+.world-clock-row[data-primary=true][data-hour12=true][data-seconds=true] .world-clock-time{font-size:calc(28 * var(--u))}
+.world-clock-row[data-primary=true] .world-clock-meta{font-size:calc(11 * var(--u));margin-top:calc(5 * var(--u))}
+.world-clock-row[data-primary=true] .world-clock-day{display:none}
+.world-clock-date{font-size:calc(11 * var(--u));color:var(--sheet-soft);margin-top:calc(5 * var(--u));white-space:nowrap}
+.world-clock-row[data-primary=true] .world-clock-rail{margin-top:calc(10 * var(--u))}
+
+.world-clock-scale{display:flex;justify-content:space-between;color:var(--sheet-soft);font-size:calc(9 * var(--u));margin-top:calc(5 * var(--u))}
+.world-clock-layout[data-solo=true]{grid-template-columns:1fr}
+.world-clock-layout[data-solo=true] .world-clock-grid{display:none}
+.world-clock-layout[data-solo=true] .world-clock-row{border:0;padding-right:0;max-width:calc(390 * var(--u))}
+.weather-detail-layout{display:grid;grid-template-columns:calc(184 * var(--u)) minmax(0,1fr);gap:calc(22 * var(--u));min-height:calc(148 * var(--u))}
+.weather-current{line-height:1.2;display:flex;flex-direction:column;align-items:flex-start;min-width:0;border-right:calc(1 * var(--u)) solid var(--sheet-line);padding-right:calc(18 * var(--u))}
+.weather-current-city{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:calc(17 * var(--u));color:#f0e7fb}
+.weather-current-reading{display:flex;align-items:center;gap:calc(7 * var(--u));margin:calc(6 * var(--u)) 0}
+.wallpaper .weather-current .weather-current-icon{width:calc(49 * var(--u));height:calc(49 * var(--u))}
+.weather-current-temperature{font-family:var(--font-display);font-size:calc(44 * var(--u));line-height:1.1;font-weight:350;letter-spacing:-.045em}
+.weather-current-condition{font-size:calc(17 * var(--u));color:#eee4fa;line-height:1.4}
+.weather-current-range{font-size:calc(11 * var(--u));margin-top:calc(4 * var(--u));color:var(--sheet-soft);white-space:nowrap}
+.weather-current-status{display:flex;align-items:center;gap:calc(5 * var(--u));font-size:calc(10 * var(--u));color:var(--sheet-soft);margin-top:auto;padding-top:calc(10 * var(--u))}
+.weather-current-status::before{content:'';width:calc(4 * var(--u));height:calc(4 * var(--u));border-radius:50%;background:#b6dccd}
+.card-details[data-stale=true] .weather-current-status::before{background:#f0c390}
+.weather-forecast{min-width:0}
+.card-details .weather-forecast .forecast-summary{font-size:calc(13 * var(--u))!important;line-height:1.3;margin:0 0 calc(3 * var(--u))!important;color:#ded2ed!important}
+.forecast-trend{display:block;width:100%;height:calc(12 * var(--u));overflow:visible;margin:calc(2 * var(--u)) 0 calc(4 * var(--u))}
+.forecast-trend polyline{fill:none;stroke:#d6b9ef;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.weather-forecast .forecast-grid{gap:calc(2 * var(--u))}
+.weather-forecast .forecast-hour{line-height:1.2;padding:calc(2 * var(--u)) 0;background:transparent;border-radius:calc(9 * var(--u));gap:calc(3 * var(--u));position:relative}
+.weather-forecast .forecast-hour:first-child{background:rgba(232,219,251,.065);box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(232,219,251,.09)}
+.weather-forecast .forecast-time{font-size:calc(10 * var(--u))}
+.weather-forecast .forecast-temperature{font-size:calc(21 * var(--u));font-weight:500}
+.wallpaper .weather-forecast .forecast-icon{width:calc(24 * var(--u));height:calc(24 * var(--u));filter:none}
+.weather-forecast .forecast-rain-track{height:calc(5 * var(--u));width:calc(21 * var(--u));margin:calc(3 * var(--u)) 0 calc(1 * var(--u))}
+.weather-forecast .forecast-rain-track i{background:#abd4ed}
+.weather-forecast .forecast-probability{font-size:calc(11 * var(--u));color:#baddf3}
+.weather-forecast .forecast-amount{font-size:calc(9 * var(--u));color:var(--sheet-soft)}
+.weather-forecast .forecast-empty{font-size:calc(18 * var(--u));line-height:1.6;padding:calc(30 * var(--u)) calc(16 * var(--u));border-radius:calc(14 * var(--u));background:rgba(225,214,244,.035);color:var(--sheet-soft);margin-top:auto;padding-top:calc(10 * var(--u))}
+.weather-forecast[data-empty=true] .forecast-trend,.weather-forecast[data-empty=true] .forecast-grid{display:none}
+.settings input:disabled{opacity:.5;cursor:default}
+@media (prefers-reduced-transparency:reduce){.wallpaper .card-details[data-kind=clock],.wallpaper .card-details[data-kind=weather]{background:#272231;backdrop-filter:none;-webkit-backdrop-filter:none}}
+

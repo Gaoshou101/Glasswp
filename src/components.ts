@@ -1,14 +1,22 @@
 import type { HardwareData, QuotaData, QuotaWindow, WeatherData } from './contract';
 import type { Settings } from './settings';
-import { ageLabel, capacity, durationLabel, percent, resetText, temperature, weatherLabel } from './format';
+import { ageLabel, capacity, durationLabel, percent, quotaRemaining, resetText, temperature, weatherLabel } from './format';
 import { nextQuotaStateChange, quotaPages, quotaWindowState, type QuotaEntry, type QuotaPage } from './quota';
 import { setCardInsight, type HardwareSample } from './insights';
-import { ClockFormats } from './clock-format';
+import { ClockFormats, clockNow } from './clock-format';
+import { providerBrand, providerGlyph, providerNames, weatherIconMarkup, weatherKind } from './icons';
 
 const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, value?: string): HTMLElementTagNameMap[K] => { const n = document.createElement(tag); n.className = className; if (value !== undefined) n.textContent = value; return n; };
 const text = (node: Element, value: string) => { if (node.textContent !== value) node.textContent = value; };
+/** "38%" renders as a large number with a smaller unit; textContent stays "38%". */
+const unitValue = (node: Element, value: string) => {
+  let number = node.querySelector<HTMLElement>(':scope > .value-number'), unit = node.querySelector<HTMLElement>(':scope > .value-unit');
+  if (!number || !unit) node.replaceChildren(number = el('span', 'value-number'), unit = el('small', 'value-unit'));
+  const match = /^(.*?)(%)$/.exec(value);
+  text(number, match ? match[1] : value); text(unit, match ? match[2] : ''); unit.hidden = !match;
+};
 interface WindowView { block: HTMLElement; remainingLabel: HTMLElement; remaining: Text; fill: HTMLElement; track: HTMLElement; title: HTMLElement; meta: HTMLElement; countdown: { node: HTMLElement; window: QuotaWindow } }
-interface AccountView { node: HTMLElement; alias: HTMLElement; plan: HTMLElement; windows: WindowView[]; freshness: { node: HTMLElement; entry: QuotaEntry }; empty?: HTMLElement }
+interface AccountView { node: HTMLElement; mark: HTMLElement; alias: HTMLElement; plan: HTMLElement; windows: WindowView[]; freshness: { node: HTMLElement; entry: QuotaEntry }; empty?: HTMLElement }
 export class ClockWeather {
   private weather?: WeatherData;
   private formats = new ClockFormats();
@@ -19,12 +27,17 @@ export class ClockWeather {
     this.time = root.querySelector<HTMLElement>('.time')!;
     this.date = root.querySelector<HTMLElement>('.date')!;
     this.caption = root.querySelector<HTMLElement>('.weather-caption')!;
+    const icon = root.querySelector<SVGSVGElement>('.weather-icon')!;
+    icon.innerHTML = weatherIconMarkup(null); icon.dataset.kind = 'unknown';
   }
   tick() {
     const time = this.time;
     time.dataset.seconds = String(this.settings.seconds); time.dataset.hour12 = String(this.settings.hour12);
-    const formatted = this.formats.format(this.settings.timezone, this.settings.hour12, this.settings.seconds);
+    const formatted = this.formats.format(this.settings.timezone, this.settings.hour12, this.settings.seconds, clockNow(this.settings.offsetSeconds));
     text(time, formatted.time); text(this.date, formatted.date);
+    const card = this.root.querySelector<HTMLElement>('.clock')!;
+    setCardInsight(card, { kind: 'clock', title: '世界时钟', timezone: this.settings.timezone, worldZones: this.settings.worldZones, seconds: this.settings.seconds, hour12: this.settings.hour12, offsetSeconds: this.settings.offsetSeconds });
+    card.title = `${this.settings.timezone} · 点击展开世界时钟`;
     if (this.weather) {
       const w = this.weather, expired = w.fetchedAt && Date.now() - Date.parse(w.fetchedAt) > 1800000;
       text(this.caption, w.city.split(' · ')[0] + (w.status === 'ok' && !expired ? '' : ' · 上次天气'));
@@ -35,19 +48,14 @@ export class ClockWeather {
     text(this.root.querySelector('.temperature')!, temperature(w.temperature, '°'));
     text(this.root.querySelector('.weather-description')!, w.temperature === null ? w.message : weatherLabel(w.code));
     text(this.root.querySelector('.weather-range')!, `${temperature(w.low, '°')} / ${temperature(w.high, '°')}`);
-    this.root.querySelector<HTMLElement>('.weather-icon')!.style.opacity = w.temperature === null ? '.4' : '1';
-    const icon = this.root.querySelector('.weather-icon')!;
-    const cloud = '<path d="M10 34h27a8 8 0 0 0 1-16 12 12 0 0 0-23 5 6 6 0 0 0-5 11Z" stroke="currentColor" stroke-width="1.8" fill="none"/>';
-    const rain = '<path d="m16 38-2 5m12-5-2 5m12-5-2 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>';
-    const sun = '<circle cx="24" cy="24" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M24 4v5m0 30v5M4 24h5m30 0h5M10 10l4 4m20 20 4 4M38 10l-4 4M14 34l-4 4" stroke="currentColor" stroke-width="1.8"/>';
-    const moon = '<path d="M32 7a17 17 0 1 0 9 28A18 18 0 0 1 32 7Z" stroke="currentColor" stroke-width="1.8" fill="none"/>';
-    const shape = w.code === 0 ? w.isDay ? sun : moon : /雨/.test(weatherLabel(w.code)) ? cloud + rain : cloud;
+    const icon = this.root.querySelector<SVGSVGElement>('.weather-icon')!;
+    icon.style.opacity = w.temperature === null ? '.4' : '1';
     if (!previous || previous.code !== w.code || previous.isDay !== w.isDay) {
-      icon.innerHTML = shape;
+      icon.innerHTML = weatherIconMarkup(w.code, w.isDay); icon.dataset.kind = weatherKind(w.code);
       if (previous && this.root.dataset.dynamic === 'true') icon.animate([{ opacity: .4, transform: 'translateY(2px)' }, { opacity: w.temperature === null ? .4 : 1, transform: 'translateY(0)' }], { duration: 260, easing: 'cubic-bezier(.2,.8,.2,1)' });
     }
     this.root.querySelector('.weather')!.setAttribute('title', `${w.city}\n${w.message}\n${w.observedAt || ''}`);
-    setCardInsight(this.root.querySelector<HTMLElement>('.weather')!, { kind: 'weather', title: `${w.city.split(' · ')[0]} · 小时预报`, data: w, timezone: w.timezone || this.settings.timezone });
+    setCardInsight(this.root.querySelector<HTMLElement>('.weather')!, { kind: 'weather', title: `${w.city.split(' · ')[0]} · 天气预报`, data: w, timezone: w.timezone || this.settings.timezone });
     this.tick();
   }
 }
@@ -138,8 +146,8 @@ export class QuotaComponent {
     content.dataset.windowCount = String(page.windows.length);
     content.setAttribute('aria-label', page.account.alias); content.title = page.account.alias;
     const heading = el('div', 'account-heading'), label = el('span', 'account-label');
-    const alias = el('span', 'account-alias', page.account.alias);
-    label.append(el('span', 'account-mark'), alias);
+    const alias = el('span', 'account-alias', page.account.alias), mark = el('span', 'account-mark');
+    label.append(mark, alias);
     heading.append(label); content.append(heading);
     const plan = el('span', 'plan', page.account.plan || page.account.provider); plan.title = page.account.plan || page.account.provider;
     const meta = el('div', 'account-meta');
@@ -149,7 +157,7 @@ export class QuotaComponent {
     const windowViews: WindowView[] = [];
     for (const w of page.windows) {
       const block = el('div', 'quota-window'), line = el('div', 'window-line');
-      const remaining = el('span', 'remaining'), remainingLabel = el('small', '', '剩余'), value = document.createTextNode(percent(w.remainingPercent)), title = el('span', 'window-title', w.label); remaining.append(remainingLabel, value);
+      const remaining = el('span', 'remaining'), remainingLabel = el('small', '', '剩余'), value = document.createTextNode(quotaRemaining(w)), title = el('span', 'window-title', w.label); remaining.append(remainingLabel, value);
       line.append(title, remaining);
       const track = el('div', 'track'), fill = el('div', 'fill'); track.append(fill);
       const countdown = el('div', 'reset', resetText(w)), countdownView = { node: countdown, window: w }; this.countdowns.push(countdownView);
@@ -166,11 +174,15 @@ export class QuotaComponent {
       empty.append(el('div', '', ignored ? page.ignoredLabel || '额度窗口已忽略' : page.expiredWindows ? '暂无最新额度，等待刷新' : '暂无额度证据')); content.append(empty);
     }
     const glint = el('span', 'liquid-glint'); glint.setAttribute('aria-hidden', 'true'); content.prepend(glint);
-    const view = { node: content, alias, plan, windows: windowViews, freshness: freshnessView, empty }; this.views.push(view); this.updateAccount(view, page);
+    const view = { node: content, mark, alias, plan, windows: windowViews, freshness: freshnessView, empty }; this.views.push(view); this.updateAccount(view, page);
     return content;
   }
   private updateAccount(view: AccountView, page: QuotaEntry) {
     text(view.alias, page.account.alias); view.node.setAttribute('aria-label', page.account.alias); view.node.title = page.account.alias;
+    if (view.mark.dataset.provider !== page.account.provider) {
+      view.mark.dataset.provider = page.account.provider; view.mark.dataset.brand = providerBrand(page.account.provider); view.mark.title = providerNames[page.account.provider] || page.account.provider || '未知平台';
+      view.mark.replaceChildren(providerGlyph(page.account.provider));
+    }
     text(view.plan, page.account.plan || page.account.provider); view.plan.title = view.plan.textContent || '';
     view.freshness.entry = page;
     const absolute = (value: string | null) => value && Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat('zh-CN', { timeZone: this.settings.timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date(value)) : '未知';
@@ -180,13 +192,14 @@ export class QuotaComponent {
       // Used up is a definite state with a known end, so name it instead of showing a bare 0% or an expiry.
       const exhausted = quotaWindowState(w, now) === 'exhausted';
       item.block.dataset.exhausted = String(exhausted); text(item.remainingLabel, exhausted ? '' : '剩余');
-      text(item.title, w.label); const value = exhausted ? '已用尽' : percent(w.remainingPercent); if (item.remaining.data !== value) item.remaining.data = value;
+      text(item.title, w.label); const value = exhausted ? '已用尽' : quotaRemaining(w); if (item.remaining.data !== value) item.remaining.data = value;
       const scale = `scaleX(${Math.max(0, Math.min(100, w.remainingPercent ?? 0)) / 100})`; if (item.fill.style.transform !== scale) item.fill.style.transform = scale;
       item.fill.dataset.low = String(w.remainingPercent !== null && w.remainingPercent < 15); item.track.dataset.unknown = String(w.remainingPercent === null);
+      item.track.hidden = w.remainingPercent === null && (typeof w.remainingValue === 'number' && Number.isFinite(w.remainingValue) || !!w.displayText);
       text(item.meta, w.usedValue !== null && w.limitValue !== null ? `${w.usedValue} / ${w.limitValue} ${w.quotaUnit}` : durationLabel(w.durationSeconds) || '周期未知');
       item.block.title = `${w.label}\n${w.mode} · ${w.accuracy}\n重置 ${absolute(w.resetAt)}\n快照 ${absolute(w.observedAt)}\n${this.settings.timezone}`;
       if (exhausted) item.block.title += w.resetAt ? '\n额度已用尽：重置前保持用尽，不因快照时间较早而判为过期。' : '\n额度已用尽：重置时间未知，按一个周期内保持用尽显示。';
-      if (w.accuracy === 'unknown') item.block.title += '\nCPAMP 尚未确认此窗口的重置时间，倒计时仅供参考。刷新后以最新快照为准。';
+      if (w.accuracy === 'unknown') item.block.title += '\n来源尚未确认此窗口的重置时间，倒计时仅供参考。刷新后以最新快照为准。';
     });
     if (view.empty) text(view.empty, page.ignoredWindows && !page.account.windows.length ? page.ignoredLabel || '额度窗口已忽略' : page.expiredWindows ? '暂无最新额度，等待刷新' : '暂无额度证据');
     setCardInsight(view.node, { kind: 'quota', title: `${page.account.alias} · 请求活动`, data: this.data, accountId: page.account.id, ignoreBaseWeekly: this.settings.ignoreCodexBaseWeekly, ignoreImageQuota: this.settings.ignoreCodexImageQuota, timezone: this.settings.timezone });
@@ -202,7 +215,8 @@ export class HardwareComponent {
     if (at && this.observed && (at - this.observed > 10000 || at < this.observed)) this.history = [[], [], [], []];
     const devices = [data.cpu, data.gpu, data.vram, data.ram];
     this.root.querySelectorAll<HTMLElement>('.hardware-item').forEach((node, i) => {
-      const d = devices[i]; text(node.querySelector('.hardware-value')!, percent(d.load.value));
+      const d = devices[i]; unitValue(node.querySelector('.hardware-value')!, percent(d.load.value));
+      node.dataset.level = d.load.value !== null && d.load.value >= 85 ? 'high' : 'normal';
       text(node.querySelector('.hardware-detail')!, i < 2 ? temperature(d.temperature.value) : capacity(d.usedBytes, d.totalBytes));
       text(node.querySelector('.hardware-caption')!, i === 3 ? '物理内存' : i === 2 ? '专用显存' : i === 0 ? (d.name.match(/i[3579]-[\w]+/)?.[0] || d.name) : d.name.replace('AMD Radeon ', '').replace(' Processor', ''));
       node.querySelector<HTMLElement>('.hardware-caption')!.hidden = i >= 2;
@@ -217,13 +231,27 @@ export class HardwareComponent {
       let svg = node.querySelector<SVGSVGElement>('.sparkline');
       if (!this.settings.trends) svg?.remove();
       if (this.settings.trends && this.history[i].length > 1) {
-        if (!svg) { svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.classList.add('sparkline'); svg.setAttribute('viewBox', '0 0 100 20'); svg.setAttribute('aria-hidden', 'true'); node.append(svg); }
-        // Null samples split the polyline, preserving real gaps.
-        let run: string[] = []; const segments: string[] = [];
-        const flush = () => { if (run.length > 1) segments.push(run.join(' ')); run = []; };
-        this.history[i].forEach((s, j) => { if (s.value === null) flush(); else run.push(`${j * 100 / (this.history[i].length - 1)},${20 - Math.max(0, Math.min(100, s.value)) / 5}`); }); flush();
-        while (svg.children.length > segments.length) svg.lastElementChild!.remove();
-        segments.forEach((points, j) => { let p = svg!.children[j]; if (!p) { p = document.createElementNS(svg!.namespaceURI, 'polyline'); svg!.append(p); } if (p.getAttribute('points') !== points) p.setAttribute('points', points); });
+        if (!svg) {
+          svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.classList.add('sparkline');
+          // Stretch to the card width; vector-effect keeps the stroke uniform.
+          svg.setAttribute('viewBox', '0 0 100 20'); svg.setAttribute('preserveAspectRatio', 'none'); svg.setAttribute('aria-hidden', 'true');
+          svg.innerHTML = `<defs><linearGradient id="spark-fill-${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="spark-stop-top"/><stop offset="1" class="spark-stop-bottom"/></linearGradient></defs><g class="spark-areas" fill="url(#spark-fill-${i})"></g><g class="spark-lines"></g>`;
+          node.append(svg);
+        }
+        // Null samples split the trend, preserving real gaps.
+        let run: [number, number][] = []; const segments: [number, number][][] = [];
+        const flush = () => { if (run.length > 1) segments.push(run); run = []; };
+        this.history[i].forEach((s, j) => { if (s.value === null) flush(); else run.push([+(j * 100 / (this.history[i].length - 1)).toFixed(2), +(19 - Math.max(0, Math.min(100, s.value)) * .17).toFixed(2)]); }); flush();
+        const areas = svg.querySelector('.spark-areas')!, lines = svg.querySelector('.spark-lines')!;
+        for (const group of [areas, lines]) while (group.children.length > segments.length) group.lastElementChild!.remove();
+        segments.forEach((run, j) => {
+          const points = run.map(p => p.join(',')).join(' '), area = `M${run[0][0]} 20L${points.replace(/ /g, 'L')}L${run[run.length - 1][0]} 20Z`;
+          let line = lines.children[j], fill = areas.children[j];
+          if (!line) { line = document.createElementNS(svg!.namespaceURI, 'polyline'); lines.append(line); }
+          if (!fill) { fill = document.createElementNS(svg!.namespaceURI, 'path'); areas.append(fill); }
+          if (line.getAttribute('points') !== points) line.setAttribute('points', points);
+          if (fill.getAttribute('d') !== area) fill.setAttribute('d', area);
+        });
       }
     });
     this.observed = at;

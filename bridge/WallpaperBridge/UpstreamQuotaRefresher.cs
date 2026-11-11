@@ -50,7 +50,7 @@ public sealed class UpstreamQuotaRefresher
         {
             var cfg = store.Config; SyncSource(cfg);
             var next = state.Status is "running" or "queued" ? null : QuotaRefreshSchedule.Next(cfg, state, clock());
-            return new(cfg.QuotaRefreshEnabled, cfg.QuotaRefreshMinutes, next, state);
+            return new(AiSourceSettings.UsesCpamp(cfg) && cfg.QuotaRefreshEnabled, cfg.QuotaRefreshMinutes, next, state);
         }
     }
     public bool Queue()
@@ -58,13 +58,13 @@ public sealed class UpstreamQuotaRefresher
         lock (stateGate)
         {
             var cfg = store.Config; SyncSource(cfg);
-            if (string.IsNullOrEmpty(cfg.ManagementKey) || cfg.Accounts.Length == 0) throw new InvalidOperationException("请先保存连接并选择关注账号");
+            if (!AiSourceSettings.UsesCpamp(cfg) || string.IsNullOrEmpty(cfg.ManagementKey) || cfg.Accounts.Length == 0) throw new InvalidOperationException("请先选择 CPAMP 来源、保存连接并选择关注账号");
             if (state.Status is "running" or "queued") return false;
             queued = true; state = state with { Status = "queued", Message = "已排队，正在准备向上游刷新", Accounts = [] };
             return true;
         }
     }
-    private bool Current(string key, bool manual) => SourceKey(store.Config) == key && (manual || store.Config.QuotaRefreshEnabled);
+    private bool Current(string key, bool manual) => AiSourceSettings.UsesCpamp(store.Config) && SourceKey(store.Config) == key && (manual || store.Config.QuotaRefreshEnabled);
     private HttpRequestMessage Request(BridgeConfig cfg, HttpMethod method, string path, object? body = null)
     {
         var req = new HttpRequestMessage(method, cfg.CpampUrl.TrimEnd('/') + path);
@@ -82,6 +82,7 @@ public sealed class UpstreamQuotaRefresher
             lock (stateGate)
             {
                 cfg = store.Config; SyncSource(cfg); manual = queued;
+                if (!AiSourceSettings.UsesCpamp(cfg)) { queued = false; return false; }
                 if (!manual && !QuotaRefreshSchedule.Due(cfg, state, clock())) return false;
                 queued = false; key = sourceKey;
                 state = state with { LastAttemptAt = clock(), Status = "running", Message = "正在向上游获取用量", Accounts = [] };

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using WallpaperBridge;
+if (args.Contains("--local-codex-readonly")) { await LocalAgentQuotaChecks.RunLiveCodex(); return; }
 var checks = 0;
 void Check(bool condition, string label) { if (!condition) throw new Exception(label); checks++; Console.WriteLine("PASS " + label); }
 var desktopPoint = new DesktopInputPoint(800, 1280, 1600, 2560);
@@ -391,9 +392,27 @@ using var legacyAccountDoc = JsonDocument.Parse("""{"id":"a","alias":"A","provid
 Check(JsonSerializer.Deserialize<QuotaAccount>(legacyAccountDoc.RootElement, PrivateStore.Json)?.ResetCredits is null, "legacy quota cache without reset credit fields stays compatible");
 
 await ResilienceChecks.Run(Check);
+await DisplaySettingsChecks.Run(Check);
+await WeatherProviderChecks.Run(Check);
+await AmapQWeatherChecks.Run(Check);
 await AntigravityChecks.Run(Check);
 await AntigravitySubscriptionChecks.Run(Check);
 await ClaudeChecks.Run(Check);
+await LocalAgentQuotaChecks.Run(Check);
+await LocalCopilotQuotaChecks.Run(Check);
+await LocalGoogleQuotaChecks.Run(Check);
+await LocalAntigravityCliQuotaChecks.Run(Check);
+await LocalEncryptedQuotaChecks.Run(Check);
+await LocalKiroQuotaChecks.Run(Check);
+await LocalZCodeQuotaChecks.Run(Check);
+await LocalKimiWorkQuotaChecks.Run(Check);
+await LocalDesktopWalletChecks.Run(Check);
+await LocalDesktopQuotaChecks.Run(Check);
+await LocalFileQuotaChecks.Run(Check);
+await LocalQuotaDiscoveryChecks.Run(Check);
+await MagpieQuotaChecks.Run(Check);
+await AiSourceChecks.Run(Check);
+await ManagedQuotaChecks.Run(Check);
 Console.WriteLine($"{checks} bridge checks passed");
 
 sealed class StubHttpHandler(Func<HttpRequestMessage, CancellationToken, Task<HttpResponseMessage>> handler) : HttpMessageHandler

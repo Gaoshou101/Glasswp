@@ -1,6 +1,16 @@
 # 竖屏动态信息壁纸
 
+可复用换壁纸流程见 [可复用壁纸工作流](docs/REUSABLE-WALLPAPER-WORKFLOW.md)。主题、背景和管理页明暗模式共用 `public/theme.js`，换图后无需重做组件布局。
+
 Windows / Wallpaper Engine Web 壁纸，沿用已确认的 [v3 玻璃设计](design/GLASS-DESIGN.md)。以 1600×2560 为基准自适应竖屏，保留角色面部留白。
+
+AI 套餐在管理页「AI 套餐来源」选择 CPAMP、本机自动读取、Magpie、CPA 或 Sub2API，保存后仅查询并显示所选来源。本机自动发现已登录的 CLI 与桌面 agent，覆盖 Codex、Claude、Copilot、Gemini、Antigravity、Cursor、Kiro 等；积分与金额显示实际余额。原生来源支持范围见 [AI 多来源接入](docs/AI-SOURCES-2026-11-10.md)。CPA/Sub2API 独立连接、支持的上游账号和版本限制见 [CPA 与 Sub2API 接入](docs/CPA-SUB2API-SOURCES-2026-11-11.md)。
+
+本机 AI Agent、Magpie、CPA 与 Sub2API 各自提供配置菜单，可设置账号显示、别名、顺序及自动刷新开关和间隔。新增配置和 CPA/Sub2API 来源已于 2026-11-11 安装到本机桥接与桌面壁纸，原有配置保留；CPA/Sub2API 真实服务连接仍待配置验证。
+
+2026-11-10 完成视觉细化：液态玻璃边缘光、字体层级、天气与平台图标、硬件曲线和额度条样式。浏览器验证与候选包说明见 [视觉细化验收记录](docs/VISUAL-POLISH-2026-11-10.md)。
+
+新增点击时间展开世界时钟；管理页可统一设置显示时区、世界时区列表、秒数和 12/24 小时制，手动校准显示时间或读取网络校时建议。天气来源可切换 Open-Meteo、MET Norway、OpenWeatherMap、WeatherAPI。使用方式与验证范围见 [世界时钟与天气来源](docs/CLOCK-WEATHER-2026-11-10.md)。
 
 下一阶段以稳定性与低占用为优先，实施顺序、代码依据和验收条件见 [优化路线](docs/OPTIMIZATION-ROADMAP.md)。
 

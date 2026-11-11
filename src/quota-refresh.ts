@@ -47,7 +47,7 @@ export class QuotaRefreshControl {
     const response = await fetch(c.bridgeUrl + '/v1/quota-refresh' + (method === 'GET' ? '/status' : ''), {
       method, headers: { 'X-Wallpaper-Token': c.readToken }, cache: 'no-store', signal
     });
-    if (!response.ok) throw new Error(response.status === 404 ? '请更新本机桥接后使用刷新按钮' : response.status === 401 ? '展示票据无效，请在本机设置重新连接' : '无法刷新用量，请检查本机桥接与 CPAMP 连接');
+    if (!response.ok) throw new Error(response.status === 404 ? '请更新本机桥接后使用刷新按钮' : response.status === 401 ? '展示票据无效，请在本机设置重新连接' : '无法刷新用量，请检查本机桥接与所选来源');
     return response.json();
   }
   private apply(report: RefreshReport) {
@@ -73,7 +73,7 @@ export class QuotaRefreshControl {
       this.feedbackUntil = ok ? Date.now() + 5000 : 0; return;
     }
     this.busy = false;
-    if (!this.available) this.draw('刷新', '请先在本机设置连接 CPAMP 并选择关注账号', true);
+    if (!this.available) this.draw('刷新', '请先在本机设置选择并配置 AI 套餐来源', true);
     else if (!this.feedbackUntil && this.button.dataset.state !== 'failed') this.draw('刷新', '向上游获取最新用量', false);
   }
   async sync(force = false) {

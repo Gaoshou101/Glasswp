@@ -327,7 +327,7 @@ with sync_playwright() as p:
     fixture['weather']['hourly'] = None
     page.wait_for_timeout(2300)
     page.locator('.weather').click()
-    assert '小时预报暂不可用' in page.get_by_role('dialog').inner_text()
+    assert '分时预报暂不可用' in page.get_by_role('dialog').inner_text()
     fixture['weather']['hourly'] = old_hours
     page.wait_for_function('document.querySelectorAll(".forecast-hour").length===12')
     assert page.locator('.forecast-hour').nth(0).locator('.forecast-probability').inner_text() == '0%'

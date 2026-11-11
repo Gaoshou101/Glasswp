@@ -1,13 +1,28 @@
 import { availableResets, compactCount } from '../src/account-activity';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ageLabel, percent, resetText } from '../src/format.ts';
+import { ageLabel, percent, quotaRemaining, resetText } from '../src/format.ts';
 import { defaults, loadSettings, loopbackUrl } from '../src/settings.ts';
 import type { QuotaWindow } from '../src/contract.ts';
 import { currentQuotaWindows, exhaustedUntil, isCodexBaseWeekly, isCodexImageQuota, nextQuotaStateChange, quotaPages, quotaWindowState } from '../src/quota.ts';
 import { forecastHours, quotaInsight, sampleStats } from '../src/insights.ts';
 const window: QuotaWindow = { id: 'short', label: '5 小时', remainingPercent: 0, usedValue: null, limitValue: null, quotaUnit: '', resetAt: '2026-10-10T00:00:10Z', durationSeconds: 18000, mode: 'fixed', accuracy: 'exact', observedAt: new Date().toISOString(), stale: false };
 test('zero quota and missing evidence remain distinguishable', () => { assert.equal(percent(0), '0%'); assert.equal(percent(null), '—'); assert.equal(percent(NaN), '—'); assert.equal(percent(120), '100%'); });
+test('wallet and unlimited quota display preserve quantities rather than fake percentages', () => {
+  assert.equal(quotaRemaining({ ...window, remainingPercent: null, remainingValue: 0, quotaUnit: 'points' }), '0 points');
+  assert.equal(quotaRemaining({ ...window, remainingPercent: null, remainingValue: 1234.5, quotaUnit: 'USD' }), '1,234.5 USD');
+  assert.equal(quotaRemaining({ ...window, remainingPercent: null, displayText: '不限量' }), '不限量');
+  assert.equal(quotaRemaining({ ...window, remainingPercent: null }), '—');
+  assert.equal(quotaRemaining(window), '0%');
+});
+test('fresh wallet evidence is shown in details without requiring a fake percentage', () => {
+  const now = Date.now(); const wallet = { ...window, remainingPercent: null, remainingValue: 42, quotaUnit: 'points', observedAt: new Date(now).toISOString(), resetAt: null };
+  const a = { id: 'wallet-a', alias: 'A', provider: 'catpaw', plan: 'Pro', windows: [wallet] };
+  const b = { ...a, id: 'wallet-b', alias: 'B', windows: [{ ...wallet, remainingValue: 0 }] };
+  const detail = quotaInsight({ status: 'ok', fetchedAt: null, message: '', accounts: [a, b] }, a.id, false, now)!;
+  assert.equal(detail.heading, '已读取当前余额'); assert.ok(detail.explanation.includes('42 points'));
+  assert.deepEqual(detail.rows.map(r => r.values), [['42 points'], ['0 points']]);
+});
 test('reset does not invent restored balance at zero', () => { assert.equal(resetText(window, Date.parse('2026-10-10T00:00:09Z')), '00:00:01 后重置'); assert.equal(resetText(window, Date.parse('2026-10-10T00:00:10Z')), '等待更新'); });
 test('rolling and estimated boundaries retain their meaning', () => { assert.equal(resetText({ ...window, mode: 'rolling', accuracy: 'estimated' }, Date.parse('2026-10-10T00:00:09Z')), '约 00:00:01 · 滚动恢复'); assert.equal(resetText({ ...window, resetAt: 'invalid' }), '重置时间未知'); });
 test('unconfirmed CPAMP boundaries show a reference countdown and preserve unknown or expired states', () => {

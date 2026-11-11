@@ -32,6 +32,12 @@
 
 `accounts` 按加密配置中的关注账号顺序输出；管理页拖动或上移/下移并保存后，卡片、轮播及重启后的缓存展示遵循此顺序。调整顺序不重置用量刷新计划。
 
+AI 来源扩展：上述关注顺序适用于 CPAMP。`aiSources.source` 为 `cpamp | local | magpie`，默认 `cpamp`，只展示并查询选定来源。本机与 Magpie 自动显示检测到的全部账号；ID 使用来源前缀和身份哈希，不能用它查询 CPAMP 请求历史。切换来源保留连接配置，旧来源的延迟结果不能进入当前展示。完整客户端边界见 [AI 来源说明](AI-SOURCES-2026-11-10.md)。
+
+额度窗口新增可选 `remainingValue`（实际剩余数量，单位沿用 `quotaUnit`）和 `displayText`（不限量或厂商文本），保持 schema v1 兼容。这两类窗口的 `remainingPercent` 为 null；没有已知总额度时不推导百分比，实际余额 0 保留为 0。展示优先级为实际数量、显示文本、百分比。百分比之间可比较相对余量，余额与不限量不参加该比较。所有窗口仍使用各自 `observedAt/stale` 判断证据时效。
+
+管理页 `POST /v1/setup/ai-sources/status` 读取已选本机/Magpie状态，`POST /v1/setup/ai-sources/refresh` 排队所选来源。`config` 的 `aiSources` 保存单选来源、Magpie地址和写入式密钥；仅切换 `source` 时保留已存地址和密钥，更改地址不复用旧密钥。展示接口 `/v1/quota-refresh` 按当前来源路由并报告真实排队、运行、完成状态。本机每10分钟、Magpie每分钟自动读取，手动刷新至少间隔60秒。
+
 每个 Codex 账号可选 `resetCredits:{available,observedAt,stale}`，表示上游确认的**当前可用重置次数**，不是历史重置次数或刷新次数。正常 Codex 用量刷新把 `rate_limit_reset_credits.available_count` 写入原配额快照；读取时采用 `reset_credits_available` 的独立字段时间，超过 15 分钟或证据冲突显示未知。真实 0 保留，不累加各窗口的重复次数；非 Codex 隐藏。旧缓存缺少该字段仍兼容。
 
 `activity` 响应：`accountId/status/fetchedAt/from/to`、`requests/successRate/tokens/estimatedCost/lastActivity`、`recent/hasMore/message`，以及 `nextBeforeMs/nextBeforeId/totalCount` 分页字段。成功率为 0–100（无请求时 null），费用为 CPAMP 预估 USD，不能等同于真实账单。`recent` 按时间倒序，每页最多 20 项，各项仅含 `time/model/success/statusCode/tokens/inputTokens/outputTokens/cachedTokens/durationMs/ttftMs`；缺失保持 null，0 保留，成功状态不虚构 HTTP 200。`ttftMs` 来自上游 `ttft_ms`（首字响应时间），`durationMs` 来自 `latency_ms`（请求总耗时），均为毫秒，独立保留，缺失首字不从总耗时推算；前端以秒显示“首字 / 耗时”，旧桥接省略 `ttftMs` 仍兼容。没有请求时统计可为真实 0，没有接口/鉴权失败时保持未知。
@@ -77,6 +83,10 @@ CPAMP 读取账号列表和只读快照查询，按物理文件与成员身份�
 本地文件 Origin `null` 与 loopback HTTP 来源可对展示接口做 CORS 预检，实际数据必须带票据。远端 Origin 拒绝；设置接口不向跨域页面开放。DNS rebinding 的非 loopback Host 被拒绝。管理页禁止嵌套 frame。
 
 ## 生命周期
+
+独立 AI 来源扩展为 `local` / `magpie` / `cpa` / `sub2api`，CPAMP 仍使用 `cpamp`。`aiSources` 新增 `cpaUrl`、只写 `cpaKey`、`clearCpaKey`、`cpaApiVersion`（`v0`/`v8`）、`cpaOptions`，及 `sub2apiUrl`、只写 `sub2apiKey`、`clearSub2apiKey`、`sub2apiOptions`。读取配置只回传 `cpaKeyConfigured` / `sub2apiKeyConfigured`。两个 Options 与现有来源形状一致，默认自动刷新、10 分钟、显示全部。账号 ID 分别以 `cpa:` / `sub2api:` 加连接与账号身份的哈希构成。来源切换保留设置；新来源地址/密钥更换清除旧账号筛选。两者进入现有 `QuotaData`，无需 CPAMP 数据库快照。具体接口与支持边界见 `CPA-SUB2API-SOURCES-2026-11-11.md`。
+
+本机 AI Agent 与 Magpie 的 `aiSources.localOptions` / `aiSources.magpieOptions` 分别包含 `autoRefreshEnabled`、`refreshMinutes`、`accounts`。缺省刷新间隔分别为 10 / 1 分钟，范围 1–10080。`accounts:null` 自动显示全部，`[]` 显示零个；数组元素为 `{id,alias}`，按数组顺序展示，空别名沿用来源名称。只影响壁纸快照的账号展示，不改变扫描范围；`POST /v1/setup/ai-sources/status` 始终提供完整检测结果，`POST /v1/setup/ai-sources/refresh-status` 提供所选 AI 来源的调度状态。显示编辑保持现有额度证据并立即生效，不触发额外请求。更换 Magpie 地址会清除该地址的旧账号筛选；切换来源保留各来源配置。
 
 硬件 2 秒，配额快照 60 秒，上游用量默认 10 分钟（可配置），天气 15 分钟。刷新任务仅由桥接调度，失败账号独立处理，不立即循环重试。前端每 2 秒读本地快照，失败指数退避至 30 秒，8 秒请求超时。壁纸暂停会停止前端轮询、时钟计时器、柔光更新；唤醒重新计算时间并连接。桥接独立运行，继续采集、刷新并缓存。硬件趋势 30 个实际样本；超过 10 秒的采样空档清空趋势，不补造数据。
 

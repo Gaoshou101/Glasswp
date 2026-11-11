@@ -9,6 +9,8 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHa
     private readonly HttpClient client = new(handler ?? new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(15), MaxResponseContentBufferSize = 4 * 1024 * 1024 };
     private DateTimeOffset nextQuota, nextWeather;
     private long revision = store.Revision;
+    private BridgeConfig activeConfig = store.Config;
+    private readonly WeatherProviders weatherProviders = new();
     private long refreshGeneration;
     private UpstreamQuotaRefresher? refresher;
     private LocalQuotaClassifier quotaClassifier = new();
@@ -70,11 +72,17 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHa
                 if (revision != store.Revision)
                 {
                     revision = store.Revision;
-                    quotaClassifier = new();
-                    // Never show a removed account or another city's last data after configuration changes.
-                    hub.Quota(Empty.Quota);
-                    hub.Weather(Empty.Weather(store.Config.City));
-                    RefreshCachedSources();
+                    var cfg = store.Config;
+                    if (activeConfig.CpampUrl != cfg.CpampUrl || activeConfig.ManagementKey != cfg.ManagementKey || !activeConfig.Accounts.SequenceEqual(cfg.Accounts) || AiSourceSettings.UsesCpamp(activeConfig) != AiSourceSettings.UsesCpamp(cfg))
+                    {
+                        quotaClassifier = new(); hub.Quota(Empty.Quota); nextQuota = DateTimeOffset.MinValue;
+                    }
+                    if (!WeatherProviders.SameSource(activeConfig, cfg))
+                    {
+                        // Never show a previous provider or another city's data after a switch.
+                        hub.Weather(WeatherProviders.EmptyFor(cfg)); nextWeather = DateTimeOffset.MinValue;
+                    }
+                    activeConfig = cfg;
                 }
                 var generation = Interlocked.Read(ref refreshGeneration);
                 if (generation != appliedGeneration)
@@ -108,14 +116,15 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHa
     private async Task UpdateQuota(CancellationToken token)
     {
         var cfg = store.Config;
+        if (!AiSourceSettings.UsesCpamp(cfg)) return;
         if (string.IsNullOrEmpty(cfg.ManagementKey)) { hub.Quota(Empty.Quota); return; }
         if (cfg.Accounts.Length == 0) { hub.Quota(new("empty", null, "在本机设置中选择关注账号", [])); return; }
-        var old = hub.Snapshot().Quota;
+        var old = hub.CpampQuota();
         try
         {
             using var listRequest = CpampRequest(HttpMethod.Get, "/v0/management/auth-files", cfg);
             using var listResponse = await client.SendAsync(listRequest, token);
-            if (listResponse.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden) { hub.Quota(old with { Status = "unauthorized", Message = "CPAMP 鉴权失败，请检查本机凭据" }); return; }
+            if (listResponse.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden) { if (cfg == store.Config) hub.Quota(old with { Status = "unauthorized", Message = "CPAMP 鉴权失败，请检查本机凭据" }); return; }
             listResponse.EnsureSuccessStatusCode();
             using var listDoc = JsonDocument.Parse(await listResponse.Content.ReadAsStringAsync(token));
             var listRoot = QuotaAdapter.Unwrap(listDoc.RootElement);
@@ -194,23 +203,29 @@ public sealed class RemoteSources(PrivateStore store, DataHub hub, HttpMessageHa
         catch (Exception e) when (SourceFailure(e))
         { if (cfg == store.Config) hub.Quota(old with { Status = old.Accounts.Length > 0 ? "stale" : "offline", Message = "CPAMP 暂不可用，保留上次快照", Accounts = old.Accounts.Select(a => a with { Windows = a.Windows.Select(w => w with { Stale = true }).ToArray(), ResetCredits = a.ResetCredits is { } credits ? credits with { Stale = true } : null }).ToArray() }); }
     }
+    internal Task ReadWeatherOnce(CancellationToken token) => UpdateWeather(token);
     private async Task UpdateWeather(CancellationToken token)
     {
         var cfg = store.Config;
-        var city = cfg.City;
+        if (WeatherProviders.NeedsKey(cfg.Weather ?? new()))
+        {
+            hub.Weather(WeatherProviders.EmptyFor(cfg) with { Status = "unconfigured", Message = "此天气数据源需要 API Key，请在管理页配置" });
+            return;
+        }
         var old = hub.Snapshot().Weather;
+        if (old.CacheIdentity != WeatherProviders.CacheIdentity(cfg))
+        {
+            old = WeatherProviders.EmptyFor(cfg);
+            hub.Weather(old);
+        }
         try
         {
-            var url = FormattableString.Invariant($"https://api.open-meteo.com/v1/forecast?latitude={city.Latitude}&longitude={city.Longitude}&current=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&hourly=temperature_2m,precipitation_probability,precipitation,weather_code&timezone={Uri.EscapeDataString(city.Timezone)}&timeformat=unixtime&forecast_days=2");
-            using var response = await client.GetAsync(url, token);
-            response.EnsureSuccessStatusCode();
-            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
-            var data = WeatherAdapter.Parse(doc.RootElement, city, DateTimeOffset.UtcNow);
-            if (cfg != store.Config) return;
+            var data = await weatherProviders.FetchAsync(client, cfg, token);
+            if (!WeatherProviders.SameSource(cfg, store.Config)) return;
             hub.Weather(data); store.WriteCache("weather-cache", data);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
         catch (Exception e) when (SourceFailure(e))
-        { if (cfg == store.Config) hub.Weather(old with { Status = old.FetchedAt is null ? "offline" : "stale", Message = "天气暂不可用，保留上次数据" }); }
+        { if (WeatherProviders.SameSource(cfg, store.Config)) hub.Weather(old with { Status = old.FetchedAt is null ? "offline" : "stale", Message = old.FetchedAt is null ? "天气暂不可用，请检查数据源、API Key 或网络" : "天气暂不可用，保留该数据源的上次数据" }); }
     }
 }

@@ -1,5 +1,8 @@
 import './live.css';
 import './liquid.css';
+import './polish.css';
+import './clock.css';
+import './theme.css';
 import { LiquidInteraction } from './liquid';
 import { CardDetails } from './card-details';
 import { authorizeDesktopInput, installDesktopInput } from './desktop-input';
@@ -8,7 +11,8 @@ import { ClockWeather, HardwareComponent, QuotaComponent } from './components';
 import { QuotaRefreshControl } from './quota-refresh';
 import { CurrentRequest, SnapshotChanges } from './snapshot-control';
 declare const __BUILD_ID__: string;
-import { clamp, defaultMaterial, groups, loadSettings, loopbackUrl, saveSettings, type Group, type Material } from './settings';
+import { applyClockConfig, validClockConfig, clamp, defaultMaterial, groups, loadSettings, loopbackUrl, saveSettings, type Group, type Material } from './settings';
+import { applyWallpaperTheme } from './theme';
 
 declare global {
   interface Window {
@@ -18,6 +22,7 @@ declare global {
 const settings = loadSettings();
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const root = document.querySelector<HTMLElement>('.wallpaper')!;
+applyWallpaperTheme(root, settings.theme);
 const fullView = !new URLSearchParams(location.search).has('studio');
 if (fullView) document.documentElement.setAttribute('data-capture', '');
 const clock = new ClockWeather(root, settings), quota = new QuotaComponent(root, settings), hardware = new HardwareComponent(root, settings);
@@ -27,6 +32,7 @@ const requests = new CurrentRequest(), changes = new SnapshotChanges();
 const desktopInput = installDesktopInput(root, () => engine, point => authorizeDesktopInput(settings.bridgeUrl, settings.readToken, point), () => !paused);
 let tickTimer = 0, ambientTimer = 0, reportedAt = 0;
 let lastSnapshot: Snapshot | undefined;
+let managedClock = false;
 const quotaRefresh = new QuotaRefreshControl($<HTMLButtonElement>('refresh-quota'), () => settings, () => { lastFetch = 0; void poll(); });
 const nodes: Record<Group, HTMLElement> = { top: root.querySelector('.top')!, quota: root.querySelector('.quota')!, hardware: root.querySelector('.hardware')! };
 const target = $<HTMLSelectElement>('glass-target');
@@ -56,6 +62,14 @@ function applyAppearance() {
   details.sync();
 }
 function renderSnapshot(data: Snapshot) {
+  if (data.appearance) {
+    const nextTheme = applyWallpaperTheme(root, data.appearance);
+    if (JSON.stringify(nextTheme) !== JSON.stringify(settings.theme)) { settings.theme = nextTheme; saveSettings(settings); }
+  }
+  // Clock settings have no weather/hardware revision: apply them before source filtering.
+  const wasManaged = managedClock; managedClock = validClockConfig(data.clock);
+  const clockChanged = applyClockConfig(settings, data.clock);
+  if (clockChanged || wasManaged !== managedClock) { controls(); clock.tick(); if (clockChanged) saveSettings(settings); }
   const appearance = JSON.stringify([settings.timezone, settings.trends, settings.quotaLayout, settings.ignoreCodexBaseWeekly, settings.ignoreCodexImageQuota]);
   const changed = changes.changed(data, appearance);
   if (changed.weather) clock.update(data.weather);
@@ -76,6 +90,9 @@ function controls() {
   $<HTMLInputElement>('ignore-codex-image-quota').checked = settings.ignoreCodexImageQuota;
   $<HTMLInputElement>('bridge-url').value = settings.bridgeUrl; $<HTMLInputElement>('read-token').value = settings.readToken;
   $<HTMLAnchorElement>('admin-link').href = settings.bridgeUrl + '/admin/';
+  $<HTMLAnchorElement>('clock-admin-link').href = settings.bridgeUrl + '/admin/#clock-heading';
+  for (const id of ['timezone', 'show-seconds', 'hour12']) $<HTMLInputElement>(id).disabled = managedClock;
+  $('clock-config-status').textContent = managedClock ? '时间由管理页统一设置，保存后自动同步到壁纸。' : '当前使用本地时间设置；可在管理页设置时区和校准。';
   document.querySelectorAll<HTMLButtonElement>('[data-preset]').forEach(b => b.setAttribute('aria-pressed', String(selected().every(g => (Object.keys(defaultMaterial) as (keyof Material)[]).every(k => settings.material[g][k] === presets[b.dataset.preset!][k])))));
 }
 for (const [key, id] of [['transparency', 'glass-transparency'], ['blur', 'glass-blur'], ['edge', 'glass-edge']] as const) {
@@ -98,7 +115,7 @@ $('ignore-codex-image-quota').addEventListener('change', () => { settings.ignore
 $('save-connection').onclick = () => {
   const url = loopbackUrl($<HTMLInputElement>('bridge-url').value);
   if (!url) { $('connection-status').textContent = '本机数据地址需使用 http://127.0.0.1:端口。'; return; }
-  settings.bridgeUrl = url; settings.readToken = $<HTMLInputElement>('read-token').value.trim(); requests.cancel(); changes.reset(); lastSuccess = lastFetch = 0; connected = false; errors = 0; controls(); store(); void poll();
+  settings.bridgeUrl = url; settings.readToken = $<HTMLInputElement>('read-token').value.trim(); managedClock = false; lastSnapshot = undefined; requests.cancel(); changes.reset(); lastSuccess = lastFetch = 0; connected = false; errors = 0; controls(); store(); void poll();
 };
 
 const shell = document.querySelector<HTMLElement>('.preview-shell')!;
@@ -180,15 +197,16 @@ window.wallpaperPropertyListener = {
     }
     if (properties.bridge_url) settings.bridgeUrl = loopbackUrl(properties.bridge_url.value) || settings.bridgeUrl;
     if (properties.bridge_token) settings.readToken = String(properties.bridge_token.value || '').trim().slice(0, 128);
+    const connectionChanged = oldConnection !== settings.bridgeUrl + ':' + settings.readToken;
+    if (connectionChanged) { managedClock = false; lastSnapshot = undefined; requests.cancel(); changes.reset(); }
     if (properties.material_mode) settings.materialMode = properties.material_mode.value === 'frosted' ? 'frosted' : 'liquid';
-    for (const key of ['seconds', 'hour12', 'motion', 'trends'] as const) if (properties[key]) settings[key] = properties[key].value === true;
+    for (const key of ['seconds', 'hour12', 'motion', 'trends'] as const) if (properties[key] && (!managedClock || key === 'motion' || key === 'trends')) settings[key] = properties[key].value === true;
     if (properties.rotate_seconds) settings.rotateSeconds = clamp(Number(properties.rotate_seconds.value), 0, 300, 0);
     if (properties.quota_layout) { settings.quotaLayout = properties.quota_layout.value === 'carousel' ? 'carousel' : 'cards'; quota.refreshLayout(); }
     if (properties.ignore_codex_base_weekly) { settings.ignoreCodexBaseWeekly = properties.ignore_codex_base_weekly.value === true; quota.refreshLayout(); }
     if (properties.ignore_codex_image_quota) { settings.ignoreCodexImageQuota = properties.ignore_codex_image_quota.value === true; quota.refreshLayout(); }
     if (properties.safe_bottom) settings.safeBottom = clamp(Number(properties.safe_bottom.value), 1, 10, 3.9);
-    if (properties.timezone) try { new Intl.DateTimeFormat('zh-CN', { timeZone: String(properties.timezone.value) }); settings.timezone = String(properties.timezone.value); } catch { }
-    if (oldConnection !== settings.bridgeUrl + ':' + settings.readToken) { requests.cancel(); changes.reset(); }
+    if (properties.timezone && !managedClock) try { new Intl.DateTimeFormat('zh-CN', { timeZone: String(properties.timezone.value) }); settings.timezone = String(properties.timezone.value); } catch { }
     applyAppearance(); controls(); saveSettings(settings); lastFetch = reportedAt = 0; lifecycle();
   },
   applyGeneralProperties(properties) { engine = true; if (properties.fps) fps = clamp(properties.fps, 1, 240, 30); lifecycle(); },

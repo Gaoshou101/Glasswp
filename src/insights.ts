@@ -1,5 +1,5 @@
 import type { QuotaAccount, QuotaData, QuotaWindow, WeatherData, WeatherHour } from './contract';
-import { percent } from './format';
+import { quotaRemaining } from './format';
 import { currentQuotaWindows, quotaWindowState, visibleQuotaWindows } from './quota';
 
 export interface HardwareSample { at: number; value: number | null; temperature: number | null }
@@ -16,21 +16,23 @@ export function sampleStats(samples: HardwareSample[]): SampleStats {
 export function visibleQuotaAccounts(data: QuotaData, ignoreBaseWeekly: boolean, ignoreImageQuota = false, now = Date.now()): QuotaAccount[] {
   return data.accounts.map(account => ({ ...account, windows: visibleQuotaWindows(account, ignoreBaseWeekly, ignoreImageQuota, now) }));
 }
-const windowKey = (w: QuotaWindow) => JSON.stringify([w.id, w.label, w.durationSeconds, w.mode]);
+const windowKey = (w: QuotaWindow) => JSON.stringify([w.id, w.label, w.durationSeconds, w.mode, w.quotaUnit]);
 /** Current evidence, or an exhausted window whose zero balance still holds until its reset. */
 export function freshQuota(window: QuotaWindow, now: number): boolean {
   return quotaWindowState(window, now) !== 'expired';
 }
 const known = (w: QuotaWindow) => w.remainingPercent !== null && Number.isFinite(w.remainingPercent);
+const knownValue = (w: QuotaWindow) => known(w) || typeof w.remainingValue === 'number' && Number.isFinite(w.remainingValue) || !!w.displayText;
 export function quotaInsight(data: QuotaData, accountId: string, ignoreBaseWeekly: boolean, now = Date.now(), ignoreImageQuota = false) {
   const accounts = visibleQuotaAccounts(data, ignoreBaseWeekly, ignoreImageQuota, now), account = accounts.find(a => a.id === accountId);
   if (!account) return undefined;
   const sourceAvailable = data.status === 'ok' || data.status === 'stale';
-  const usable = account.windows.filter(w => sourceAvailable && freshQuota(w, now) && known(w) && (w.mode === 'non_window' || !w.resetAt || !Number.isFinite(Date.parse(w.resetAt)) || Date.parse(w.resetAt) > now));
-  const limiting = usable.reduce<QuotaWindow | undefined>((current, w) => !current || w.remainingPercent! < current.remainingPercent! ? w : current, undefined);
+  const usable = account.windows.filter(w => sourceAvailable && freshQuota(w, now) && knownValue(w) && (w.mode === 'non_window' || !w.resetAt || !Number.isFinite(Date.parse(w.resetAt)) || Date.parse(w.resetAt) > now));
+  const limiting = usable.filter(known).reduce<QuotaWindow | undefined>((current, w) => !current || w.remainingPercent! < current.remainingPercent! ? w : current, undefined);
   const incomplete = usable.length !== account.windows.length;
   let heading = limiting ? `${limiting.label}的相对余量最低` : '需要更新额度证据';
   let explanation = limiting ? '' : '点击上方“刷新”，获取最新用量后再判断。';
+  if (!limiting && usable.length) { heading = '已读取当前余额'; explanation = usable.map(w => `${w.label}：${quotaRemaining(w)}`).join('；'); }
   if (limiting?.remainingPercent === 0) { heading = `${limiting.label}已用尽`; explanation = '时间边界到达后需刷新确认恢复；零余额不会自动变成满额。'; }
   if (incomplete && limiting) explanation += ' 部分窗口未知或过期，暂不能判断全部约束。';
   if (!account.windows.length) {
@@ -44,8 +46,8 @@ export function quotaInsight(data: QuotaData, accountId: string, ignoreBaseWeekl
     values: account.windows.map(w => {
       const other = a.windows.find(v => windowKey(v) === windowKey(w))!;
       const expired = other.mode !== 'non_window' && other.resetAt && Date.parse(other.resetAt) <= now;
-      if (!sourceAvailable || !freshQuota(other, now) || !known(other) || expired) return '待更新';
-      return quotaWindowState(other, now) === 'exhausted' ? '已用尽' : percent(other.remainingPercent);
+      if (!sourceAvailable || !freshQuota(other, now) || !knownValue(other) || expired) return '待更新';
+      return quotaWindowState(other, now) === 'exhausted' ? '已用尽' : quotaRemaining(other);
     }) })) : [];
   return { account, heading, explanation, rows, observedAt: account.windows.map(w => w.observedAt).filter((v): v is string => !!v).sort()[0] || null };
 }
@@ -53,7 +55,8 @@ export function quotaInsight(data: QuotaData, accountId: string, ignoreBaseWeekl
 export interface QuotaInsightModel { kind: 'quota'; title: string; data: QuotaData; accountId: string; ignoreBaseWeekly: boolean; ignoreImageQuota: boolean; timezone: string }
 export interface HardwareInsightModel { kind: 'hardware'; title: string; index: number; name: string; samples: HardwareSample[]; observedAt: number; status: string; message: string; freeBytes: number | null; timezone: string }
 export interface WeatherInsightModel { kind: 'weather'; title: string; data: WeatherData; timezone: string }
-export type InsightModel = QuotaInsightModel | HardwareInsightModel | WeatherInsightModel;
+export interface ClockInsightModel { kind: 'clock'; title: string; timezone: string; worldZones: string[]; seconds: boolean; hour12: boolean; offsetSeconds: number }
+export type InsightModel = QuotaInsightModel | HardwareInsightModel | WeatherInsightModel | ClockInsightModel;
 export function forecastHours(hours: WeatherHour[] | null | undefined, now = Date.now()): WeatherHour[] {
   const unique = new Map<number, WeatherHour>();
   for (const hour of hours || []) {

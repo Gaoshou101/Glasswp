@@ -1,7 +1,9 @@
-import { cardInsights, forecastHours, sampleStats, type HardwareInsightModel, type QuotaInsightModel, type WeatherInsightModel } from './insights';
+import { cardInsights, forecastHours, sampleStats, type ClockInsightModel, type HardwareInsightModel, type QuotaInsightModel, type WeatherInsightModel } from './insights';
+import { WorldClockFormats, clockNow, normalizeWorldZones, timezoneName } from './clock-format';
 import { AccountActivityControl, availableResets } from './account-activity';
 import { activityIcon, disposeRequestActivity, renderRequestActivity, updateResetBadge } from './request-activity-view';
 import { percent, temperature, weatherLabel } from './format';
+import { weatherIconMarkup } from './icons';
 const el = <K extends keyof HTMLElementTagNameMap>(tag: K, className = '', value?: string) => { const node = document.createElement(tag); node.className = className; if (value !== undefined) node.textContent = value; return node; };
 const text = (node: Element, value: string) => { if (node.textContent !== value) node.textContent = value; };
 const stamp = (at: string | number | null, timezone: string, full = false) => at !== null && Number.isFinite(new Date(at).getTime()) ? new Intl.DateTimeFormat('zh-CN', { timeZone: timezone, ...(full ? { month: '2-digit', day: '2-digit' } : {}), hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date(at)) : '未知';
@@ -21,6 +23,7 @@ export class CardDetails {
   private activitySignature = '';
   private keyboardNavigation = false;
   private placementDirty = true;
+  private worldFormats = new WorldClockFormats();
   constructor(private root: HTMLElement, private bridgeUrl: () => string, private readToken: () => string) {
     this.layer = el('div', 'detail-layer'); root.append(this.layer);
     new ResizeObserver(() => { this.invalidatePlacement(); this.place(); }).observe(root);
@@ -54,9 +57,9 @@ export class CardDetails {
       this.animations.forEach(animation => animation.cancel()); this.animations = [];
       for (const [panel, animation] of this.closing) { animation.cancel(); panel.remove(); } this.closing.clear();
     }
-    const stale = model.kind === 'hardware' ? !model.observedAt || now - model.observedAt > 10000 : model.kind === 'weather' ? model.data.status !== 'ok' || !model.data.fetchedAt || now - Date.parse(model.data.fetchedAt) > 1800000 : model.data.status !== 'ok';
-    if (this.settingsLink) this.settingsLink.href = this.bridgeUrl() + (model.kind === 'weather' ? '/admin/#city-query' : '/admin/#account-order-heading');
-    const timeState = model.kind === 'quota' ? availableResets(model.data.accounts.find(a => a.id === model.accountId)?.resetCredits, now) : model.kind === 'weather' ? [stale, forecastHours(model.data.hourly, now).map(h => h.time)] : stale;
+    const stale = model.kind === 'clock' ? false : model.kind === 'hardware' ? !model.observedAt || now - model.observedAt > 10000 : model.kind === 'weather' ? model.data.status !== 'ok' || !model.data.fetchedAt || now - Date.parse(model.data.fetchedAt) > 1800000 : model.data.status !== 'ok';
+    if (this.settingsLink) this.settingsLink.href = this.bridgeUrl() + (model.kind === 'clock' ? '/admin/#clock-heading' : model.kind === 'weather' ? '/admin/#city-query' : '/admin/#account-order-heading');
+    const timeState = model.kind === 'clock' ? Math.floor(clockNow(model.offsetSeconds, now).getTime() / (model.seconds ? 1000 : 60000)) : model.kind === 'quota' ? availableResets(model.data.accounts.find(a => a.id === model.accountId)?.resetCredits, now) : model.kind === 'weather' ? [stale, forecastHours(model.data.hourly, now).map(h => h.time)] : stale;
     const signature = JSON.stringify([model, timeState, this.activity.data, this.activity.loading, this.activity.message, this.activity.range, this.activity.rangeError, this.activity.page]);
     if (signature === this.signature) return;
     this.signature = signature;
@@ -64,6 +67,7 @@ export class CardDetails {
     const body = this.panel.querySelector<HTMLElement>('.card-details-body')!;
     if (model.kind === 'quota') this.quota(body, model, now);
     else if (model.kind === 'hardware') this.hardware(body, model, stale);
+    else if (model.kind === 'clock') this.worldClock(body, model, now);
     else this.weather(body, model, stale, now);
   }
   close(restoreFocus = true, immediate = false) {
@@ -105,8 +109,8 @@ export class CardDetails {
     if (model.kind === 'quota') {
       const badge = el('span', 'reset-credit-badge'); badge.tabIndex = 0; badge.setAttribute('role', 'img'); badge.append(activityIcon('reset'), el('span')); header.insertBefore(badge, close);
       this.settingsLink = el('a', 'details-action', '账号设置'); this.settingsLink.target = '_blank'; this.settingsLink.rel = 'noopener noreferrer'; header.insertBefore(this.settingsLink, close);
-    } else if (model.kind === 'weather') {
-      this.settingsLink = el('a', 'details-action', '切换城市'); this.settingsLink.target = '_blank'; this.settingsLink.rel = 'noopener noreferrer'; header.insertBefore(this.settingsLink, close);
+    } else if (model.kind === 'weather' || model.kind === 'clock') {
+      this.settingsLink = el('a', 'details-action', model.kind === 'clock' ? '时间设置' : '切换城市'); this.settingsLink.target = '_blank'; this.settingsLink.rel = 'noopener noreferrer'; header.insertBefore(this.settingsLink, close);
     }
     this.layer.append(panel); this.panel = panel; this.placementDirty = true; this.sync(); close.focus({ preventScroll: true });
     let lightAt = 0;
@@ -140,25 +144,79 @@ export class CardDetails {
     this.panel.style.width = `${Math.max(1, Math.min(region.width * sx - inset * 2, this.root.clientWidth - left - inset))}px`;
     this.panel.style.height = `${Math.max(1, Math.min(region.height * sy - topInset - inset, this.root.clientHeight - top - inset))}px`;
   }
+  private worldClock(body: HTMLElement, model: ClockInsightModel, now: number) {
+    const zones = [model.timezone, ...normalizeWorldZones(model.worldZones).filter(zone => zone !== model.timezone)];
+    const key = JSON.stringify(zones);
+    if (body.dataset.zones !== key) {
+      body.dataset.zones = key; body.replaceChildren();
+      const layout = el('div', 'world-clock-layout'), grid = el('div', 'world-clock-grid');
+      for (const zone of zones) {
+        const row = el('div', 'world-clock-row'); row.dataset.timezone = zone; row.dataset.primary = String(zone === model.timezone);
+        const heading = el('div', 'world-clock-heading'); heading.append(el('span', 'world-clock-name'), el('strong', 'world-clock-time'));
+        const meta = el('div', 'world-clock-meta'); meta.append(el('span', 'world-clock-offset'), el('span', 'world-clock-day'));
+        const rail = el('div', 'world-clock-rail'); rail.setAttribute('aria-hidden', 'true'); rail.append(el('i'));
+        row.append(heading, meta, rail);
+        if (zone === model.timezone) {
+          row.prepend(el('span', 'world-clock-primary-label', '主时区'));
+          row.insertBefore(el('div', 'world-clock-date'), rail);
+          const scale = el('div', 'world-clock-scale'); scale.append(el('span', '', '00:00'), el('span', '', '12:00'), el('span', '', '24:00')); row.append(scale);
+          layout.append(row);
+        } else grid.append(row);
+      }
+      layout.append(grid); layout.dataset.solo = String(zones.length === 1);
+      body.append(layout);
+    }
+    const corrected = clockNow(model.offsetSeconds, now);
+    body.querySelectorAll<HTMLElement>('.world-clock-row').forEach((row, index) => {
+      const result = this.worldFormats.format(zones[index], model.timezone, model.hour12, model.seconds, corrected);
+      text(row.querySelector('.world-clock-name')!, result.name);
+      text(row.querySelector('.world-clock-time')!, result.time);
+      text(row.querySelector('.world-clock-offset')!, result.offset);
+      text(row.querySelector('.world-clock-day')!, `${result.date.slice(5, 10)} · ${result.dayLabel}`);
+      row.title = `${result.timezone}\n${result.date}\n${result.offset} · 相对${timezoneName(model.timezone)}${result.dayLabel}`;
+      if (index === 0 && model.offsetSeconds !== 0) row.title += `\n显示时间校准 ${model.offsetSeconds > 0 ? '+' : ''}${Number(model.offsetSeconds.toFixed(3))} 秒`;
+      row.dataset.seconds = String(model.seconds); row.dataset.hour12 = String(model.hour12);
+      row.dataset.period = result.minutesOfDay >= 360 && result.minutesOfDay < 1080 ? 'day' : 'night';
+      row.style.setProperty('--day-position', `${result.minutesOfDay / 1440 * 100}%`);
+      const fullDate = row.querySelector('.world-clock-date'); if (fullDate) text(fullDate, result.date);
+    });
+  }
   private weather(body: HTMLElement, model: WeatherInsightModel, stale: boolean, now: number) {
     const hours = forecastHours(model.data.hourly, now);
-    const key = hours.map(h => h.time).join(',');
-    if (!hours.length) {
-      delete body.dataset.hours;
-      body.replaceChildren(el('div', 'forecast-empty', model.data.fetchedAt ? '小时预报暂不可用，等待下一次天气更新' : '正在获取小时预报'));
-      body.append(el('p', 'insight-note', '当前条件仍保留；可检查本机桥接与天气连接。')); return;
-    }
+    const key = hours.map(h => h.time).join(',') || 'empty';
     if (body.dataset.hours !== key) {
       body.replaceChildren(); body.dataset.hours = key;
-      body.append(el('p', 'forecast-summary'));
+      const layout = el('div', 'weather-detail-layout'), current = el('div', 'weather-current');
+      const symbol = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); symbol.setAttribute('viewBox', '0 0 48 48'); symbol.setAttribute('fill', 'none'); symbol.setAttribute('aria-hidden', 'true'); symbol.classList.add('weather-icon', 'weather-current-icon');
+      const reading = el('div', 'weather-current-reading'); reading.append(symbol, el('strong', 'weather-current-temperature'));
+      current.append(el('span', 'weather-current-city'), reading, el('span', 'weather-current-condition'), el('span', 'weather-current-range'), el('span', 'weather-current-status'));
+      const forecast = el('div', 'weather-forecast'); forecast.append(el('p', 'forecast-summary'));
+      const trend = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); trend.classList.add('forecast-trend'); trend.setAttribute('viewBox', '0 0 600 20'); trend.setAttribute('preserveAspectRatio', 'none'); trend.setAttribute('aria-hidden', 'true'); forecast.append(trend);
       const grid = el('div', 'forecast-grid'); grid.style.setProperty('--forecast-count', String(hours.length));
       for (const hour of hours) {
         const slot = el('div', 'forecast-hour'); slot.dataset.time = hour.time;
         slot.append(el('span', 'forecast-time'), el('strong', 'forecast-temperature'), el('div', 'forecast-rain-track'), el('span', 'forecast-probability'), el('span', 'forecast-amount'));
+        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); icon.setAttribute('viewBox', '0 0 48 48'); icon.setAttribute('fill', 'none'); icon.setAttribute('aria-hidden', 'true'); icon.classList.add('weather-icon', 'forecast-icon'); slot.insertBefore(icon, slot.children[1]);
         slot.querySelector('.forecast-rain-track')!.append(el('i'));
         grid.append(slot);
       }
-      body.append(grid, el('p', 'insight-note'));
+      forecast.append(grid, el('div', 'forecast-empty')); layout.append(current, forecast); body.append(layout);
+    }
+    this.panel!.dataset.stale = String(stale);
+    const currentIcon = body.querySelector<SVGSVGElement>('.weather-current-icon')!;
+    const iconKey = `${model.data.code}:${model.data.isDay}`;
+    if (currentIcon.dataset.icon !== iconKey) { currentIcon.innerHTML = weatherIconMarkup(model.data.code, model.data.isDay); currentIcon.dataset.icon = iconKey; }
+    text(body.querySelector('.weather-current-city')!, model.data.city || '尚未选择城市');
+    text(body.querySelector('.weather-current-temperature')!, temperature(model.data.temperature, '°'));
+    text(body.querySelector('.weather-current-condition')!, weatherLabel(model.data.code));
+    text(body.querySelector('.weather-current-range')!, `最低 ${temperature(model.data.low, '°')}  /  最高 ${temperature(model.data.high, '°')}`);
+    text(body.querySelector('.weather-current-status')!, stale ? model.data.fetchedAt ? '上次实况 · 待更新' : '等待天气数据' : '当前实况');
+    const empty = body.querySelector<HTMLElement>('.forecast-empty')!; empty.hidden = !!hours.length;
+    body.querySelector<HTMLElement>('.weather-forecast')!.dataset.empty = String(!hours.length);
+    if (!hours.length) {
+      text(body.querySelector('.forecast-summary')!, '分时预报');
+      text(empty, model.data.provider === 'amap' ? '此来源不提供小时预报' : model.data.fetchedAt ? '分时预报暂不可用' : '正在获取天气预报');
+      return;
     }
     const formatter = new Intl.DateTimeFormat('zh-CN', { timeZone: model.timezone, hour: '2-digit', hour12: false });
     const hourLabel = (time: string) => `${formatter.formatToParts(new Date(time)).find(part => part.type === 'hour')?.value || '—'}时`;
@@ -169,18 +227,29 @@ export class CardDetails {
       const slot = slots[index], day = date(hour.time) === today ? '' : '明日 ';
       text(slot.querySelector('.forecast-time')!, `${day}${hourLabel(hour.time)}`);
       text(slot.querySelector('.forecast-temperature')!, temperature(hour.temperature, '°'));
+      const icon = slot.querySelector<SVGSVGElement>('.forecast-icon')!;
+      // Forecast data has no sunrise/sunset: use a neutral daytime condition symbol.
+      if (icon.dataset.code !== String(hour.code)) { icon.innerHTML = weatherIconMarkup(hour.code); icon.dataset.code = String(hour.code); }
       const probability = hour.precipitationProbability;
       text(slot.querySelector('.forecast-probability')!, probability === null || !Number.isFinite(probability) ? '—' : `${Math.round(Math.max(0, Math.min(100, probability)))}%`);
       text(slot.querySelector('.forecast-amount')!, hour.precipitationMm === null || !Number.isFinite(hour.precipitationMm) ? '— mm' : `${Math.max(0, hour.precipitationMm).toFixed(1)} mm`);
+      slot.querySelector('.forecast-probability')!.setAttribute('title', '降水概率');
+      slot.querySelector('.forecast-amount')!.setAttribute('title', '预计降水量');
       const track = slot.querySelector<HTMLElement>('.forecast-rain-track')!;
-      track.dataset.unknown = String(probability === null); track.firstElementChild!.setAttribute('style', `height:${Math.max(0, Math.min(100, probability ?? 0))}%`);
+      track.dataset.unknown = String(probability === null || !Number.isFinite(probability)); track.firstElementChild!.setAttribute('style', `width:${Number.isFinite(probability) ? Math.max(0, Math.min(100, probability ?? 0)) : 0}%;height:100%`);
       slot.title = `${stamp(hour.time, model.timezone, true)}\n${weatherLabel(hour.code)}\n温度 ${temperature(hour.temperature)}\n降水概率 ${probability === null ? '未知' : percent(probability)}\n预计降水量 ${hour.precipitationMm === null ? '未知' : `${hour.precipitationMm} mm`}`;
     });
+    // Preserve missing observations as gaps; points align with their forecast columns.
+    const validTemps = hours.map(h => h.temperature).filter((v): v is number => v !== null && Number.isFinite(v));
+    const low = Math.min(...validTemps), high = Math.max(...validTemps);
+    const trend = body.querySelector('.forecast-trend')!; trend.replaceChildren();
+    let points: string[] = [];
+    const flush = () => { if (points.length) { const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline'); line.setAttribute('points', points.join(' ')); trend.append(line); } points = []; };
+    hours.forEach((hour, index) => { if (hour.temperature === null || !Number.isFinite(hour.temperature)) { flush(); return; } points.push(`${(index + .5) / hours.length * 600},${high === low ? 10 : 17 - (hour.temperature - low) / (high - low) * 14}`); }); flush();
     const rain = hours.filter(h => h.precipitationProbability !== null && h.precipitationProbability >= 50 || h.precipitationMm !== null && h.precipitationMm > 0);
     const validProbability = hours.filter(h => h.precipitationProbability !== null && Number.isFinite(h.precipitationProbability));
     const summary = rain.length ? `${date(rain[0].time) === today ? '' : '明日 '}${hourLabel(rain[0].time)}起有降水信号` : validProbability.length === hours.length ? `这 ${hours.length} 个时段暂未出现明显降水信号` : '部分时段缺少降水预报';
-    text(body.querySelector('.forecast-summary')!, stale ? '上次小时预报 · 天气连接待更新' : summary);
-    text(body.querySelector('.insight-note')!, `降水概率 / 预计降水量 · ${model.timezone} · Open-Meteo 模型预报${stale ? ' · 数据已过期' : ''}`);
+    text(body.querySelector('.forecast-summary')!, stale ? '上次天气预报 · 天气连接待更新' : summary);
   }
   private quota(body: HTMLElement, model: QuotaInsightModel, now: number) {
     const account = model.data.accounts.find(a => a.id === model.accountId); if (!account) return;

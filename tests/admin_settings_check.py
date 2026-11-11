@@ -44,7 +44,7 @@ sensors = [dict(id='cpu/0/temperature/0', hardware='Fixture CPU', hardwareId='cp
 client = dict(at=local_iso(3), buildId='fixture-build', host='wallpaper-engine', width=1600, height=2560, fps=30, paused=False, materials={'top': [83, 26, 68]})
 cfg = dict(cpampUrl='https://example.test', managementConfigured=True, readToken='fixture-only', bridgeUrl=BASE,
            city={'id': '1', 'name': '苏州 · 江苏'}, sensors={}, quotaRefreshEnabled=True, quotaRefreshMinutes=10, quotaRefresh=report,
-           accounts=copy.deepcopy(accounts), diagnostics=dict(lastClient=client, lastSnapshotRead=local_iso(3), cacheFaults=[], desktopInput=None))
+           accounts=copy.deepcopy(accounts), aiSources=dict(source='cpamp'), diagnostics=dict(lastClient=client, lastSnapshotRead=local_iso(3), cacheFaults=[], desktopInput=None))
 snapshot = {'quota': {'accounts': [dict(id='b', plan='Plus'), dict(id='a', plan='Team'), dict(id='c', plan='')]}}
 state = dict(snapshot_failed=False, save_failed=False, confirm=True)
 candidates, saved, calls, errors, dialogs, results = set(), [], [], [], [], {}
@@ -118,6 +118,9 @@ with sync_playwright() as p:
     wait_status = lambda text: page.wait_for_function('(text) => document.querySelector("#status").textContent === text', arg=text)
 
     assert order() == ['a', 'b', 'c']
+    assert page.locator('#ai-source').input_value() == 'cpamp'
+    assert page.locator('#cpamp-section').is_visible() and page.locator('#accounts-section').is_visible()
+    assert page.locator('#refresh-ai-sources').is_disabled()
     assert page.locator('.order-plan:visible').all_text_contents() == ['Team', 'Plus']
     assert row('c').locator('.order-plan').is_hidden() and '暂未获取到套餐信息' in row('c').locator('.provider-badge').get_attribute('title')
     assert page.locator('.provider-badge').all_text_contents() == ['Codex', 'Codex', 'Antigravity']
@@ -367,7 +370,7 @@ with sync_playwright() as p:
     style = panel.evaluate('''n => [getComputedStyle(n).backdropFilter, getComputedStyle(n).borderRadius,
         getComputedStyle(document.body, '::before').backgroundImage, getComputedStyle(document.querySelector('.dock')).position]''')
     assert 'blur(30px)' in style[0] and style[1] == '28px' and 'wallpaper-original.jpg' in style[2] and style[3] == 'sticky', style
-    assert context.request.get(BASE + '/assets/wallpaper-original.jpg').ok and page.locator('.icon-tile').count() == 6
+    assert context.request.get(BASE + '/assets/wallpaper-original.jpg').ok and page.locator('.icon-tile').count() == 13
     assert page.evaluate("[...document.querySelectorAll('use')].every(u => document.querySelector(u.getAttribute('href')))")
     cdp = context.new_cdp_session(page)
     cdp.send('Emulation.setEmulatedMedia', {'features': [{'name': 'prefers-reduced-transparency', 'value': 'reduce'}]})

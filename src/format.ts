@@ -1,5 +1,9 @@
 import type { QuotaWindow } from './contract';
 export const percent = (value: number | null | undefined) => typeof value === 'number' && Number.isFinite(value) ? `${Math.round(Math.max(0, Math.min(100, value)))}%` : '—';
+export function quotaRemaining(window: QuotaWindow): string {
+  if (typeof window.remainingValue === 'number' && Number.isFinite(window.remainingValue)) return `${new Intl.NumberFormat('zh-CN', { maximumFractionDigits: 2 }).format(window.remainingValue)}${window.quotaUnit ? ' ' + window.quotaUnit : ''}`;
+  return window.displayText || percent(window.remainingPercent);
+}
 export const temperature = (value: number | null | undefined, suffix = '°C') => typeof value === 'number' && Number.isFinite(value) ? `${Math.round(value)}${suffix}` : '—';
 export const capacity = (used: number | null, total: number | null) => used !== null && total !== null && total > 0 ? `${(used / 2 ** 30).toFixed(1)} / ${(total / 2 ** 30).toFixed(0)} GB` : '容量不可用';
 export function resetText(window: QuotaWindow, now = Date.now()): string {

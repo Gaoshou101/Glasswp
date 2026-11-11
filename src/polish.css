@@ -1,0 +1,252 @@
+/* Visual layer v4: type system, icons and liquid optics.
+   Widget geometry (anchors, heights, face gap) stays in design.css/live.css; nothing here animates while idle. */
+body{font-family:"Segoe UI Variable Text","Segoe UI","Noto Sans SC","Microsoft YaHei UI","Microsoft YaHei",sans-serif}
+.wallpaper{
+  --font-ui:"Segoe UI Variable Text","Segoe UI","Noto Sans SC","Microsoft YaHei UI","Microsoft YaHei",sans-serif;
+  --font-display:"Segoe UI Variable Display","Segoe UI","Noto Sans SC","Microsoft YaHei UI","Microsoft YaHei",sans-serif;
+  --ink:#fbf8ff;--ink-2:rgba(245,239,255,.8);--ink-3:rgba(238,230,252,.62);--muted:var(--ink-3);
+  --accent:#dcc6ff;--accent-rgb:220,198,255;--low:#ffb5a8;
+  /* Lifts light text off bright hair under the glass without a visible halo. */
+  --lift:0 calc(1 * var(--u)) calc(2 * var(--u)) rgba(14,6,30,.3),0 0 calc(14 * var(--u)) rgba(14,6,30,.18);
+  font-family:var(--font-ui);
+}
+.wallpaper .glass{text-shadow:var(--lift)}
+
+/* ---------- Liquid material: tone-mapped backdrop, thick-glass bevel, two-tone specular rim ---------- */
+.wallpaper[data-material-mode=liquid] .glass{
+  background:
+    linear-gradient(165deg,rgba(255,255,255,calc(.06 + var(--glass-edge) * .09)) 0%,rgba(255,255,255,.022) 30%,rgba(255,255,255,0) 54%,rgba(206,178,255,.06) 100%),
+    rgba(17,12,28,calc(var(--glass-alpha) * .9 + .07));
+  border-color:rgba(255,255,255,.07);
+  /* Same blur radius as before; brightness/contrast compress bright smears behind text. */
+  backdrop-filter:blur(calc(var(--glass-blur) * var(--u) * .68)) saturate(150%) brightness(.9) contrast(.88);
+  -webkit-backdrop-filter:blur(calc(var(--glass-blur) * var(--u) * .68)) saturate(150%) brightness(.9) contrast(.88);
+  box-shadow:
+    inset 0 calc(1.2 * var(--u)) 0 rgba(255,255,255,calc(.12 + var(--glass-edge) * .2)),
+    inset 0 calc(-1 * var(--u)) 0 rgba(255,255,255,.06),
+    inset calc(16 * var(--u)) calc(18 * var(--u)) calc(30 * var(--u)) calc(-20 * var(--u)) rgba(255,255,255,calc(var(--glass-edge) * .13)),
+    inset calc(-16 * var(--u)) calc(-20 * var(--u)) calc(34 * var(--u)) calc(-20 * var(--u)) rgba(14,6,34,.3),
+    0 calc(20 * var(--u)) calc(48 * var(--u)) calc(-12 * var(--u)) rgba(6,2,16,.34),
+    0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(6,2,16,.1);
+}
+/* Frosted keeps its v3 material, with the same mild tone mapping so bright hair does not wash out text. */
+.wallpaper[data-material-mode=frosted] .glass{
+  backdrop-filter:blur(calc(var(--glass-blur) * var(--u))) saturate(115%) brightness(.93) contrast(.9);
+  -webkit-backdrop-filter:blur(calc(var(--glass-blur) * var(--u))) saturate(115%) brightness(.93) contrast(.9);
+}
+.wallpaper[data-material-mode=liquid] .glass::after{
+  padding:calc(1.3 * var(--u));
+  background:linear-gradient(150deg,#fff 0%,rgba(255,255,255,.62) 9%,rgba(255,255,255,.1) 26%,rgba(255,255,255,0) 46%,rgba(255,255,255,0) 62%,rgba(226,200,255,.26) 82%,rgba(255,255,255,.78) 100%);
+}
+.wallpaper[data-material-mode=liquid] .liquid-glint::before{
+  background:radial-gradient(ellipse 46% 40% at 50% 45%,rgba(255,252,255,.24),rgba(240,228,255,.1) 45%,rgba(232,216,255,.025) 70%,transparent 82%);
+}
+/* Rim light: the edge nearest the pointer catches the light. Only the hovered card repaints. */
+.wallpaper[data-material-mode=liquid] .liquid-glint::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:calc(2 * var(--u));pointer-events:none;
+  background:radial-gradient(closest-side,#fff,rgba(255,255,255,.78) 28%,rgba(246,232,255,.32) 60%,rgba(255,255,255,0)) no-repeat;
+  background-size:calc(460 * var(--u)) calc(460 * var(--u));
+  background-position:calc(50% + var(--light-x,0px) * 2.27) calc(50% + var(--light-y,0px) * 2.78);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;
+  opacity:0;transition:opacity 420ms cubic-bezier(.22,.61,.36,1);
+}
+.wallpaper[data-material-mode=liquid][data-dynamic=true] .liquid-hover>.liquid-glint::after{opacity:calc(.4 + var(--glass-edge,.5) * .6)}
+.wallpaper[data-dynamic=false] .liquid-glint::after,.wallpaper[data-paused=true] .liquid-glint::after{transition:none}
+@media(prefers-reduced-motion:reduce){.wallpaper .liquid-glint::after{transition:none}}
+
+/* ---------- Clock and weather ---------- */
+.wallpaper .time{font-family:var(--font-display);font-weight:300;font-size:calc(124 * var(--u));line-height:1.04;letter-spacing:-.032em;font-variant-numeric:tabular-nums;text-shadow:0 calc(2 * var(--u)) calc(3 * var(--u)) rgba(14,6,30,.28),0 0 calc(26 * var(--u)) rgba(14,6,30,.22)}
+.wallpaper .time[data-seconds=true]{font-size:calc(88 * var(--u));letter-spacing:-.025em}
+.wallpaper .time[data-hour12=true]{font-size:calc(88 * var(--u));letter-spacing:-.025em}
+.wallpaper .time[data-seconds=true][data-hour12=true]{font-size:calc(68 * var(--u))}
+.wallpaper .date{margin-top:calc(16 * var(--u));font-size:calc(24 * var(--u));letter-spacing:.06em;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wallpaper .weather-main{gap:calc(16 * var(--u))}
+.wallpaper .weather-icon{width:calc(62 * var(--u));height:calc(62 * var(--u));flex-shrink:0;color:#efe5ff;overflow:visible;filter:drop-shadow(0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(14,6,30,.3))}
+.weather-icon .wi-cloud{fill:rgba(244,236,255,.2);stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.weather-icon .wi-cloud-back{opacity:.55}
+.weather-icon .wi-cloud-muted{opacity:.55}
+.weather-icon .wi-sun{fill:rgba(255,214,150,.32);stroke:#ffdcab;stroke-width:1.6}
+.weather-icon .wi-ray{fill:none;stroke:#ffdcab;stroke-width:1.6;stroke-linecap:round}
+.weather-icon .wi-moon{fill:rgba(226,214,255,.26);stroke:#ebe2ff;stroke-width:1.6;stroke-linejoin:round}
+.weather-icon .wi-drop{fill:none;stroke:#a8d0f8;stroke-width:1.8;stroke-linecap:round}
+.weather-icon .wi-mist{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;opacity:.7}
+.weather-icon .wi-snow{fill:#f6f9ff}
+.weather-icon .wi-bolt{fill:#ffd88f;stroke:#ffcf73;stroke-width:.8;stroke-linejoin:round}
+.wallpaper .temperature{font-family:var(--font-display);font-weight:300;font-size:calc(70 * var(--u));letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.wallpaper .weather-description{font-size:calc(23 * var(--u));font-weight:500;margin-top:calc(14 * var(--u))}
+.wallpaper .weather-range{font-size:calc(19 * var(--u));color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wallpaper .weather-caption{font-size:calc(15 * var(--u));color:var(--ink-3);letter-spacing:.04em}
+.wallpaper .weather-caption::before{content:"";display:inline-block;width:1em;height:1em;margin-right:.3em;vertical-align:-.14em;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z'/%3E%3Ccircle cx='12' cy='10' r='2.3'/%3E%3C/svg%3E") center/contain no-repeat}
+.wallpaper .weather-settings{border-radius:999px;padding:calc(3 * var(--u)) calc(10 * var(--u));background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(255,255,255,.14);text-decoration:none;color:var(--ink-2);text-shadow:none}
+
+/* ---------- Quota panel ---------- */
+.wallpaper .quota-heading{font-size:calc(24 * var(--u));font-weight:600;letter-spacing:.02em}
+.wallpaper .quota-heading>span:first-child{display:inline-flex;align-items:center;gap:calc(10 * var(--u));white-space:nowrap}
+.wallpaper .quota-heading>span:first-child::before{content:"";flex-shrink:0;width:calc(25 * var(--u));height:calc(25 * var(--u));background:linear-gradient(135deg,#f4eaff,#c9a9ff);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4.2 17.5a8.6 8.6 0 1 1 15.6 0'/%3E%3Cpath d='m12 13.4 3.6-4.3'/%3E%3Ccircle cx='12' cy='13.6' r='1.4' fill='%23000' stroke='none'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4.2 17.5a8.6 8.6 0 1 1 15.6 0'/%3E%3Cpath d='m12 13.4 3.6-4.3'/%3E%3Ccircle cx='12' cy='13.6' r='1.4' fill='%23000' stroke='none'/%3E%3C/svg%3E") center/contain no-repeat}
+.wallpaper .quota-actions{gap:calc(10 * var(--u))}
+.wallpaper .quota-nav{gap:calc(2 * var(--u));padding:calc(2 * var(--u));border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(255,255,255,.1),inset 0 calc(1 * var(--u)) 0 rgba(255,255,255,.08)}
+.wallpaper .quota-nav span{font-size:calc(15 * var(--u));font-weight:500;color:var(--ink-2);padding:0 calc(4 * var(--u))}
+.wallpaper .quota-heading .quota-nav button{display:grid;place-items:center;width:calc(28 * var(--u));height:calc(28 * var(--u));padding:0 0 calc(2 * var(--u));border-radius:50%;font-size:calc(21 * var(--u));line-height:1;color:var(--ink)}
+.wallpaper .quota-refresh{border-radius:999px;padding:calc(5 * var(--u)) calc(14 * var(--u)) calc(5 * var(--u)) calc(11 * var(--u));font-size:calc(15 * var(--u));font-weight:500;color:var(--ink-2);border-color:rgba(255,255,255,.13);background:linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:inset 0 calc(1 * var(--u)) 0 rgba(255,255,255,.14),0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(6,2,16,.14)}
+.wallpaper .quota-refresh svg{width:calc(16 * var(--u));height:calc(16 * var(--u));stroke-width:1.9}
+
+.wallpaper[data-material-mode] .quota-card{
+  border-radius:calc(20 * var(--u));border-color:rgba(255,255,255,.1);
+  background:linear-gradient(165deg,rgba(255,255,255,.085),rgba(255,255,255,.024) 40%,rgba(255,255,255,.012)),rgba(14,9,26,.13);
+  box-shadow:inset 0 calc(1 * var(--u)) 0 rgba(255,255,255,.16),inset 0 calc(-1 * var(--u)) 0 rgba(255,255,255,.035),0 calc(10 * var(--u)) calc(22 * var(--u)) calc(-12 * var(--u)) rgba(6,2,16,.45)}
+.wallpaper .quota-card .account-heading{font-size:calc(21 * var(--u));font-weight:600;line-height:1.45}
+.wallpaper .account-label{gap:calc(9 * var(--u))}
+.wallpaper .account-mark,.wallpaper .quota-card .account-mark{flex-shrink:0;display:grid;place-items:center;width:calc(28 * var(--u));height:calc(28 * var(--u));border-radius:calc(9 * var(--u));opacity:1;
+  color:rgb(var(--provider-rgb));background:linear-gradient(160deg,rgba(var(--provider-rgb),.34),rgba(var(--provider-rgb),.12));box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(var(--provider-rgb),.4),inset 0 calc(1 * var(--u)) 0 rgba(255,255,255,.2)}
+.wallpaper .account-mark img,.wallpaper .account-mark svg{display:block;width:calc(22 * var(--u));height:calc(22 * var(--u));object-fit:contain;flex-shrink:0}
+.wallpaper .account-mark img{color-scheme:dark;image-rendering:auto}
+.wallpaper .account-mark[data-provider=devin],.wallpaper .account-mark[data-provider=atomcode],.wallpaper .account-mark[data-provider=codar],.wallpaper .account-mark[data-provider=commandcode-plan]{background:#fff}
+.wallpaper .account-mark[data-brand=devin],.wallpaper .account-mark[data-brand=atomcode],.wallpaper .account-mark[data-brand=codar],.wallpaper .account-mark[data-brand=commandcode]{background:#fff}
+/* Dark official artwork needs an opaque light plate even over bright wallpaper. */
+.wallpaper .account-mark:is([data-brand=copilot],[data-brand=kimi],[data-brand=cline],[data-brand=cloudflare],[data-brand=accio],[data-brand=opendesign]){background:#f7f7fa;box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(255,255,255,.65),0 calc(1 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.16)}
+/* White official wordmarks stay legible independently of wallpaper brightness. */
+.wallpaper .account-mark:is([data-brand=warp],[data-brand=joycode],[data-brand=qiniu],[data-brand=nous]){background:#242630}
+/* Low specificity on purpose: the provider rules below must win. */
+.account-mark{--provider-rgb:var(--accent-rgb)}
+.account-mark[data-provider=codex]{--provider-rgb:166,184,255}
+.account-mark[data-provider=claude]{--provider-rgb:246,184,150}
+.account-mark[data-provider=antigravity]{--provider-rgb:146,218,200}
+.account-mark[data-provider=kimi]{--provider-rgb:206,186,255}
+.account-mark[data-provider=xai]{--provider-rgb:232,232,242}
+.account-mark[data-provider=devin]{--provider-rgb:146,210,244}
+.account-mark[data-provider=meta]{--provider-rgb:146,180,255}
+/* Shared brand colours keep aliases visually consistent while each logo retains its official artwork. */
+.account-mark[data-provider=github-copilot]{--provider-rgb:168,126,255}
+.account-mark[data-provider=gemini]{--provider-rgb:106,170,255}
+.account-mark[data-provider=cursor]{--provider-rgb:226,229,238}
+.account-mark[data-provider=workbuddy],.account-mark[data-provider=workbuddy-ai]{--provider-rgb:93,164,255}
+.account-mark[data-provider=trae-cn],.account-mark[data-provider=trae-global]{--provider-rgb:94,199,255}
+.account-mark[data-provider=kiro]{--provider-rgb:255,173,94}
+.account-mark[data-provider=minimax-code],.account-mark[data-provider=minimax-code-global]{--provider-rgb:123,145,255}
+.account-mark[data-provider=warp]{--provider-rgb:124,190,255}
+.account-mark[data-provider=cline]{--provider-rgb:249,180,99}
+.account-mark[data-provider=qoder],.account-mark[data-provider=qoder-cn],.account-mark[data-provider=qwenwork],.account-mark[data-provider=qwenwork-enterprise]{--provider-rgb:120,193,255}
+.account-mark[data-provider=zcode]{--provider-rgb:166,135,255}
+.account-mark[data-provider=devin]{--provider-rgb:146,210,244}
+.account-mark[data-provider=commandcode-plan]{--provider-rgb:120,196,255}
+.account-mark[data-provider=mimo-app]{--provider-rgb:255,198,91}
+.account-mark[data-provider=catpaw]{--provider-rgb:255,149,176}
+.account-mark[data-provider=raccoon]{--provider-rgb:255,170,107}
+.account-mark[data-provider=atomcode]{--provider-rgb:91,215,170}
+.account-mark[data-provider=agnes],.account-mark[data-provider=agnes-code]{--provider-rgb:194,144,255}
+.account-mark[data-provider=astudio],.account-mark[data-provider=hub-astudio]{--provider-rgb:255,157,104}
+.account-mark[data-provider=kimi-work]{--provider-rgb:206,186,255}
+.account-mark[data-provider=codar]{--provider-rgb:79,205,184}
+.account-mark[data-provider=deepaicode]{--provider-rgb:118,156,255}
+.account-mark[data-provider=teleagent]{--provider-rgb:149,189,255}
+/* Canonical brand keys supplied by providerGlyph; aliases inherit the same treatment. */
+.account-mark[data-brand=codex]{--provider-rgb:166,184,255}
+.account-mark[data-brand=claude]{--provider-rgb:246,184,150}
+.account-mark[data-brand=antigravity]{--provider-rgb:146,218,200}
+.account-mark[data-brand=kimi]{--provider-rgb:206,186,255}
+.account-mark[data-brand=xai],.account-mark[data-brand=grok]{--provider-rgb:232,232,242}
+.account-mark[data-brand=devin]{--provider-rgb:146,210,244}
+.account-mark[data-brand=meta]{--provider-rgb:146,180,255}
+.account-mark[data-brand=copilot]{--provider-rgb:168,126,255}
+.account-mark[data-brand=gemini]{--provider-rgb:106,170,255}
+.account-mark[data-brand=cursor]{--provider-rgb:226,229,238}
+.account-mark[data-brand=workbuddy]{--provider-rgb:78,211,179}
+.account-mark[data-brand=trae]{--provider-rgb:80,225,154}
+.account-mark[data-brand=kiro]{--provider-rgb:173,138,255}
+.account-mark[data-brand=zcode]{--provider-rgb:166,135,255}
+.account-mark[data-brand=commandcode]{--provider-rgb:120,196,255}
+.account-mark[data-brand=catpaw]{--provider-rgb:255,149,176}
+.account-mark[data-brand=raccoon]{--provider-rgb:255,170,107}
+.account-mark[data-brand=atomcode]{--provider-rgb:91,215,170}
+.account-mark[data-brand=warp]{--provider-rgb:124,190,255}
+.account-mark[data-brand=agnes]{--provider-rgb:194,144,255}
+.account-mark[data-brand=astudio]{--provider-rgb:255,157,104}
+.account-mark[data-brand=codar]{--provider-rgb:79,205,184}
+.account-mark[data-brand=deepaicode]{--provider-rgb:118,156,255}
+.account-mark[data-brand=teleagent]{--provider-rgb:149,189,255}
+.account-mark[data-brand=autoclaw]{--provider-rgb:255,161,89}
+.account-mark[data-brand=qoder]{--provider-rgb:120,193,255}
+.account-mark[data-brand=cline]{--provider-rgb:249,180,99}
+.account-mark[data-brand=minimax]{--provider-rgb:123,145,255}
+.account-mark[data-brand=opencode]{--provider-rgb:241,119,151}
+.account-mark[data-brand=zed]{--provider-rgb:165,180,205}
+.account-mark[data-brand=factory]{--provider-rgb:244,140,79}
+.account-mark[data-brand=doubao]{--provider-rgb:255,114,122}
+.account-mark[data-brand=sensenova]{--provider-rgb:91,181,255}
+.account-mark[data-brand=inkstone]{--provider-rgb:102,184,255}
+.account-mark[data-brand=xfyun]{--provider-rgb:120,170,255}
+.account-mark[data-brand=muse]{--provider-rgb:80,174,255}
+.account-mark[data-brand=tabbit]{--provider-rgb:126,196,255}
+.account-mark[data-brand=aider]{--provider-rgb:253,173,90}
+.account-mark[data-brand=aws]{--provider-rgb:255,166,79}
+.account-mark[data-brand=cloudflare]{--provider-rgb:255,145,95}
+.account-mark[data-brand=qiniu]{--provider-rgb:102,181,255}
+.account-mark[data-brand=loomy]{--provider-rgb:193,129,255}
+.account-mark[data-brand=joycode]{--provider-rgb:255,115,116}
+.account-mark[data-brand=mimo]{--provider-rgb:255,198,91}
+.account-mark[data-brand=nous]{--provider-rgb:170,150,255}
+.account-mark[data-brand=orcaterm]{--provider-rgb:114,202,255}
+.account-mark[data-brand=mclaw]{--provider-rgb:255,181,104}
+.account-mark[data-provider=autoclaw],.account-mark[data-provider=autoclaw-cn]{--provider-rgb:255,161,89}
+.account-mark[data-provider=xfyun-maas],.account-mark[data-provider=xfyun-coding],.account-mark[data-provider=xfyun-token]{--provider-rgb:120,170,255}
+.account-mark[data-provider=muse]{--provider-rgb:80,174,255}
+.account-mark[data-provider=opencode-zen-free]{--provider-rgb:241,119,151}
+.account-mark[data-provider=zed]{--provider-rgb:165,180,205}
+.account-mark[data-provider=factory]{--provider-rgb:244,140,79}
+.account-mark[data-provider=joycode]{--provider-rgb:255,115,116}
+.account-mark[data-provider=intern-inkstone]{--provider-rgb:102,184,255}
+.account-mark[data-provider=sensenova-token-plan]{--provider-rgb:91,181,255}
+.account-mark[data-provider=tabbit]{--provider-rgb:126,196,255}
+.account-mark[data-provider=teleagent]{--provider-rgb:149,189,255}
+.wallpaper .account-meta{margin-top:calc(8 * var(--u))}
+.wallpaper .quota-card .plan,.wallpaper .quota-account .plan{display:inline-block;padding:calc(1 * var(--u)) calc(9 * var(--u));border-radius:999px;font-size:calc(14 * var(--u));line-height:1.5;color:#eadcff;background:rgba(var(--accent-rgb),.12);box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(var(--accent-rgb),.22);text-shadow:none}
+.wallpaper .window-title{color:var(--ink-2)}
+.wallpaper .remaining{font-family:var(--font-display);font-weight:500;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.wallpaper .remaining small{font-family:var(--font-ui);font-weight:400;color:var(--ink-3);letter-spacing:0}
+.wallpaper .reset{color:var(--ink-3);font-variant-numeric:tabular-nums}
+.wallpaper .quota-window .reset::before{content:"";display:inline-block;width:.92em;height:.92em;margin-right:.32em;vertical-align:-.1em;background:currentColor;opacity:.8;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 7.4V12l3 2'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 7.4V12l3 2'/%3E%3C/svg%3E") center/contain no-repeat}
+/* Liquid track: an inset groove with a lit, rounded fill. */
+.wallpaper .track{border-radius:999px;box-shadow:inset 0 calc(1 * var(--u)) calc(2 * var(--u)) rgba(6,2,16,.34),inset 0 calc(-.6 * var(--u)) 0 rgba(255,255,255,.07)}
+.wallpaper .track:not([data-unknown=true]){background:rgba(255,255,255,.1)}
+.wallpaper .quota-card:not([data-dense=true]) .track{height:calc(7 * var(--u))}
+.wallpaper .fill{position:relative;border-radius:999px;background:linear-gradient(90deg,#a98cff 0%,#ccafff 48%,#f2d8ff 100%)}
+.wallpaper .fill::after{content:"";position:absolute;inset:0 0 48% 0;border-radius:inherit;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0))}
+.wallpaper .fill[data-low=true]{background:linear-gradient(90deg,#ff8c84,#ffc2ab)}
+.wallpaper .quota-window[data-exhausted=true] .remaining{color:var(--low)}
+.wallpaper .quota-window[data-exhausted=true] .track{box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(255,181,168,.55)}
+.wallpaper .quota-single .quota-window{border-radius:calc(16 * var(--u));background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:inset 0 calc(1 * var(--u)) 0 rgba(255,255,255,.12)}
+.wallpaper .quota-single .account-heading{font-weight:600}
+.wallpaper .quota-single .account-meta,.wallpaper .quota-account .account-meta{justify-content:flex-start;gap:calc(10 * var(--u))}
+
+/* ---------- Hardware ---------- */
+.wallpaper .hardware-item{--device-rgb:var(--accent-rgb);padding:calc(17 * var(--u)) calc(18 * var(--u)) calc(12 * var(--u))}
+.hardware-item[data-device=cpu]{--device-rgb:204,186,255}
+.hardware-item[data-device=gpu]{--device-rgb:246,180,224}
+.hardware-item[data-device=vram]{--device-rgb:168,190,255}
+.hardware-item[data-device=ram]{--device-rgb:146,220,206}
+.wallpaper .hardware-label{display:flex;align-items:center;gap:calc(10 * var(--u));font-size:calc(15 * var(--u));font-weight:600;letter-spacing:.09em;line-height:1.2;color:var(--ink-2)}
+.hardware-icon{flex-shrink:0;display:grid;place-items:center;width:calc(30 * var(--u));height:calc(30 * var(--u));border-radius:calc(10 * var(--u));color:rgb(var(--device-rgb));
+  background:linear-gradient(160deg,rgba(var(--device-rgb),.26),rgba(var(--device-rgb),.1));box-shadow:inset 0 0 0 calc(1 * var(--u)) rgba(var(--device-rgb),.3),inset 0 calc(1 * var(--u)) 0 rgba(255,255,255,.15)}
+.hardware-icon svg{width:calc(18 * var(--u));height:calc(18 * var(--u));fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 calc(3 * var(--u)) rgba(var(--device-rgb),.45))}
+.wallpaper .hardware-value{font-family:var(--font-display);font-weight:300;font-size:calc(52 * var(--u));line-height:1.06;letter-spacing:-.025em;margin-top:calc(11 * var(--u));white-space:nowrap}
+.wallpaper .hardware-value .value-unit{font-family:var(--font-ui);font-size:.46em;font-weight:400;letter-spacing:0;color:var(--ink-2);margin-left:calc(3 * var(--u))}
+.wallpaper .hardware-item[data-level=high] .value-number{color:#ffd3c6}
+.wallpaper .hardware-detail{font-size:calc(19 * var(--u));color:var(--ink-2);margin-top:calc(5 * var(--u));font-variant-numeric:tabular-nums}
+.wallpaper .hardware-caption{font-size:calc(13 * var(--u));color:var(--ink-3);margin-top:calc(3 * var(--u))}
+.wallpaper .hardware-item .sparkline{height:calc(30 * var(--u));padding-top:calc(6 * var(--u))}
+.wallpaper .sparkline polyline{fill:none;stroke:rgb(var(--device-rgb));stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:.95}
+.sparkline .spark-stop-top{stop-color:rgb(var(--device-rgb));stop-opacity:.42}
+.sparkline .spark-stop-bottom{stop-color:rgb(var(--device-rgb));stop-opacity:0}
+.wallpaper .hardware-item[data-stale=true] .sparkline{opacity:.45}
+
+/* ---------- Detail overlays: same type and rim as the cards ---------- */
+.wallpaper .card-details{text-shadow:none}
+.wallpaper .card-details h2{font-weight:600;letter-spacing:.01em}
+.wallpaper .forecast-temperature,.wallpaper .activity-metric-value,.wallpaper .insight-stats dd{font-family:var(--font-display)}
