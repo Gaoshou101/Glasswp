@@ -1,4 +1,8 @@
-# 竖屏动态信息壁纸
+# Glasswp
+
+可复用的竖屏玻璃信息壁纸，包含时钟、天气、AI 套餐余量、硬件监控和本机管理页。管理页提供 Light、Dark、跟随壁纸三种主题。
+
+三套创意工坊包命名为 **Glasswp-Purple / Glasswp-Angel / Glasswp-Corgi**。运行 `npm run check` 后执行 `node scripts/prepare-workshop-variants.mjs` 即可生成。每套包固定自己的背景与配色；完整步骤见 [三套壁纸打包与手动发布](docs/GLASSWP-WORKSHOP.md)。工坊包不含本机桥接，天气、额度与硬件数据需单独配置桥接。
 
 可复用换壁纸流程见 [可复用壁纸工作流](docs/REUSABLE-WALLPAPER-WORKFLOW.md)。主题、背景和管理页明暗模式共用 `public/theme.js`，换图后无需重做组件布局。
 

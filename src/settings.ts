@@ -1,6 +1,6 @@
 import { defaultWorldZones, validTimezone, normalizeWorldZones } from './clock-format';
 import type { ClockConfig } from './contract';
-import type { Theme } from '../public/theme.js';
+import { normalizeTheme, type Theme } from '../public/theme.js';
 export type Group = 'top' | 'quota' | 'hardware';
 export interface Material { transparency: number; blur: number; edge: number }
 export interface Widget { enabled: boolean; scale: number; x: number; y: number }
@@ -17,7 +17,7 @@ export function defaults(): Settings {
   return { version: 2, material: Object.fromEntries(groups.map(g => [g, { ...defaultMaterial }])) as Settings['material'],
     widgets: Object.fromEntries(groups.map(g => [g, { enabled: true, scale: 1, x: 0, y: 0 }])) as Settings['widgets'],
     bridgeUrl: 'http://127.0.0.1:17632', readToken: '', timezone: 'Asia/Shanghai', seconds: false, hour12: false, offsetSeconds: 0, worldZones: [...defaultWorldZones],
-    motion: true, trends: true, rotateSeconds: 0, quotaLayout: 'cards', ignoreCodexBaseWeekly: false, ignoreCodexImageQuota: false, safeBottom: 3.9, resolution: '1600x2560', materialMode: 'liquid', theme: { preset: 'original', accent: '#dcc6ff', surface: 'dark', background: 'assets/wallpaper-original.jpg' } };
+    motion: true, trends: true, rotateSeconds: 0, quotaLayout: 'cards', ignoreCodexBaseWeekly: false, ignoreCodexImageQuota: false, safeBottom: 3.9, resolution: '1600x2560', materialMode: 'liquid', theme: normalizeTheme() };
 }
 export function loopbackUrl(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -35,6 +35,7 @@ export function loadSettings(): Settings {
       settings.widgets[group] = { enabled: w?.enabled !== false, scale: clamp(w?.scale, .8, 1.2, 1), x: clamp(w?.x, -5, 5, 0), y: clamp(w?.y, -5, 5, 0) };
     }
     if (saved) {
+      settings.theme = normalizeTheme(saved.theme);
       settings.bridgeUrl = loopbackUrl(saved.bridgeUrl) || settings.bridgeUrl;
       settings.readToken = typeof saved.readToken === 'string' ? saved.readToken.slice(0, 128) : '';
       if (validTimezone(saved.timezone)) settings.timezone = saved.timezone.trim();

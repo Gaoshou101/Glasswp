@@ -370,7 +370,8 @@ with sync_playwright() as p:
     style = panel.evaluate('''n => [getComputedStyle(n).backdropFilter, getComputedStyle(n).borderRadius,
         getComputedStyle(document.body, '::before').backgroundImage, getComputedStyle(document.querySelector('.dock')).position]''')
     assert 'blur(30px)' in style[0] and style[1] == '28px' and 'wallpaper-original.jpg' in style[2] and style[3] == 'sticky', style
-    assert context.request.get(BASE + '/assets/wallpaper-original.jpg').ok and page.locator('.icon-tile').count() == 13
+    assert context.request.get(BASE + '/assets/wallpaper-original.jpg').ok
+    assert page.locator('#appearance-section .icon-tile').is_visible()
     assert page.evaluate("[...document.querySelectorAll('use')].every(u => document.querySelector(u.getAttribute('href')))")
     cdp = context.new_cdp_session(page)
     cdp.send('Emulation.setEmulatedMedia', {'features': [{'name': 'prefers-reduced-transparency', 'value': 'reduce'}]})

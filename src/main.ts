@@ -12,7 +12,7 @@ import { QuotaRefreshControl } from './quota-refresh';
 import { CurrentRequest, SnapshotChanges } from './snapshot-control';
 declare const __BUILD_ID__: string;
 import { applyClockConfig, validClockConfig, clamp, defaultMaterial, groups, loadSettings, loopbackUrl, saveSettings, type Group, type Material } from './settings';
-import { applyWallpaperTheme } from './theme';
+import { applyWallpaperTheme, normalizeTheme, packageTheme } from './theme';
 
 declare global {
   interface Window {
@@ -20,6 +20,8 @@ declare global {
   }
 }
 const settings = loadSettings();
+const pinnedTheme = packageTheme(document.documentElement.dataset.wallpaperPreset);
+if (pinnedTheme) settings.theme = pinnedTheme;
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const root = document.querySelector<HTMLElement>('.wallpaper')!;
 applyWallpaperTheme(root, settings.theme);
@@ -62,9 +64,9 @@ function applyAppearance() {
   details.sync();
 }
 function renderSnapshot(data: Snapshot) {
-  if (data.appearance) {
-    const nextTheme = applyWallpaperTheme(root, data.appearance);
-    if (JSON.stringify(nextTheme) !== JSON.stringify(settings.theme)) { settings.theme = nextTheme; saveSettings(settings); }
+  if (data.appearance && !pinnedTheme) {
+    const nextTheme = normalizeTheme(data.appearance);
+    if (JSON.stringify(nextTheme) !== JSON.stringify(settings.theme)) { settings.theme = applyWallpaperTheme(root, nextTheme); saveSettings(settings); }
   }
   // Clock settings have no weather/hardware revision: apply them before source filtering.
   const wasManaged = managedClock; managedClock = validClockConfig(data.clock);

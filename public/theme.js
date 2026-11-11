@@ -22,7 +22,7 @@ const safeBackground = (value, fallback) => {
 
 export function normalizeTheme(input) {
   const raw = input && typeof input === 'object' ? input : {};
-  const preset = typeof raw.preset === 'string' && PRESETS[raw.preset] ? raw.preset : 'original';
+  const preset = typeof raw.preset === 'string' && Object.prototype.hasOwnProperty.call(PRESETS, raw.preset) ? raw.preset : 'original';
   const base = PRESETS[preset];
   const accent = typeof raw.accent === 'string' && HEX.test(raw.accent) ? raw.accent.toLowerCase() : base.accent;
   const surface = raw.surface === 'light' || raw.surface === 'dark' ? raw.surface : base.surface;
@@ -32,6 +32,8 @@ export function normalizeTheme(input) {
 export function themeVariables(input) {
   const theme = normalizeTheme(input);
   const accentRgb = hexToRgb(theme.accent);
+  const linear = accentRgb.map(value => { const c = value / 255; return c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4; });
+  const onAccent = linear[0] * .2126 + linear[1] * .7152 + linear[2] * .0722 > .2 ? '#10170d' : '#ffffff';
   const light = theme.surface === 'light';
   const ink = light ? '#152b33' : '#fbf8ff';
   const ink2 = light ? 'rgba(21,43,51,.78)' : 'rgba(245,239,255,.8)';
@@ -48,7 +50,7 @@ export function themeVariables(input) {
     '--field-hover': light ? 'rgba(255,255,255,.9)' : 'rgba(18,14,28,.52)',
     '--fill': light ? 'rgba(20,110,123,.1)' : 'rgba(255,255,255,.07)',
     '--well': light ? 'rgba(20,110,123,.06)' : 'rgba(8,6,14,.24)',
-    '--on-accent': light ? '#fff' : '#10170d', '--warn': light ? '#a85d17' : '#ffd7a8',
+    '--on-accent': onAccent, '--warn': light ? '#a85d17' : '#ffd7a8',
     '--danger': light ? '#a32d35' : '#ffa3a3', '--ok': light ? '#16745b' : '#9fe3c0',
     '--theme-shadow': light ? 'rgba(21,72,78,.2)' : 'rgba(6,3,14,.36)',
   };

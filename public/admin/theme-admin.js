@@ -8,6 +8,7 @@ let draftAppearance = defaultAppearance();
 let adminMode = localStorage.getItem(storageKey) || 'follow';
 let savedAdminMode = adminMode;
 let session = '';
+let saving = false;
 
 function readAdminMode() {
   const value = localStorage.getItem(storageKey);
@@ -16,6 +17,7 @@ function readAdminMode() {
 
 function currentDraft() {
   return normalizeTheme({
+    background: draftAppearance.background,
     preset: $('wallpaper-theme-preset').value,
     surface: $('wallpaper-theme-surface').value,
     accent: $('wallpaper-theme-accent').value
@@ -38,8 +40,8 @@ function dirty() {
 
 function syncDirty() {
   const changed = dirty();
-  $('save-appearance').disabled = !changed;
-  $('cancel-appearance').disabled = !changed;
+  $('save-appearance').disabled = saving || !changed;
+  $('cancel-appearance').disabled = saving || !changed;
   document.querySelectorAll('[data-theme-dirty]').forEach(node => { node.hidden = !changed; });
   $('appearance-section').dataset.dirty = String(changed);
 }
@@ -83,17 +85,18 @@ async function read() {
 }
 
 async function save() {
-  $('save-appearance').disabled = true;
+  if (saving || !dirty()) return;
+  saving = true; syncDirty();
+  const submitted = currentDraft(), submittedMode = adminMode;
   try {
-    draftAppearance = currentDraft();
-    const result = await setupApi('config', { appearance: draftAppearance });
-    savedAppearance = { ...draftAppearance };
-    savedAdminMode = adminMode;
-    localStorage.setItem(storageKey, adminMode);
+    const result = await setupApi('config', { appearance: submitted });
+    savedAppearance = { ...submitted };
+    savedAdminMode = submittedMode;
+    localStorage.setItem(storageKey, submittedMode);
     $('appearance-status').textContent = result.message || '主题设置已保存，壁纸刷新后生效。';
   } catch (error) {
     $('appearance-status').textContent = `保存失败：${error.message}`;
-  } finally { renderPreview(); }
+  } finally { saving = false; renderPreview(); }
 }
 
 function cancel() {
@@ -105,6 +108,9 @@ function cancel() {
 
 document.addEventListener('DOMContentLoaded', () => {
   adminMode = readAdminMode(); savedAdminMode = adminMode;
+  $('wallpaper-theme-preset').replaceChildren(...Object.values(PRESETS).map(preset => {
+    const option = document.createElement('option'); option.value = preset.preset; option.textContent = preset.label; return option;
+  }));
   $('wallpaper-theme-preset').addEventListener('change', () => { const preset = PRESETS[$('wallpaper-theme-preset').value] || PRESETS.original; draftAppearance = normalizeTheme(preset); renderPreview(); });
   $('wallpaper-theme-surface').addEventListener('change', () => { draftAppearance = normalizeTheme({ ...draftAppearance, surface: $('wallpaper-theme-surface').value }); renderPreview(); });
   $('wallpaper-theme-accent').addEventListener('input', () => { draftAppearance = normalizeTheme({ ...draftAppearance, accent: $('wallpaper-theme-accent').value }); renderPreview(); });
@@ -114,3 +120,4 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPreview();
   void read();
 });
+addEventListener('beforeunload', event => { if (dirty()) { event.preventDefault(); event.returnValue = ''; } });

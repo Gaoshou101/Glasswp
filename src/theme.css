@@ -14,12 +14,79 @@
 .wallpaper .quota-heading > span:first-child::before { background: linear-gradient(135deg, var(--ink), var(--accent)); }
 .wallpaper .weather-icon, .wallpaper .weather-settings, .wallpaper .quota-refresh, .wallpaper .details-action { color: var(--accent); }
 .wallpaper .card-details { box-shadow: inset 0 calc(2 * var(--u)) calc(3 * var(--u)) rgba(255,255,255,.23), 0 calc(12 * var(--u)) calc(30 * var(--u)) var(--theme-shadow); }
-.wallpaper[data-surface=light] { color-scheme: light; }
+.wallpaper[data-surface=light] { color-scheme: light; --low: var(--danger); }
 .wallpaper[data-surface=light] .glass {
-  background: linear-gradient(155deg, rgba(255,255,255,.42), rgba(255,255,255,.14) 38%, rgba(255,255,255,0) 62%), rgba(var(--surface-rgb), .3);
-  border-color: rgba(21, 65, 72, .16);
-  text-shadow: 0 calc(1 * var(--u)) calc(2 * var(--u)) rgba(21, 62, 70, .16);
+  background: linear-gradient(155deg, rgba(255,255,255,var(--glass-light)), rgba(255,255,255,var(--glass-violet)) 38%, rgba(255,255,255,0) 62%), rgba(var(--surface-rgb), calc(var(--glass-alpha) * .9 + .12));
+  border-color: var(--hairline);
+  text-shadow: none;
 }
-.wallpaper[data-surface=light] .glass::after { opacity: max(var(--glass-edge), .32); }
+.wallpaper[data-surface=light] .glass::after { opacity: var(--glass-edge); }
 .wallpaper[data-theme=neon] .weather-icon .wi-sun, .wallpaper[data-theme=neon] .weather-icon .wi-ray { stroke: var(--accent); }
 .wallpaper[data-theme=pool] .weather-icon .wi-drop, .wallpaper[data-theme=pool] .forecast-probability { stroke: var(--accent); color: var(--accent); }
+
+/* Light surfaces need dark type throughout the expanded sheets, including
+   labels that predate the shared palette. Limit these rules to light mode so
+   the accepted original dark material retains its optical treatment. */
+.wallpaper[data-surface=light] :is(.time,.temperature,.world-clock-time,.weather-current-temperature,.reset strong,.insight-summary strong,.activity-section-title) { color: var(--ink); text-shadow: none; }
+.wallpaper[data-surface=light] :is(.world-clock-name,.weather-current-city,.weather-current-condition,.card-details-body p,.request-time,.request-token-mix,.card-details p.chart-readout) { color: var(--ink-2); }
+.wallpaper[data-surface=light] :is(.hardware-caption.unknown,.hardware-item[data-stale=true],.card-details p.insight-note,.card-details p.activity-source-note) { color: var(--muted); }
+.wallpaper[data-surface=light] :is(.card-details[data-kind=clock],.card-details[data-kind=weather]) { --sheet-line: var(--hairline); --sheet-soft: var(--ink-3); }
+.wallpaper[data-surface=light] .card-details .forecast-summary { color: var(--ink-2)!important; }
+.wallpaper[data-surface=light] :is(.world-clock-primary-label,.forecast-probability) { color: var(--accent); }
+.wallpaper[data-surface=light] :is(.quota-account .plan,.quota-card .plan) { color: var(--accent); }
+
+/* Detail panels copy the component's material settings; keep those controls
+   active while making the surface and its popup menu match light glass. */
+.wallpaper[data-surface=light] .card-details {
+  background: linear-gradient(145deg,rgba(255,255,255,.2),rgba(var(--accent-rgb),.025) 45%,transparent 70%),rgba(var(--surface-rgb),clamp(.7,calc(var(--glass-alpha,.17) + .55),.95));
+  border-color: var(--hairline-strong);
+  backdrop-filter: blur(calc(var(--glass-blur,26) * var(--u) * .68)) saturate(120%) brightness(1.03);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur,26) * var(--u) * .68)) saturate(120%) brightness(1.03);
+}
+.wallpaper[data-surface=light] .card-details::after { opacity: var(--glass-edge,.5); background: linear-gradient(120deg,rgba(255,255,255,.7),transparent 38%,rgba(var(--accent-rgb),.12) 72%,rgba(255,255,255,.5)); }
+.wallpaper[data-surface=light] :is(.card-details .details-close,.card-details .details-action,.activity-period,.activity-range-option,.activity-scroll-button,.card-details .activity-reload) { color: var(--ink-2); border-color: var(--hairline); background: var(--well); }
+.wallpaper[data-surface=light] :is(.card-details .details-close:hover,.card-details button:hover) { color: var(--ink); background: var(--fill); }
+.wallpaper[data-surface=light] .activity-range-options { background: rgb(var(--surface-rgb)); border-color: var(--hairline-strong); }
+.wallpaper[data-surface=light] :is(.activity-range-option[aria-selected=true],.quota-compare tr[data-selected=true]) { color: var(--accent); background: var(--accent-soft); }
+.wallpaper[data-surface=light] .activity-custom-range input { color-scheme: light; background: var(--field); border-color: var(--hairline); }
+.wallpaper[data-surface=light] :is(.activity-metric,.reset-credit-badge) { border-color: var(--hairline); background: var(--well); }
+.wallpaper[data-surface=light] .reset-credit-badge:not([data-unknown=true]) { color: var(--accent); }
+.wallpaper[data-surface=light] .request-activity-table th { background: rgb(var(--surface-rgb)); }
+.wallpaper[data-surface=light] :is(.request-activity-table th,.request-activity-table td,.insight-windows>div,.quota-compare td,.quota-compare th) { border-color: var(--hairline); }
+.wallpaper[data-surface=light] .request-activity-table tr:hover td { background: var(--well); }
+.wallpaper[data-surface=light] :is(.card-details-body,.request-table-scroll) { scrollbar-color: var(--accent-soft) transparent; }
+
+/* The chart remains a series, the track remains a track; unknown striped
+   backgrounds are intentionally excluded from the solid-track replacement. */
+.wallpaper[data-surface=light] .hardware-item[data-device=cpu] { --device-rgb: 103,75,164; }
+.wallpaper[data-surface=light] .hardware-item[data-device=gpu] { --device-rgb: 167,61,122; }
+.wallpaper[data-surface=light] .hardware-item[data-device=vram] { --device-rgb: 52,98,171; }
+.wallpaper[data-surface=light] .hardware-item[data-device=ram] { --device-rgb: 30,125,112; }
+.wallpaper[data-surface=light] :is(.detail-trend polyline,.forecast-trend polyline) { stroke: var(--accent); }
+.wallpaper[data-surface=light] .chart-marker { background: var(--accent); }
+.wallpaper[data-surface=light] .detail-trend { border-color: var(--hairline); background: linear-gradient(transparent 49.5%,var(--hairline) 50%,transparent 50.5%); }
+.wallpaper[data-surface=light] .track:not([data-unknown=true]) { background: var(--hairline); }
+.wallpaper[data-surface=light] .forecast-rain-track:not([data-unknown=true]) { background: var(--well); }
+.wallpaper[data-surface=light] .forecast-rain-track i { background: var(--accent); }
+.wallpaper[data-surface=light] .world-clock-rail i { background: var(--accent); box-shadow: 0 0 calc(5 * var(--u)) var(--accent-soft); }
+.wallpaper[data-surface=light] .world-clock-row[data-period=day] .world-clock-rail i { background: var(--warn); }
+.wallpaper[data-surface=light] .world-clock-rail { background: linear-gradient(90deg,var(--hairline) 0 25%,rgba(173,107,31,.2) 25% 75%,var(--hairline) 75%); }
+
+/* Keep weather and warning semantics distinct from the theme's accent. */
+.wallpaper[data-surface=light] .weather-icon .wi-cloud { fill: rgba(var(--accent-rgb),.13); }
+.wallpaper[data-surface=light] :is(.weather-icon .wi-sun,.weather-icon .wi-ray) { stroke: #a76314; }
+.wallpaper[data-surface=light] .weather-icon .wi-sun { fill: rgba(185,120,26,.18); }
+.wallpaper[data-surface=light] .weather-icon .wi-moon { stroke: var(--accent); fill: var(--accent-soft); }
+.wallpaper[data-surface=light] .weather-icon .wi-snow { fill: var(--accent); }
+.wallpaper[data-surface=light] .weather-icon .wi-bolt { stroke: #a76314; fill: #b97716; }
+.wallpaper[data-surface=light] :is(.quota-refresh[data-state=failed],.activity-range-error,.request-status[data-state=false]) { color: var(--danger); }
+.wallpaper[data-surface=light] :is(.quota-refresh[data-state=ok],.request-status[data-state=true]) { color: var(--ok); }
+.wallpaper[data-surface=light] :is(.hardware-item[data-level=high] .value-number,.activity-metric[data-warning=true] .activity-metric-value,.card-freshness[data-stale=true]) { color: var(--warn); }
+.wallpaper[data-surface=light] .activity-metric-icon { color: var(--accent); }
+.wallpaper[data-surface=light] .activity-metric[data-metric=success] .activity-metric-icon { color: var(--ok); }
+.wallpaper[data-surface=light] .activity-metric[data-metric=cost] .activity-metric-icon { color: var(--warn); }
+.wallpaper[data-surface=light] .weather-current-status::before { background: var(--ok); }
+.wallpaper[data-surface=light] .card-details[data-stale=true] .weather-current-status::before { background: var(--warn); }
+@media (prefers-reduced-transparency:reduce) {
+  .wallpaper[data-surface=light] :is(.glass,.card-details[data-kind]) { background: rgb(var(--surface-rgb)); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}

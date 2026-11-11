@@ -1,6 +1,9 @@
 # Keep repository text in LF; Windows PowerShell 5.1 and the toolchain accept LF.
 * text=auto eol=lf
 
+# Vendor icons retain upstream bytes for provenance hash verification.
+public/assets/providers/*.svg -text -whitespace
+
 # Binary assets and build outputs
 *.png binary
 *.jpg binary
