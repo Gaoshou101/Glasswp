@@ -15,15 +15,24 @@ Check(!DesktopWindowEvents.Matches(801, -176, -29, -176, -29), "minimize protect
 Check(!DesktopWindowEvents.Matches(30, -800, 1095, -176, -29), "minimizing an app does not block a different desktop card");
 Check(!DesktopWindowEvents.Matches(-1, 0, 0, 0, 0), "future window event cannot block input");
 Check(DesktopWindowEvents.Matches(800, 12, -12, 0, 0) && !DesktopWindowEvents.Matches(800, 13, 0, 0, 0), "window transition guard preserves exact time and distance limits");
-await DesktopWindowEventChecks.Run(Check);
-var windowEvents = new DesktopWindowEvents();
-await windowEvents.StartAsync(CancellationToken.None);
-Check(windowEvents.Available, "native minimize event subscription is available");
-await windowEvents.StopAsync(CancellationToken.None);
-Check(!windowEvents.Available, "native minimize event subscription detaches on shutdown");
-var desktopGuard = new DesktopInputGuard(windowEvents);
-Check(desktopGuard.Available, "native hit test is available without a global input hook");
-Check(!desktopGuard.Allows(desktopPoint with { X = double.NaN }), "native hit test rejects invalid input");
+if (args.Contains("--headless"))
+{
+    // Headless execution does not guarantee an interactive Explorer desktop. Keep all
+    // pure input-guard checks above and all data/service checks below enabled.
+    Console.WriteLine("SKIP --headless: native desktop window events, hook lifecycle and cursor hit-test probes; run without --headless on an interactive Windows desktop to cover these checks.");
+}
+else
+{
+    await DesktopWindowEventChecks.Run(Check);
+    var windowEvents = new DesktopWindowEvents();
+    await windowEvents.StartAsync(CancellationToken.None);
+    Check(windowEvents.Available, "native minimize event subscription is available");
+    await windowEvents.StopAsync(CancellationToken.None);
+    Check(!windowEvents.Available, "native minimize event subscription detaches on shutdown");
+    var desktopGuard = new DesktopInputGuard(windowEvents);
+    Check(desktopGuard.Available, "native hit test is available without a global input hook");
+    Check(!desktopGuard.Allows(desktopPoint with { X = double.NaN }), "native hit test rejects invalid input");
+}
 var selected = new[] { new AccountSelection("row", "Codex", "codex", "local.json", "1", "") };
 var now = DateTimeOffset.FromUnixTimeMilliseconds(100000000);
 using var doc = JsonDocument.Parse("""

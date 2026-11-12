@@ -30,9 +30,9 @@ Glasswp 是一套面向 Wallpaper Engine 的竖屏 Web 壁纸。玻璃卡片承�
 
 **运行环境：Windows x64、Wallpaper Engine。** 自包含桥接包运行时无需另装 Node.js 或 .NET。
 
-### 已有自包含安装包
+### 下载正式安装包
 
-完整解压构建生成的 `Glasswp-Bridge-<buildId>-win-x64.zip`，进入同名文件夹，双击 **`install-bridge.cmd`**。
+从 [GitHub Releases](https://github.com/Gaoshou101/Glasswp/releases/latest) 下载 **`Glasswp-Bridge-v1.0.0-win-x64.zip`**，完整解压，进入同名文件夹，双击 **`install-bridge.cmd`**。
 
 安装器会校验文件，请求一次 UAC，安装并启动桥接、注册登录自启动，随后打开本机设置。默认运行目录为 `E:\WallpaperDashboard`；没有 E 盘时，在解压目录的 PowerShell 中执行：
 
@@ -40,7 +40,7 @@ Glasswp 是一套面向 Wallpaper Engine 的竖屏 Web 壁纸。玻璃卡片承�
 .\install-bridge.cmd -RuntimeRoot 'D:\WallpaperDashboard'
 ```
 
-安装包由本项目构建生成，目前请以仓库实际发布状态为准，不能将源码压缩包当作自包含安装包。只检查而不安装可追加 `-Check`；不新建或修改自启动任务可追加 `-NoAutostart`。更多选项见 [安装与连接](docs/INSTALL.md)。
+正式安装包由 GitHub Actions 构建，附带 `.zip.sha256` 校验文件和构建信息；GitHub 自动提供的 Source code 压缩包是源码。只检查而不安装可追加 `-Check`；不新建或修改自启动任务可追加 `-NoAutostart`。更多选项见 [安装与连接](docs/INSTALL.md)。
 
 ### 从源码构建
 

@@ -72,6 +72,21 @@ README 展示图可在构建后运行 `python scripts/capture-readme.py` 重建�
 
 运行根目录下 `backups` 保留最近两份回退副本，`state` 保存安装/更新记录。传统桥接更新记录为 `state/bridge-update.json`，并复制到仓库 `artifacts/validation/bridge-update.json`。壁纸安装记录为 `artifacts/validation/wallpaper-update.json`；软件验收与物理桌面输入验收应分别记录。
 
+## GitHub Actions 正式发布
+
+`.github/workflows/bridge-release.yml` 在 PR、`main` 更新和手动触发时构建并上传验证后的临时附件；只有 `v*` 标签推送会创建正式 GitHub Release。Windows runner 使用 Node.js 22、.NET 10 和 Windows PowerShell 5.1。
+
+发布前统一更新 `package.json`、`package-lock.json`、桥接项目的 `Version`，并添加 `docs/releases/v<版本>.md`。本地可验证正式包：
+
+```powershell
+.\scripts\build.ps1 -ReleaseVersion '1.0.0' -HeadlessTests
+.\scripts\verify-release-artifact.ps1 -Version '1.0.0'
+```
+
+合并到 `main` 后推送对应标签（例如 `v1.0.0`）。流程拒绝版本不符或不属于 `main` 历史的标签，检查干净源码提交、程序版本、发布文件哈希与解压后的安装入口。发布附件为版本 ZIP、SHA256 和构建信息；上传完成后才把草稿 Release 公开，已公开版本不会被重复运行覆盖。
+
+`-HeadlessTests` 仅用于没有交互桌面的环境，明确跳过原生桌面事件、Hook 生命周期与鼠标命中探针；其余桥接逻辑仍执行。本机不加此参数保持完整桌面测试。真实 UAC 和用户计划任务安装不由 CI 执行。
+
 ## Wallpaper Engine 打包
 
 `npm run build` 生成 `dist/project.json`。前端打包为经典 IIFE，避免本地文件 ES module 跨域问题；背景与样式随包分发。`dist` 中的展示票据为空。

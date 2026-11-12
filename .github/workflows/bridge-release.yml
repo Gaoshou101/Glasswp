@@ -1,0 +1,119 @@
+name: Bridge build and release
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bridge-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Validate version and release tag
+        id: version
+        run: |
+          $version = (Get-Content package.json -Raw -Encoding UTF8 | ConvertFrom-Json).version
+          if ($version -notmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$') { throw 'Invalid stable version' }
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            if ($env:GITHUB_REF_NAME -ne "v$version") { throw 'Tag and source version differ' }
+            git merge-base --is-ancestor HEAD origin/main
+            if ($LASTEXITCODE -ne 0) { throw 'Release tag must point to a commit on main' }
+          }
+          if (-not (Test-Path "docs/releases/v$version.md")) { throw 'Release notes are missing' }
+          [IO.File]::AppendAllText($env:GITHUB_OUTPUT, "version=$version`n", [Text.UTF8Encoding]::new($false))
+      - name: Build self-contained Windows bridge
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/build.ps1 -ReleaseVersion $env:RELEASE_VERSION -HeadlessTests
+      - name: Test installation and rollback
+        run: |
+          ./tests/release-check.ps1
+          ./tests/installer-check.ps1
+          ./tests/installer-package-check.ps1
+          ./tests/bridge-release-check.ps1
+      - name: Verify the actual release archive
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          ./scripts/verify-release-artifact.ps1 -Version $env:RELEASE_VERSION -ExpectedCommit $env:GITHUB_SHA -CheckInstaller
+          Copy-Item artifacts/staging/build-info.json "artifacts/packages/Glasswp-Bridge-v$env:RELEASE_VERSION-build-info.json"
+      - name: Upload verified release files
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bridge-win-x64-${{ github.sha }}
+          path: |
+            artifacts/packages/*.zip
+            artifacts/packages/*.sha256
+            artifacts/packages/*-build-info.json
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Upload validation reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bridge-validation-${{ github.sha }}
+          path: |
+            artifacts/validation/bridge-release-rollback.json
+            artifacts/validation/release-artifact-check.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  publish:
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: bridge-win-x64-${{ github.sha }}
+          path: release-assets
+      - name: Publish v${{ needs.build.outputs.version }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: v${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          (cd release-assets && sha256sum --check "Glasswp-Bridge-${RELEASE_TAG}-win-x64.zip.sha256")
+          if gh release view "$RELEASE_TAG" --json isDraft --jq '.isDraft' > release-state.txt 2>/dev/null; then
+            test "$(cat release-state.txt)" = true || { echo 'Release is already public; refusing to replace assets.'; exit 1; }
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "Glasswp ${RELEASE_TAG}" --notes-file "docs/releases/${RELEASE_TAG}.md"
+          fi
+          gh release upload "$RELEASE_TAG" release-assets/* --clobber
+          gh release edit "$RELEASE_TAG" --draft=false --latest

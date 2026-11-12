@@ -6,7 +6,7 @@ Glasswp 由 Wallpaper Engine 壁纸和 Windows 本机桥接组成。日期与时
 
 ### 从自包含包安装
 
-解压构建生成的 `Glasswp-Bridge-<buildId>-win-x64.zip`，进入其中的同名文件夹，双击 `install-bridge.cmd`。也可在该目录的 PowerShell 中执行：
+从 [GitHub Releases](https://github.com/Gaoshou101/Glasswp/releases/latest) 下载 `Glasswp-Bridge-v1.0.0-win-x64.zip`，解压并进入同名文件夹，双击 `install-bridge.cmd`。普通本地构建使用 `Glasswp-Bridge-<buildId>-win-x64.zip` 命名，安装方式相同。也可在该目录的 PowerShell 中执行：
 
 ```powershell
 .\install-bridge.cmd
@@ -14,7 +14,7 @@ Glasswp 由 Wallpaper Engine 壁纸和 Windows 本机桥接组成。日期与时
 
 安装器先校验发布文件，随后请求一次 UAC，将桥接安装到受保护运行目录，启动桥接、注册登录自启动，并打开本机设置页。使用原 Windows 用户接受 UAC，确保已有 DPAPI 凭据仍可解密。
 
-ZIP 是本项目的构建产物；是否已有可下载的线上发布包，请以仓库实际发布状态为准。旁边的 `.zip.sha256` 可用于核对压缩包 SHA256。包内 `payload/wallpaper` 是展示票据为空的通用壁纸，Wallpaper Engine 需另行安装。
+正式 ZIP 由 GitHub Actions 从发布标签构建。旁边的 `.zip.sha256` 可用于核对压缩包 SHA256，`*-build-info.json` 记录源码提交和文件哈希。包内 `payload/wallpaper` 是展示票据为空的通用壁纸，Wallpaper Engine 需另行安装。
 
 ### 从源码安装
 

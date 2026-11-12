@@ -3,6 +3,12 @@
 $testRoot=Join-Path ([IO.Path]::GetTempPath()) ('wallpaper-release-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $testRoot | Out-Null
 function Check($Condition,[string]$Message) { if(-not $Condition){throw $Message}; Write-Output ('PASS '+$Message) }
+function Test-AclFixture([Security.AccessControl.DirectorySecurity]$Fixture) {
+    # Exercise the real grant classifier with a controlled owner, without
+    # requiring a second user or ownership privileges on the runner.
+    function Get-Acl { param($LiteralPath) $Fixture }
+    Get-RuntimeWriteGrants 'in-memory-acl-fixture'
+}
 try {
     $source=Join-Path $testRoot 'source'; $target=Join-Path $testRoot 'target'; $backups=Join-Path $testRoot 'backups'
     New-Item -ItemType Directory -Path $source,$target | Out-Null
@@ -45,7 +51,11 @@ try {
     Check ($nestedRejected -and $driveRejected -and (Get-BridgeRuntimeRoot 'E:\WallpaperDashboard') -eq 'E:\WallpaperDashboard') 'runtime root must sit directly under a drive root'
     $userDir=Join-Path $testRoot 'user-owned'
     New-Item -ItemType Directory -Path $userDir | Out-Null
-    Check ((Get-RuntimeWriteGrants $userDir).Count -gt 0) 'user-writable directories are reported'
+    $userAcl=Get-Acl -LiteralPath $userDir
+    $userSid=[Security.Principal.WindowsIdentity]::GetCurrent().User
+    $userAcl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($userSid,[Security.AccessControl.FileSystemRights]::FullControl,[Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit',[Security.AccessControl.PropagationFlags]::None,[Security.AccessControl.AccessControlType]::Allow)))
+    Set-Acl -LiteralPath $userDir -AclObject $userAcl
+    Check (@(Get-RuntimeWriteGrants $userDir | Where-Object {$_ -like ($userSid.Value+':*')}).Count -gt 0) 'explicit user write grants are reported regardless of runner elevation'
     $locked=Join-Path $testRoot 'locked'
     New-Item -ItemType Directory -Path $locked | Out-Null
     $acl=New-Object Security.AccessControl.DirectorySecurity
@@ -58,7 +68,12 @@ try {
     # Restore inheritance (the owner keeps WRITE_DAC) so the temporary folder can be removed.
     & icacls.exe $locked /inheritance:e /q | Out-Null
     if($LASTEXITCODE -ne 0){throw 'Could not restore test folder permissions'}
-    Check ($lockedGrants.Count -eq 1 -and $lockedGrants[0] -like 'owner:*') 'read-only grants pass while a non-administrator owner is still rejected'
+    Check (@($lockedGrants | Where-Object {$_ -notlike 'owner:*'}).Count -eq 0) 'actual read-only grants pass regardless of runner owner'
+    $acl.SetOwner([Security.Principal.SecurityIdentifier]'S-1-5-21-123456789-123456789-123456789-1001')
+    $ownerGrants=Test-AclFixture $acl
+    Check ($ownerGrants.Count -eq 1 -and $ownerGrants[0] -like 'owner:*') 'controlled non-administrator owner is rejected even with read-only grants'
+    $acl.SetOwner([Security.Principal.SecurityIdentifier]'S-1-5-32-544')
+    Check ((Test-AclFixture $acl).Count -eq 0) 'controlled administrator owner and read-only grants pass'
     $backupTest=Join-Path $testRoot 'runtime-backups'
     foreach($minutes in 1..4){
         $directory=New-Item -ItemType Directory -Path (Join-Path $backupTest ('previous-'+[Guid]::NewGuid().ToString('N')))
