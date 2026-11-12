@@ -1,156 +1,135 @@
-# Glasswp
+<h1 align="center">Glasswp</h1>
 
-可复用的竖屏玻璃信息壁纸，包含时钟、天气、AI 套餐余量、硬件监控和本机管理页。管理页提供 Light、Dark、跟随壁纸三种主题。
+<p align="center">让时钟、天气、AI 余量与硬件状态，融进你的竖屏壁纸。</p>
 
-三套创意工坊包命名为 **Glasswp-Purple / Glasswp-Angel / Glasswp-Corgi**。运行 `npm run check` 后执行 `node scripts/prepare-workshop-variants.mjs` 即可生成。每套包固定自己的背景与配色；完整步骤见 [三套壁纸打包与手动发布](docs/GLASSWP-WORKSHOP.md)。工坊包不含本机桥接，天气、额度与硬件数据需单独配置桥接。
+<p align="center">Windows x64 · Wallpaper Engine · 本机数据桥接</p>
 
-可复用换壁纸流程见 [可复用壁纸工作流](docs/REUSABLE-WALLPAPER-WORKFLOW.md)。主题、背景和管理页明暗模式共用 `public/theme.js`，换图后无需重做组件布局。
+<p align="center">
+  <a href="#快速安装">安装桥接</a> · <a href="#快速开始">开始使用</a> · <a href="docs/INSTALL.md">安装指南</a> · <a href="docs/DEVELOPMENT.md">开发文档</a>
+</p>
 
-Windows / Wallpaper Engine Web 壁纸，沿用已确认的 [v3 玻璃设计](design/GLASS-DESIGN.md)。以 1600×2560 为基准自适应竖屏，保留角色面部留白。
+<p align="center">
+  <img src="docs/images/hero.webp" width="1260" alt="Glasswp 紫色、天使与柯基三套主题的实际界面，使用匿名示例数据">
+</p>
 
-AI 套餐在管理页「AI 套餐来源」选择 CPAMP、本机自动读取、Magpie、CPA 或 Sub2API，保存后仅查询并显示所选来源。本机自动发现已登录的 CLI 与桌面 agent，覆盖 Codex、Claude、Copilot、Gemini、Antigravity、Cursor、Kiro 等；积分与金额显示实际余额。原生来源支持范围见 [AI 多来源接入](docs/AI-SOURCES-2026-11-10.md)。CPA/Sub2API 独立连接、支持的上游账号和版本限制见 [CPA 与 Sub2API 接入](docs/CPA-SUB2API-SOURCES-2026-11-11.md)。
+## 让日常信息留在桌面
 
-本机 AI Agent、Magpie、CPA 与 Sub2API 各自提供配置菜单，可设置账号显示、别名、顺序及自动刷新开关和间隔。新增配置和 CPA/Sub2API 来源已于 2026-11-11 安装到本机桥接与桌面壁纸，原有配置保留；CPA/Sub2API 真实服务连接仍待配置验证。
+Glasswp 是一套面向 Wallpaper Engine 的竖屏 Web 壁纸。玻璃卡片承载常用信息，留出背景画面的主体空间；点击卡片可展开详情，组件的位置、尺寸和材质可以独立调整。
 
-2026-11-10 完成视觉细化：液态玻璃边缘光、字体层级、天气与平台图标、硬件曲线和额度条样式。浏览器验证与候选包说明见 [视觉细化验收记录](docs/VISUAL-POLISH-2026-11-10.md)。
+| 功能 | 可以看到什么 |
+|---|---|
+| 时间与世界时钟 | 日期、12/24 小时制、自选时区，以及展开后的多地时间。 |
+| 天气与预报 | 城市天气、温度与可用的小时预报；支持六种天气来源。 |
+| AI 套餐余量 | 多账号卡片、余额、额度窗口与重置倒计时；可选择五种数据来源。 |
+| 硬件状态 | CPU/GPU 利用率与可用温度、显存、内存，以及最近一分钟趋势。 |
+| 可复用主题 | Purple、Angel、Corgi 三套背景；玻璃透明度、模糊、高光、大小与位置均可调。 |
 
-新增点击时间展开世界时钟；管理页可统一设置显示时区、世界时区列表、秒数和 12/24 小时制，手动校准显示时间或读取网络校时建议。天气来源可切换 Open-Meteo、MET Norway、OpenWeatherMap、WeatherAPI。使用方式与验证范围见 [世界时钟与天气来源](docs/CLOCK-WEATHER-2026-11-10.md)。
+日期与时钟可独立运行。天气、AI 余量和硬件数据需要单独安装 Windows 本机桥接；桥接同时提供设置页，集中管理来源、账号和传感器。
 
-下一阶段以稳定性与低占用为优先，实施顺序、代码依据和验收条件见 [优化路线](docs/OPTIMIZATION-ROADMAP.md)。
+## 快速安装
 
-2026-10-22 已完成首轮 A+B+C 并应用到正式桌面：可校验与回退的独立安装、来源与缓存故障隔离、前端模块更新及格式器复用。自动化与实际桌面输入通过，资源收益和长期稳定性继续观察，详见 [本轮实施记录](docs/OPTIMIZATION-IMPLEMENTATION-2026-10-22.md)。
+**运行环境：Windows x64、Wallpaper Engine。** 自包含桥接包运行时无需另装 Node.js 或 .NET。
 
-新增可预览的轻量液态风格：鼠标光泽、按压回弹、额度翻页过渡、刷新状态动画。点击卡片展开液态玻璃悬浮视图：账号上方为请求数、成功率、Token、CPAMP 预估费用与最后活动，时间范围与 CPAMP 一致，默认 7 天，可切换今天、昨天、14 天、30 天、全部或自定义；下方请求详情每页 20 条，支持较早/较新请求翻页与首字/耗时，旁边显示 Codex 可用重置次数；硬件提供带刻度的曲线、真实样本统计和采样时点；天气提供未来 12 个小时的温度、降水概率、预计降水量和切换城市入口。展开与收回使用短暂弹性过渡，面部留白继续保留。液态模式闲置时停止视觉调度，可切回原版磨砂；设置与验证见 [液态玻璃预览说明](docs/LIQUID-GLASS-PREVIEW.md)。
+### 已有自包含安装包
 
-2026-10-15 已按用户确认将此版本应用到正式本地桌面，并同步本地开发副本；材质为液态 83/26/68，原有显示设置保留，重载验证通过。更新前已备份；Steam 创意工坊远端仍为此前发布版本。
+完整解压构建生成的 `Glasswp-Bridge-<buildId>-win-x64.zip`，进入同名文件夹，双击 **`install-bridge.cmd`**。
 
-- 上：时钟、日期、可搜索选择城市的天气（默认苏州）。
-- 中：CPAMP 多账号额度卡片（每页固定三个等宽卡位，不足保留空位），可切换单账号轮播；显示周期、重置时间与倒计时。
-- 下：CPU、物理 GPU 的利用率与温度，专用显存与物理内存的使用率/容量，以及最近一分钟趋势。
-- 三个组件独立启用、材质、大小与位置。透明度 0–100%、模糊 0–64、高光 0–100%，文字保持清晰。
-
-壁纸正常运行时隐藏连接成功、来源、快照时间和规则说明，仅在断连、数据过期或缺少额度时保留简短提示。额度分页位于标题右侧，天气只显示城市；模块高度与间距更紧凑，保留角色面部留白。
-
-同一账号每页最多显示五项额度，所有页面卡片保持相同尺寸；三至五项额度使用紧凑列表，Gemini 4 Argon 周额度单独命名。只展示服务端当前有效额度，停用、待移除与过期历史窗口不参与展示、分页和详情；只有过期证据时显示等待刷新。所有卡片统一填满三个卡位再开下一页，默认手动翻页，升级旧预览设置时关闭原自动翻页。鼠标翻页不留下焦点框，键盘导航保留焦点提示。修复与验证见 [额度交互与刷新记录](docs/QUOTA-UI-REFRESH-2026-10-22.md)。
-
-“套餐余量”标题右侧的「刷新」向上游获取最新用量；刷新期间禁止重复点击，多个窗口共用桥接任务，完成后读取新快照。管理页「账号」列表集中处理关注、别名、套餐和排序：勾选决定是否显示；按住行首手柄拖动（鼠标或触屏，Esc 取消，指针靠近窗口上下边缘时自动滚动），或用上移/下移按钮决定顺序（同时用于多账号卡片与单账号轮播），一次保存全部生效，重新打开后保留。列表支持按别名、平台、套餐或凭据文件搜索，并可按平台与关注状态筛选；筛选时拖动和上下移动只在可见的已关注账号之间调整，隐藏账号保持原有相对顺序。别名旁显示最近本机快照中的套餐名称；暂无信息时显示「套餐待同步」，读取失败时保留已知套餐或显示「套餐暂不可用」。各区块有未保存标记，顶部汇总未保存项目，离开或刷新页面前浏览器会提示；改回原值即取消标记。设置页和预览页共用网页图标。
-
-## 本机运行
-
-桥接是自包含程序，安装在受保护的运行目录 `E:\WallpaperDashboard\current`（见下文“运行目录”）；壁纸包为 `dist/project.json`。运行发布程序无需另装 .NET。
+安装器会校验文件，请求一次 UAC，安装并启动桥接、注册登录自启动，随后打开本机设置。默认运行目录为 `E:\WallpaperDashboard`；没有 E 盘时，在解压目录的 PowerShell 中执行：
 
 ```powershell
-# 普通权限；部分温度可能不可用
-./scripts/start-bridge.ps1 -OpenSettings
-
-# 本机已验证 CPU Package 温度需要管理员权限，会弹出 UAC
-./scripts/start-bridge.ps1 -Elevated -OpenSettings
-
-# 安装到现有 Wallpaper Engine，打开独立预览窗口
-./scripts/install-wallpaper.ps1 -PreviewWindow
+.\install-bridge.cmd -RuntimeRoot 'D:\WallpaperDashboard'
 ```
 
-[本机数据设置](http://127.0.0.1:17632/admin/)：[壁纸预览与外观设置](http://127.0.0.1:17632/?studio)。先保存 CPAMP 地址和管理凭据，再在「账号」区读取 CPAMP 账号、勾选关注账号、修改别名与顺序后保存。更换地址、重新填写或清除凭据会取消全部关注账号，执行前会确认。传感器原始读数、各账号刷新明细和连接诊断默认折叠，日常只显示可读状态。设置页采用与壁纸同源的液态玻璃风格：背景为壁纸原画，宽屏左侧导航高亮当前分区并以圆点标出未保存分区，窄屏改为顶部标签栏；系统要求降低透明度或减少动态效果时自动退回不透明面板与静态效果。天气城市支持搜索中文、拼音或英文名；搜索结果会显示行政区，避免苏州与宿州混淆。
+安装包由本项目构建生成，目前请以仓库实际发布状态为准，不能将源码压缩包当作自包含安装包。只检查而不安装可追加 `-Check`；不新建或修改自启动任务可追加 `-NoAutostart`。更多选项见 [安装与连接](docs/INSTALL.md)。
 
-本机设置的「用量自动刷新」默认开启，每 **10 分钟**向上游获取关注账号的新用量。间隔可设为 **1–10080 分钟**，支持关闭自动刷新或点击「立即刷新用量」。页面显示上次尝试、最近成功、下次时间及逐账号结果；修改间隔后按最近一次刷新完成时间重新计算。
+### 从源码构建
 
-Antigravity 套餐通过上游 `loadCodeAssist` 查询，优先使用 `paidTier`，其次使用 `currentTier`，避免将 Google AI Pro 误认成基础套餐。查询结果缓存 1 小时；失败后 10 分钟重试，已有套餐最多保留 24 小时，之后显示平台名 `antigravity`。套餐查询不改变额度窗口，设置页和桌面卡片共用结果。
-
-默认 Wallpaper Engine 安装路径为本机已检测的位置 `F:\SteamLibrary\steamapps\common\wallpaper_engine`。安装脚本校验构建清单，自动填入展示票据，按名称迁移旧属性并保留项目身份；完整旧目录备份在目标盘的 `projects/dashboard-backups`。备份可能含本机展示票据，仅供本地回退。
-
-若需要应用到桌面，先在 WE 确认显示器索引（从 0 开始），再运行：
+准备 Node.js 20.19+ 或 22.12+、.NET 10 SDK，在仓库根目录执行：
 
 ```powershell
-./scripts/install-wallpaper.ps1 -Apply -Monitor <已确认的索引>
-
-# 更新当前使用的另一个本地项目；同一路径会先关闭再打开
-./scripts/install-wallpaper.ps1 -Destination 'F:\SteamLibrary\steamapps\common\wallpaper_engine\projects\myprojects\portrait-dashboard-workshop' -Apply -Location '<已确认的显示器 Location>'
+.\scripts\build.ps1
+.\scripts\install-bridge.ps1
 ```
 
-WE 属性中提供三个组件的材质、显示、大小、水平与垂直位置、时区、12/24 小时、秒、柔光动态、趋势、额度显示方式、翻页间隔及底部留白。可用底部留白避让任务栏。桌面外观在 Wallpaper Engine 中选中正在使用的壁纸后，通过右侧属性调整并由宿主保存。Studio 仅用于浏览器预览，设置只保存在当前浏览器，不会同步到 Wallpaper Engine；WE 的属性也不会自动回填 Studio。天气、账号和传感器等共享数据仍在本机数据设置页管理。多账号卡片默认启用，超过三个账号或单账号五个额度窗口时分页，所有账号与窗口均可访问。
+构建生成 `dist` 壁纸、`artifacts/staging` 桥接候选，以及 `artifacts/packages` 下的 ZIP 安装包与 SHA256。构建过程不改变运行中的桥接；第二条命令执行安装。
 
-WE 属性或浏览器「组件与连接」中可勾选「忽略 Codex 基础模型周窗口（luna-release）」，默认未勾选。开启后该窗口不参与展示、分页或数据过期提示；卡片和单账号轮播均生效。主套餐周窗口、其他模型与平台的有效额度保持显示，取消勾选即可恢复当前有效窗口。
+## 快速开始
 
-同一区域另有「忽略 Codex 绘图额度（imagegen）」，默认未勾选，独立控制绘图额度的展示、分页和过期提示。普通日额度保持显示；如果某账号的全部窗口均被隐藏，保留账号并提示相应额度已忽略。取消勾选恢复显示，不修改上游或本地额度记录。
+1. 打开 [本机设置](http://127.0.0.1:17632/admin/)，选择天气城市和 AI 套餐来源，按需配置账号与传感器。
+2. 在 Wallpaper Engine 中打开壁纸包的 `project.json`。桥接安装包也包含通用壁纸，位于 `payload/wallpaper`。
+3. 从本机设置页复制“展示票据”，填入 Wallpaper Engine 右侧该壁纸的“展示票据”属性。
+4. 在 Wallpaper Engine 属性中调整组件显示、大小、位置和玻璃材质。
 
-停止桥接：`./scripts/stop-bridge.ps1`。管理员桥接需要从管理员 PowerShell 停止。
+源码用户也可用脚本安装 `dist` 并自动配对票据。将下面的路径改为实际 Wallpaper Engine 安装目录：
 
-### 运行目录
+```powershell
+.\scripts\install-wallpaper.ps1 -WallpaperEnginePath 'D:\SteamLibrary\steamapps\common\wallpaper_engine' -PreviewWindow
+```
 
-管理员计划任务只执行 `E:\WallpaperDashboard` 中的程序：`current\` 是正在运行的发布（含任务启动脚本 `run-bridge.ps1`），`backups\` 保留最近两份回退副本，`state\` 存放启动与更新记录。该目录直接位于盘符根下、不继承权限，所有者为 Administrators，只有 Administrators 和 SYSTEM 可写，普通用户只读；因此普通权限的程序无法替换管理员启动的代码，开发目录的改动、切换分支或清理也不会影响正在运行的桥接。它不在 CD2 工程同步范围内。私有配置仍固定在 `%LOCALAPPDATA%\WallpaperDashboard\private`。启动脚本先把 PowerShell 模块加载限制在系统目录，再读取配置。安装、更新和自启动注册都会核验这些权限，不符合时停止。迁移过程与验证见 [运行目录加固](docs/RUNTIME-HARDENING-2026-11-07.md)。
+[浏览器预览与外观设置](http://127.0.0.1:17632/?studio) 适合试调效果。Studio 的外观设置只保存在当前浏览器；桌面外观由 Wallpaper Engine 属性保存，两者不会互相同步。天气、账号和传感器属于桥接共享数据。
 
-如需重启后自动恢复数据，先用 `./scripts/update-bridge.ps1` 安装桥接，再运行一次 `./scripts/install-bridge-autostart.ps1` 并接受 UAC。脚本注册 `WallpaperDashboardBridge` 计划任务，在当前用户登录 Windows 15 秒后以管理员权限隐藏执行 `E:\WallpaperDashboard\current\run-bridge.ps1`，保留 CPU 温度读取；固定原有 DPAPI 配置目录，无需保存 Windows 密码。任务允许电池供电、没有运行时限，进程异常退出后每分钟重试，最多三次。可用 `-DataDirectory <原 private 目录>` 指定已有配置。
+## 轻触卡片，展开细节
 
-取消自动启动：`./scripts/install-bridge-autostart.ps1 -Remove`。取消任务后可继续使用手动启动脚本；正在运行的桥接仍可用停止脚本关闭。
+点击时间查看世界时钟，点击天气查看可用的小时预报。额度卡片支持分页与手动刷新；硬件卡片展开后可查看曲线与样本。点击空白处或按 Escape 收起。
 
-## 已验证与限制
+![壁纸主界面、世界时钟与天气展开视图，所有读数均为匿名示例](docs/images/dashboard.webp)
 
-详见 [实施验证记录](docs/IMPLEMENTATION-VALIDATION.md)。本机已读到 CPU/GPU 利用率、CPU Package（管理员模式）、GPU Core 温度、约 16 GiB 专用显存和约 48 GiB 物理内存。按用户要求，已移除内存温度采集、选择和展示。
+本机设置页提供 Light、Dark、跟随壁纸三种模式。各来源的连接、账号别名、排序和刷新选项集中管理，未保存修改会在页面标记。
 
-CPAMP 的 `database disk image is malformed (11)` 已在 2026-10-10 修复。先保留一致性副本，在副本上重建并逐表核对，再对停服后的最新数据库重建切换；78,292 条有效历史请求、47 张业务表的有效记录完整保留，三个关注账号均成功返回额度快照。原库、WAL、配置和密钥保存在远端私有回退目录。见 [修复记录](docs/CPAMP-REPAIR.md)。壁纸仍逐账号隔离查询，以成功读取的 CPAMP 快照为准；响应头缓存仅补充缺失窗口，或在快照读取失败时回退到较新的已有证据，避免覆盖 CPAMP 选定的余量和重置时间。没有证据的窗口保持未知。
+![本机设置页的壁纸主题与世界时钟配置](docs/images/settings.webp)
 
-桥接运行期间统一调度上游刷新，多个壁纸或预览窗口共用一次刷新。当前支持 Codex、Claude 与 Antigravity：通过 CPAMP/CPA 获取当前额度，并将观察写回 CPAMP；Claude 读取 5 小时、7 天、模型周额度和已开启的额外用量，套餐（Free/Pro/Max/Team）来自账号资料接口，详见 [Claude 用量与拖拽排序记录](docs/CLAUDE-QUOTA-DRAG-ORDER-2026-11-08.md)。其他平台继续展示已有快照，设置页提示暂不支持自动刷新。失败账号保留上次数据，等待设定的下一次刷新；重启保留刷新时间。配额快照仍每 60 秒读取，前端轮询只读取本机数据。
+以上图片来自实际界面，天气、账号、额度和硬件读数使用匿名示例数据。
 
-额度数据超过 15 分钟标记过期（选择更长的上游刷新间隔时仍适用）；倒计时归零显示“等待更新”，不擅自恢复余额。断网保留上次数据和时间。天气为 Open-Meteo 模型数据，非实地传感器观测；每 15 分钟刷新当前条件与小时预报，超过 30 分钟或连接异常显示上次天气。缺失预报显示未知，真实零降水保留为 0% / 0.0 mm。
+## 选择数据来源
 
-## 创意工坊私有验证
+### AI 套餐
 
-首次上传使用独立的 `portrait-dashboard-workshop` 项目，设为仅自己可见。工坊包展示票据为空，预览图使用示例数据；订阅后在 WE 属性中填入本机展示票据。天气、额度和硬件功能需要本机桥接，工坊包不含桥接程序。发布准备、重建方法及当前状态见 [创意工坊发布记录](docs/WORKSHOP-RELEASE.md)。
+保存后只查询所选来源，各来源的连接和账号配置分别保留。
 
-WE 中的「竖屏动态信息壁纸」是本地开发版（`portrait-dashboard`），「竖屏动态信息壁纸 · 磨砂玻璃仪表盘」是工坊发布版本（`portrait-dashboard-workshop` / 工坊 ID `3817627732`）。两者沿用相同画面，但宿主属性分别保存；调整时应选中当前显示器实际使用的那份。
+| 来源 | 适用场景 |
+|---|---|
+| 本机自动读取 | 从支持的已登录 CLI 或桌面 Agent 获取凭据，读取可用的套餐和余量；各平台支持范围不同。 |
+| Magpie | 读取 Magpie 中已保留账号的额度缓存；上游缓存更新由 Magpie 完成。 |
+| CPAMP | 读取 CPAMP 账号与额度快照，支持对应的用量刷新和请求历史视图。 |
+| CPA | 独立连接 CPA 管理接口，读取支持的配额插件或厂商额度。 |
+| Sub2API | 读取支持的上游 OAuth 托管账号余量；不以站内用户余额推算套餐额度。 |
 
-## 开发与构建
+支持范围和连接要求见 [AI 多来源](docs/AI-SOURCES-2026-11-10.md) 与 [CPA / Sub2API](docs/CPA-SUB2API-SOURCES-2026-11-11.md)。独立来源不自动拥有 CPAMP 请求历史功能。
 
-前端 Node.js 20.19+/22.12+；后端 .NET 10 SDK。此次本机 SDK 位于 `%LOCALAPPDATA%\WallpaperDashboard\devtools\dotnet`；在 Codex 应用的 MSIX 容器之外，该目录实际位于 `%LOCALAPPDATA%\Packages\OpenAI.Codex_*\LocalCache\Local\WallpaperDashboard\devtools\dotnet`，构建和验证脚本会依次查找这两处及 PATH 中带 SDK 的 dotnet。优先复用已安装 SDK。
+### 天气
+
+Open-Meteo、MET Norway 无需 API Key；OpenWeatherMap、WeatherAPI、高德与和风需配置对应凭据。高德需城市行政区编码，和风需专属 API Host。各来源提供的数据不同，高德不提供小时预报；缺失字段保持未知。
+
+## 配置与使用边界
+
+- 桥接只监听 `127.0.0.1:17632`。管理凭据在本机填写，使用 Windows DPAPI CurrentUser 加密，私有配置默认位于 `%LOCALAPPDATA%\WallpaperDashboard\private`。
+- 展示票据用于读取展示数据、报告宿主状态及请求固定刷新；它与管理凭据分开。分享壁纸应使用票据为空的构建包，不要分享私有配置或已配对目录。
+- 部分 CPU/GPU 温度需要管理员权限，传感器支持依设备与驱动而异。
+- 数据过期或读取失败时保留已有数据并提示状态；倒计时归零显示等待更新，不会推算成满额。天气属于所选服务的数据，不能视作本地传感器实测。
+- 三套工坊包固定自己的背景；通用壁纸可跟随桥接主题。修改主题不会迁移凭据。
+
+## 文档导航
+
+| 我想要…… | 文档 |
+|---|---|
+| 安装、升级、配置自启动或排错 | [安装与连接](docs/INSTALL.md) |
+| 开发、测试和生成安装包 | [开发与发布](docs/DEVELOPMENT.md) |
+| 更换背景并复用现有组件 | [可复用壁纸工作流](docs/REUSABLE-WALLPAPER-WORKFLOW.md) |
+| 打包 Purple / Angel / Corgi 工坊壁纸 | [三套壁纸打包与手动发布](docs/GLASSWP-WORKSHOP.md) |
+| 了解天气、时区和显示校准 | [世界时钟与天气](docs/CLOCK-WEATHER-2026-11-10.md) · [高德与和风](docs/AMAP-QWEATHER-2026-11-10.md) |
+| 了解数据与权限边界 | [数据契约](docs/DATA-CONTRACT.md) · [运行目录加固](docs/RUNTIME-HARDENING-2026-11-07.md) |
+| 查阅实施记录和后续工作 | [实施验证](docs/IMPLEMENTATION-VALIDATION.md) · [优化路线](docs/OPTIMIZATION-ROADMAP.md) |
+
+## 开发
 
 ```powershell
 npm ci
 npm run dev
 npm run check
-./scripts/build.ps1
 ```
 
-构建只生成 `dist/` 和 `artifacts/staging/` 候选包，不停止或覆盖运行桥接。`build-info.json` 记录构建 ID、源码提交、源码是否有未提交变更及文件 SHA256；健康接口和宿主报告分别提供桥接与前端构建 ID。
+前端使用 TypeScript / Vite，Windows 桥接使用 .NET 10。完整构建、浏览器回归和发布验证见 [开发文档](docs/DEVELOPMENT.md)。
 
-```powershell
-# 只验证，不安装；22 项前端测试、桥接检查、更新回退检查
-./scripts/verify.ps1
-# 附加匿名浏览器回归，Python 需可导入 Playwright
-./scripts/verify.ps1 -Browser -Python '<python.exe 完整路径>'
-# 已构建 staging 后，附加真实桥接启动失败与恢复演练（隔离 17634 端口）
-./scripts/verify.ps1 -ReleaseRuntime
+## 第三方说明
 
-# 独立更新：保留原运行方式和配置，失败恢复旧目录与运行状态
-./scripts/update-bridge.ps1
-# 原桥接未运行时，如需安装后启动
-./scripts/update-bridge.ps1 -Start
-
-# 只读资源观察；记录采样口径，不能直接当作受控 A/B
-./scripts/measure-resources.ps1 -Samples 120 -IntervalSeconds 5 -Label after-optimization
-# 24 小时只读稳定性观察；按分钟留存匿名状态、进程内存和各额度窗口状态（当前/已用尽/过期）
-./scripts/observe-stability.ps1
-# 分析一次观察：按进程实例分段、剔除预热，输出可用性、数据状态与内存趋势
-python scripts/analyze-stability.py artifacts/analysis/<观察目录>/samples.jsonl
-# 前端设置的受控 A/B：隔离的无头 Chrome 回放匿名快照，轮换顺序多轮测量，不改正式壁纸
-python scripts/ab-frontend-resources.py --rounds 3 --measure-minutes 6
-# artifacts 保留策略：默认只列出可删项；-Apply 才删除
-./scripts/prune-artifacts.ps1
-```
-
-更新脚本会弹出一次 UAC，把 `artifacts/staging` 中的候选复制到受保护运行目录，在受保护副本上重新核验文件哈希与权限，再通过原计划任务重启；无需在构建时提升权限。候选桥接须通过健康、构建 ID、进程路径、配置保留及首个硬件样本检查，失败时恢复旧发布与运行状态。旧发布保存在 `E:\WallpaperDashboard\backups`（保留最近两份）。更新记录位于 `E:\WallpaperDashboard\state\bridge-update.json`，并复制到 `artifacts/validation/bridge-update.json`；壁纸记录为 `wallpaper-update.json`，程序验证与真实桌面点击分别记录。新安装时先启动桥接以生成配对票据。
-
-后端源码：`bridge/WallpaperBridge/`；三组件与数据契约：`src/`；宿主属性：`wallpaper/project.json`。前端输出为经典 IIFE，避免本地文件 ES module 的跨域问题，所有背景与样式随壁纸打包。
-
-浏览器验证使用 `tests/browser_check.py`；简洁布局与异常状态检查使用 `tests/clean_layout_check.py`，均在本机桥接启动后执行。脚本依赖 Playwright，可安装到项目 `.tools/python`，默认用已安装的 Chrome。生成截图与结果位于 `artifacts/validation/`，不进入 Git。
-
-## 配置与凭据
-
-管理凭据、账号选择和数据缓存存储在 `%LOCALAPPDATA%\WallpaperDashboard\private`，使用 Windows DPAPI CurrentUser 加密，目录 ACL 限制当前用户和 SYSTEM。配置页不会返回管理凭据。修改凭据只在本机设置页完成。
-
-Codex 的 MSIX 上下文可能将 AppData 文件虚拟化至其 `Packages/.../LocalCache/Local` 目录；外部终端使用常规用户目录。建议持续从同一入口启动桥接。安装脚本优先读取当前运行桥接的展示票据，避免启动上下文差异导致壁纸连接失效。所有 PS1 使用 UTF-8 BOM，兼容 Windows PowerShell 5.1。
-
-API 只监听 `127.0.0.1:17632`，展示数据必须有展示票据，管理接口使用独立短期会话与同源检查。地址可通过桥接 `--port` 参数及 WE 的本机数据地址调整；便捷脚本使用默认端口。客户端拒绝远端桥接地址。
-
-展示票据会保存到私有目录以及本机已安装 WE 的 `project.json`；它只允许读规范化展示数据、报告壁纸状态及请求固定的用量刷新，不能修改配置或读取管理凭据。分享壁纸前应使用票据为空的 `dist/`，不要分享安装目录或私有配置。用户原图的使用授权由其权利人决定，本项目面向个人本机使用。
-
-数据契约与访问边界见 [DATA-CONTRACT.md](docs/DATA-CONTRACT.md)。
+AI 读取协议和平台图标来源见 [第三方声明](docs/THIRD-PARTY-NOTICES.md) 与 [图标说明](docs/PROVIDER-ICONS.md)。背景图由用户提供，权利归原作者所有；使用、转载或发布前应确认相应授权。

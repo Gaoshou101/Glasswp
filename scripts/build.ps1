@@ -25,6 +25,7 @@ try {
         & node (Join-Path $PSScriptRoot 'build-info.mjs') --release $candidate
         if ($LASTEXITCODE -ne 0) { throw 'Release manifest failed' }
         Invoke-ReleaseTransaction -Source $candidate -Destination (Join-Path $repoRoot 'artifacts\staging') -BackupRoot (Join-Path $repoRoot 'artifacts\backups\staging-releases') | Out-Null
-        Write-Output '候选构建完成；运行 scripts/update-bridge.ps1 安装到受保护的运行目录。'
+        & (Join-Path $PSScriptRoot 'package-bridge.ps1')
+        Write-Output '候选构建和安装包已生成；双击 install-bridge.cmd 或运行 scripts/install-bridge.ps1 安装。'
     }
 } finally { Pop-Location }
