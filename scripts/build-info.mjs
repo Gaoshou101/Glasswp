@@ -9,7 +9,7 @@ export async function describeBuild() {
   let commit = null, dirty = true;
   try {
     commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-    dirty = !!execFileSync('git', ['status', '--porcelain', '--untracked-files=normal', '--', 'src', 'bridge', 'scripts', 'tests', 'public', 'wallpaper', 'package.json', 'package-lock.json', 'vite.config.mjs', 'tsconfig.json', 'index.html', 'design/assets', 'design/frosted-glass-v3-1600x2560.png'], { cwd: root, encoding: 'utf8' }).trim();
+    dirty = !!execFileSync('git', ['status', '--porcelain', '--untracked-files=normal', '--', 'src', 'bridge', 'scripts', 'tests', 'public', 'wallpaper', '.github', 'install-bridge.cmd', 'package.json', 'package-lock.json', 'vite.config.mjs', 'tsconfig.json', 'index.html', 'design/assets', 'design/frosted-glass-v3-1600x2560.png'], { cwd: root, encoding: 'utf8' }).trim();
   } catch { /* Source archives have no Git metadata. */ }
   const version = JSON.parse(await readFile(join(root, 'package.json'), 'utf8')).version;
   return { buildId: `${new Date().toISOString().replace(/\D/g, '').slice(0, 14)}-${randomBytes(4).toString('hex')}`, builtAt: new Date().toISOString(), commit, dirty, version, schemaVersion: 1 };

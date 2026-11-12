@@ -11,7 +11,7 @@ function Write-FixtureManifest {
         if ($file.Name -eq 'build-info.json') { continue }
         $files[$file.FullName.Substring($source.Length+1).Replace('\','/')] = (Get-FileHash -LiteralPath $file.FullName).Hash.ToLowerInvariant()
     }
-    @{buildId='installer-package-test';files=$files} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $source 'build-info.json') -Encoding UTF8
+    @{buildId='installer-package-test';version='1.0.0';files=$files} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $source 'build-info.json') -Encoding UTF8
 }
 try {
     New-Item -ItemType Directory -Path (Join-Path $source 'wallpaper') -Force | Out-Null
@@ -24,6 +24,7 @@ try {
     $zip = Join-Path $output 'Glasswp-Bridge-installer-package-test-win-x64.zip'
     $expectedHash = ((Get-Content -LiteralPath ($zip+'.sha256')).Split(' '))[0]
     Assert-Check ((Get-FileHash -LiteralPath $zip).Hash.ToLowerInvariant() -eq $expectedHash) 'archive SHA256 matches sidecar'
+    Assert-Check (-not ([IO.File]::ReadAllText($zip+'.sha256').Contains("`r"))) 'checksum uses LF for GNU sha256sum compatibility'
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $extracted = Join-Path $testRoot '解压 with spaces'
     [IO.Compression.ZipFile]::ExtractToDirectory($zip, $extracted)
@@ -33,6 +34,26 @@ try {
     Assert-Check (-not (Compare-Object $expected $actualNames)) 'bundle contains only payload and allowlisted installer files'
     Test-ReleasePackage (Join-Path $bundle 'payload') | Out-Null
     Assert-Check $true 'extracted payload hashes remain valid'
+    $releaseOutput = Join-Path $testRoot 'release output'
+    & (Join-Path $repoRoot 'scripts\package-bridge.ps1') -Source $source -OutputDirectory $releaseOutput -ReleaseVersion '1.0.0'
+    $releaseZip = Join-Path $releaseOutput 'Glasswp-Bridge-v1.0.0-win-x64.zip'
+    $releaseHash = ((Get-Content -LiteralPath ($releaseZip+'.sha256')).Split(' '))[0]
+    Assert-Check ((Get-FileHash -LiteralPath $releaseZip).Hash.ToLowerInvariant() -eq $releaseHash) 'versioned release name and SHA256 match the requested release version'
+    $releaseExtracted = Join-Path $testRoot 'release extracted'
+    [IO.Compression.ZipFile]::ExtractToDirectory($releaseZip, $releaseExtracted)
+    $releaseManifest = Test-ReleasePackage (Join-Path $releaseExtracted 'Glasswp-Bridge-v1.0.0-win-x64\payload')
+    Assert-Check ($releaseManifest.version -eq '1.0.0' -and $releaseManifest.buildId -eq 'installer-package-test') 'versioned package preserves payload version and unique build identity'
+    $versionOutput = Join-Path $testRoot 'invalid version output'
+    $rejected = $false
+    try { & (Join-Path $repoRoot 'scripts\package-bridge.ps1') -Source $source -OutputDirectory $versionOutput -ReleaseVersion '1.0.1' } catch { $rejected = $true }
+    Assert-Check ($rejected -and -not (Test-Path -LiteralPath $versionOutput)) 'a release version differing from the payload is rejected before output'
+    $allInvalidRejected = $true
+    foreach ($invalidVersion in @('v1.0.0','01.0.0','1.0','1.0.0/escape','1.0.0-rc.1')) {
+        $rejected = $false
+        try { & (Join-Path $repoRoot 'scripts\package-bridge.ps1') -Source $source -OutputDirectory $versionOutput -ReleaseVersion $invalidVersion } catch { $rejected = $true }
+        if (-not $rejected) { $allInvalidRejected = $false }
+    }
+    Assert-Check ($allInvalidRejected -and -not (Test-Path -LiteralPath $versionOutput)) 'release version accepts only stable semantic version identities'
     # Exercise the real CMD bootstrap without running installation, including a
     # polluted parent module path (PowerShell 7 -> cmd -> Windows PowerShell 5.1).
     @'

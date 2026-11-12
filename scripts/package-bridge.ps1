@@ -1,4 +1,4 @@
-﻿param([string]$Source, [string]$OutputDirectory)
+﻿param([string]$Source, [string]$OutputDirectory, [string]$ReleaseVersion)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'release-common.ps1')
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -9,6 +9,10 @@ $outputPath = Get-ReleasePath $OutputDirectory
 Assert-NoReleaseAncestors $outputPath
 if ($outputPath -eq $sourcePath -or $outputPath.StartsWith($sourcePath+'\', [StringComparison]::OrdinalIgnoreCase) -or $sourcePath.StartsWith($outputPath+'\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Package output and source must not overlap' }
 $info = Test-ReleasePackage $sourcePath @('WallpaperBridge.exe','WallpaperBridge.dll','run-bridge.ps1','wallpaper/index.html','wallpaper/wallpaper.js','wallpaper/project.json')
+if ($ReleaseVersion) {
+    if ($ReleaseVersion -notmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$') { throw 'ReleaseVersion must be a stable semantic version such as 1.0.0' }
+    if (-not $info.PSObject.Properties['version'] -or $info.version -ne $ReleaseVersion) { throw 'ReleaseVersion must match the payload build manifest version' }
+}
 # Fail before creating output if a checkout is missing any installer dependency.
 $scripts = @('install-bridge.ps1','update-bridge.ps1','release-common.ps1','install-bridge-autostart.ps1','start-bridge.ps1','stop-bridge.ps1')
 foreach ($name in $scripts) {
@@ -17,7 +21,8 @@ foreach ($name in $scripts) {
 $project = Get-Content -Raw -Encoding UTF8 -LiteralPath (Join-Path $sourcePath 'wallpaper\project.json') | ConvertFrom-Json
 if ($project.general.properties.bridge_token.value) { throw 'Release wallpaper must not contain a pairing token' }
 New-Item -ItemType Directory -Path $outputPath -Force | Out-Null
-$name = 'Glasswp-Bridge-'+$info.buildId+'-win-x64'
+$identity = if ($ReleaseVersion) { 'v'+$ReleaseVersion } else { $info.buildId }
+$name = 'Glasswp-Bridge-'+$identity+'-win-x64'
 $zipPath = Join-Path $outputPath ($name+'.zip')
 if ((Test-Path -LiteralPath $zipPath) -or (Test-Path -LiteralPath ($zipPath+'.sha256'))) { throw ('Package already exists: '+$zipPath) }
 $workspace = Join-Path $outputPath ('.package-'+[Guid]::NewGuid().ToString('N'))
@@ -64,7 +69,7 @@ Do not share your private configuration or a wallpaper containing your display t
     [IO.Compression.ZipFile]::CreateFromDirectory($workspace, $temporaryZip, [IO.Compression.CompressionLevel]::Optimal, $false)
     Move-Item -LiteralPath $temporaryZip -Destination $zipPath
     $hash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
-    ($hash+'  '+[IO.Path]::GetFileName($zipPath)) | Set-Content -LiteralPath ($zipPath+'.sha256') -Encoding ASCII
+    [IO.File]::WriteAllText(($zipPath+'.sha256'), ($hash+'  '+[IO.Path]::GetFileName($zipPath)+"`n"), [Text.Encoding]::ASCII)
     Write-Output ('Installer package: '+$zipPath)
 } finally {
     # Only remove the exact temporary paths created by this invocation.
