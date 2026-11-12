@@ -1,19 +1,25 @@
-﻿param([switch]$Start, [switch]$NoElevation, [string]$RuntimeRoot)
+﻿param([switch]$Start, [switch]$NoElevation, [string]$RuntimeRoot, [string]$Source, [string]$DataDirectory)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'release-common.ps1')
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $runtimeRoot = Get-BridgeRuntimeRoot $RuntimeRoot
-$source = Join-Path $repoRoot 'artifacts\staging'
+if (-not $Source) { $Source = Join-Path $repoRoot 'artifacts\staging' }
+$source = Get-ReleasePath $Source
+foreach ($path in @($source, $runtimeRoot, $DataDirectory)) { if ($path -and $path.IndexOfAny([char[]]@('"', "`r", "`n")) -ge 0) { throw 'Installation paths must not contain quotes or line breaks' } }
 $destination = Join-Path $runtimeRoot 'current'
 $requiredFiles = @('WallpaperBridge.exe','WallpaperBridge.dll','run-bridge.ps1','wallpaper/index.html','wallpaper/wallpaper.js','wallpaper/project.json')
 $info = Test-ReleasePackage $source $requiredFiles
 $stateResult = Join-Path $runtimeRoot 'state\bridge-update.json'
 $repoResult = Join-Path $repoRoot 'artifacts\validation\bridge-update.json'
+$explicitDataDirectory = [bool]$DataDirectory
+$installContext = Get-BridgeInstallContext $runtimeRoot $DataDirectory
+if (-not $installContext.ownershipNeedsElevation -or $installContext.task -or $explicitDataDirectory) { $DataDirectory = $installContext.dataDirectory }
 if (-not (Test-IsAdministrator)) {
     # The runtime is writable only by administrators: install through one UAC prompt, then copy the report back.
     if ($NoElevation) { throw 'Administrator context required; candidate was not installed' }
-    $arguments='-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "'+$PSCommandPath+'" -NoElevation -RuntimeRoot "'+$runtimeRoot+'"'
+    $arguments='-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "'+$PSCommandPath+'" -NoElevation -RuntimeRoot "'+$runtimeRoot+'" -Source "'+$source+'"'
     if ($Start) { $arguments+=' -Start' }
+    if ($DataDirectory) { $arguments+=' -DataDirectory "'+$DataDirectory+'"' }
     $startedAt = [DateTime]::UtcNow
     $elevated=Start-Process -FilePath (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList $arguments -Verb RunAs -WindowStyle Hidden -PassThru
     $elevated.WaitForExit()
@@ -25,6 +31,7 @@ if (-not (Test-IsAdministrator)) {
     Write-Output ('Bridge build ' + $info.buildId + ' installed in ' + $destination)
     return
 }
+$dataDirectory = $installContext.dataDirectory
 if (Test-Path -LiteralPath $runtimeRoot) { Assert-ProtectedRuntime $runtimeRoot | Out-Null } else { Initialize-ProtectedRuntime $runtimeRoot | Out-Null }
 New-Item -ItemType Directory -Path (Split-Path -Parent $stateResult) -Force | Out-Null
 $health = $null
@@ -34,7 +41,7 @@ $launcher = Get-BridgeLauncherPath $runtimeRoot
 $task = Get-ScheduledTask -TaskName 'WallpaperDashboardBridge' -TaskPath '\' -ErrorAction SilentlyContinue
 $ownTask = $task -and ($task.Actions.Arguments -join ' ').IndexOf(('"' + $launcher + '"'), [StringComparison]::OrdinalIgnoreCase) -ge 0
 $taskRunning = $ownTask -and $task.State -eq 'Running'
-$dataDirectory = $null; $beforeConfig = $null; $privateHashes=@{}
+$beforeConfig = $null; $privateHashes=@{}
 $destinationExe = Join-Path $destination 'WallpaperBridge.exe'
 if ($wasRunning) {
     if ($health.service -ne 'portrait-wallpaper-bridge') { throw 'Bridge port belongs to another service' }
@@ -86,12 +93,13 @@ $result = Invoke-ReleaseTransaction -Source $source -Destination $destination -B
     }
 }
 $removedBackups = Remove-OldRuntimeBackups (Join-Path $runtimeRoot 'backups') 2
+$result | Add-Member -NotePropertyName dataDirectory -NotePropertyValue $dataDirectory
 $result | Add-Member -NotePropertyName buildId -NotePropertyValue $info.buildId
 $result | Add-Member -NotePropertyName removedOldBackups -NotePropertyValue $removedBackups
 $result | Add-Member -NotePropertyName verifiedAt -NotePropertyValue ([DateTimeOffset]::Now.ToString('o'))
 $result | ConvertTo-Json | Set-Content -LiteralPath $stateResult -Encoding UTF8
 Write-Output ('Installed bridge build ' + $info.buildId + '; backup: ' + $result.backup)
 } catch {
-    @{installed=$false;buildId=$info.buildId;rollbackAttempted=$lifecycle.stopped;previousRuntimeRecovered=$lifecycle.recovered;error=$_.Exception.Message;verifiedAt=[DateTimeOffset]::Now.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath $stateResult -Encoding UTF8
+    @{installed=$false;buildId=$info.buildId;dataDirectory=$dataDirectory;rollbackAttempted=$lifecycle.stopped;previousRuntimeRecovered=$lifecycle.recovered;error=$_.Exception.Message;verifiedAt=[DateTimeOffset]::Now.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath $stateResult -Encoding UTF8
     throw
 }

@@ -6,13 +6,9 @@
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $taskName = 'WallpaperDashboardBridge'
-if (-not $DataDirectory) {
-    $DataDirectory = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'WallpaperDashboard\private'
-}
-$DataDirectory = [IO.Path]::GetFullPath($DataDirectory)
-
 . (Join-Path $PSScriptRoot 'release-common.ps1')
 $runtimeRoot = Get-BridgeRuntimeRoot $RuntimeRoot
+if (-not $Remove) { $DataDirectory = (Get-BridgeInstallContext $runtimeRoot $DataDirectory).dataDirectory }
 $launcher = Get-BridgeLauncherPath $runtimeRoot
 $runtimeExe = Join-Path $runtimeRoot 'current\WallpaperBridge.exe'
 $stateResult = Join-Path $runtimeRoot 'state\autostart-install.json'
@@ -37,6 +33,7 @@ function Write-InstallResult($Value) {
     New-Item -ItemType Directory -Path (Split-Path -Parent $stateResult) -Force | Out-Null
     $Value | ConvertTo-Json | Set-Content -LiteralPath $stateResult -Encoding UTF8
 }
+$taskChanged = $false; $bridgeStopped = $false; $previousTaskXml = $null; $runtimeVerified = $false; $taskWasRunning = $false
 try {
     $existingTask = Get-ScheduledTask -TaskName $taskName -TaskPath '\' -ErrorAction SilentlyContinue
     if ($existingTask) {
@@ -52,6 +49,7 @@ try {
     }
     Assert-ProtectedRuntime $runtimeRoot | Out-Null
     $info = Test-ReleasePackage (Join-Path $runtimeRoot 'current') @('WallpaperBridge.exe','run-bridge.ps1')
+    $runtimeVerified = $true
     $configPath = Join-Path $DataDirectory 'config.dpapi'
     if (-not (Test-Path -LiteralPath $configPath)) { throw '找不到已有配置，请用 -DataDirectory 指定原桥接的 private 目录' }
     Add-Type -AssemblyName System.Security
@@ -59,12 +57,17 @@ try {
     $savedConfig = [Text.Encoding]::UTF8.GetString($configBytes) | ConvertFrom-Json
     if ($savedConfig.port -ne 17632) { throw '便捷启动脚本要求桥接使用默认端口 17632' }
 
+    if ($existingTask) {
+        $previousTaskXml = Export-ScheduledTask -TaskName $taskName -TaskPath '\'
+        $taskWasRunning = $existingTask.State -eq 'Running'
+    }
     $health = $null
     try { $health = Invoke-RestMethod -Uri ($script:BridgeOrigin + '/v1/health') -TimeoutSec 2 } catch { }
     if ($health) {
         if ($health.service -ne 'portrait-wallpaper-bridge') { throw '端口 17632 已被其他程序占用' }
         # Stop only a bridge from this checkout or the protected runtime before handing it to the task.
         & (Join-Path $PSScriptRoot 'stop-bridge.ps1') -RuntimeRoot $runtimeRoot
+        $bridgeStopped = $true
         try { $stillRunning = Invoke-RestMethod -Uri ($script:BridgeOrigin + '/v1/health') -TimeoutSec 1 } catch { $stillRunning = $null }
         if ($stillRunning) { throw '端口上的桥接属于另一位置，请检查后再安装自动启动' }
     }
@@ -77,6 +80,7 @@ try {
     $trigger.Delay = 'PT15S'
     $principal = New-ScheduledTaskPrincipal -UserId $userSid -LogonType Interactive -RunLevel Highest
     $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -MultipleInstances IgnoreNew
+    $taskChanged = $true
     Register-ScheduledTask -TaskName $taskName -TaskPath '\' -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Description ('登录后以当前用户的管理员权限，从受保护目录 ' + $runtimeRoot + ' 启动本机壁纸数据桥接；使用固定 DPAPI 配置目录。') -Force | Out-Null
     Start-ScheduledTask -TaskName $taskName -TaskPath '\'
     $ready = Wait-BridgeReady -BuildId $info.buildId -ExpectedPath $runtimeExe
@@ -97,6 +101,25 @@ try {
     }
     Write-Output '已注册管理员登录自动启动任务，本机桥接已运行：http://127.0.0.1:17632/admin/'
 } catch {
-    Write-InstallResult @{ success = $false; taskName = $taskName; error = $_.Exception.Message; verifiedAt = [DateTimeOffset]::Now.ToString('o') }
-    throw
+    $failure = $_
+    $recovered = $false
+    try {
+        if ($taskChanged) {
+            Stop-ScheduledTask -TaskName $taskName -TaskPath '\' -ErrorAction SilentlyContinue
+            & (Join-Path $PSScriptRoot 'stop-bridge.ps1') -RuntimeRoot $runtimeRoot
+            if ($previousTaskXml) {
+                Register-ScheduledTask -TaskName $taskName -TaskPath '\' -Xml $previousTaskXml -Force | Out-Null
+            } else {
+                Unregister-ScheduledTask -TaskName $taskName -TaskPath '\' -Confirm:$false -ErrorAction SilentlyContinue
+            }
+        }
+        if ($runtimeVerified -and $bridgeStopped) {
+            if ($previousTaskXml -and $taskWasRunning) { Start-ScheduledTask -TaskName $taskName -TaskPath '\' }
+            else { Start-Process -FilePath $runtimeExe -ArgumentList ('--data-dir "' + $DataDirectory + '"') -WorkingDirectory (Split-Path -Parent $runtimeExe) -WindowStyle Hidden | Out-Null }
+            Wait-BridgeReady -BuildId $info.buildId -ExpectedPath $runtimeExe | Out-Null
+            $recovered = $true
+        }
+    } catch { Write-Warning ('自动启动安装失败，恢复运行状态也失败：' + $_.Exception.Message) }
+    Write-InstallResult @{ success = $false; taskName = $taskName; error = $failure.Exception.Message; runtimeRecovered = $recovered; verifiedAt = [DateTimeOffset]::Now.ToString('o') }
+    throw $failure
 }

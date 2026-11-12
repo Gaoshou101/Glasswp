@@ -239,3 +239,66 @@ function Get-WallpaperDotnet {
     }
     throw 'No .NET SDK found. Install the .NET 10 SDK under %LOCALAPPDATA%\WallpaperDashboard\devtools\dotnet.'
 }
+
+function Get-BridgeInstallContext([string]$RuntimeRoot, [string]$DataDirectory) {
+    $runtime = Get-BridgeRuntimeRoot $RuntimeRoot
+    if (-not (Test-Path -LiteralPath ([IO.Path]::GetPathRoot($runtime)) -PathType Container)) {
+        throw ('安装盘不可用：' + [IO.Path]::GetPathRoot($runtime) + '。请用 -RuntimeRoot D:\WallpaperDashboard 指定可用盘符根目录下的路径。')
+    }
+    if (Test-Path -LiteralPath $runtime) { Assert-ProtectedRuntime $runtime | Out-Null }
+    $launcher = Get-BridgeLauncherPath $runtime
+    $task = Get-ScheduledTask -TaskName 'WallpaperDashboardBridge' -TaskPath '\' -ErrorAction SilentlyContinue
+    $taskDirectory = $null
+    if ($task) {
+        $arguments = $task.Actions.Arguments -join ' '
+        if ($arguments.IndexOf(('"' + $launcher + '"'), [StringComparison]::OrdinalIgnoreCase) -lt 0) { throw '同名自动启动任务属于另一位置；请检查 WallpaperDashboardBridge 任务后重试。' }
+        if ($arguments -match '-DataDirectory\s+"([^"]+)"') { $taskDirectory = $Matches[1] }
+        elseif ($arguments -match '-DataDirectory\s+(\S+)') { $taskDirectory = $Matches[1] }
+        if (-not $taskDirectory) { throw '现有自动启动任务缺少固定 DataDirectory；请先检查并修复任务。' }
+    }
+    $health = $null
+    try { $health = Invoke-RestMethod -Uri ($script:BridgeOrigin + '/v1/health') -TimeoutSec 2 } catch { }
+    $runningDirectory = $null
+    $ownershipNeedsElevation = $false
+    if ($health) {
+        if ($health.service -ne 'portrait-wallpaper-bridge') { throw '端口 17632 已被其他服务占用；请关闭冲突服务后重试。' }
+        $processes = @(Get-Process WallpaperBridge -ErrorAction SilentlyContinue)
+        $expectedExe = Join-Path $runtime 'current\WallpaperBridge.exe'
+        if ($processes.Count -eq 1 -and -not $processes[0].Path -and -not (Test-IsAdministrator)) {
+            # Windows may hide the path/command line of the elevated runtime from the caller.
+            # The installer repeats this check after UAC; -Check reports the remaining check.
+            $ownershipNeedsElevation = $true
+        } else {
+            if ($processes.Count -ne 1 -or -not $processes[0].Path -or [IO.Path]::GetFullPath($processes[0].Path) -ne $expectedExe) {
+                throw '无法确认当前桥接属于目标运行目录；请检查 -RuntimeRoot，旧版开发目录请先运行 migrate-bridge-runtime.ps1。'
+            }
+            $command = (Get-CimInstance Win32_Process -Filter ('ProcessId=' + $processes[0].Id)).CommandLine
+            if ($command -match '--data-dir\s+"([^"]+)"') { $runningDirectory = $Matches[1] }
+            elseif ($command -match '--data-dir\s+(\S+)') { $runningDirectory = $Matches[1] }
+            if (-not $runningDirectory) {
+                if (-not $command -and -not (Test-IsAdministrator)) { $ownershipNeedsElevation = $true }
+                else { throw '现有桥接没有固定 --data-dir；请先检查私有配置位置，避免创建新的配置。' }
+            }
+        }
+    } elseif (Get-NetTCPConnection -LocalPort 17632 -State Listen -ErrorAction SilentlyContinue) {
+        throw '端口 17632 已被占用且健康检查无响应；请检查占用进程后重试。'
+    }
+    $directories = @($DataDirectory, $runningDirectory, $taskDirectory) | Where-Object { $_ } | ForEach-Object { [IO.Path]::GetFullPath($_).TrimEnd('\', '/') }
+    if (@($directories | Select-Object -Unique).Count -gt 1) { throw '指定目录、运行桥接与自动启动任务的 private 目录不一致；请使用原有 -DataDirectory，避免切换 DPAPI 配置。' }
+    $selectedDirectory = @($directories | Select-Object -First 1)
+    if (-not $selectedDirectory.Count) {
+        # Preserve a custom path even after a manual (-NoAutostart) installation has stopped.
+        $reports = @('state\bridge-install.json', 'state\bridge-update.json') | ForEach-Object { Join-Path $runtime $_ } | Where-Object { Test-Path -LiteralPath $_ } | Get-Item | Sort-Object LastWriteTimeUtc -Descending
+        foreach ($report in $reports) {
+            try {
+                $saved = Get-Content -Raw -LiteralPath $report.FullName | ConvertFrom-Json
+                if ($saved.PSObject.Properties['dataDirectory'] -and $saved.dataDirectory) { $selectedDirectory = @([IO.Path]::GetFullPath($saved.dataDirectory).TrimEnd('\', '/')); break }
+            } catch { throw ('无法读取已保存的私有配置位置：' + $report.FullName + '。请检查记录或显式指定 -DataDirectory。') }
+        }
+    }
+    if (-not $selectedDirectory.Count) { $selectedDirectory = @(Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'WallpaperDashboard\private') }
+    $privateDirectory = $selectedDirectory[0]
+    foreach ($path in @($runtime, $privateDirectory)) { if ($path.IndexOfAny([char[]]@('"', "`r", "`n")) -ge 0) { throw '安装路径不得包含引号或换行。' } }
+    if ($privateDirectory -eq $runtime -or $privateDirectory.StartsWith($runtime + '\', [StringComparison]::OrdinalIgnoreCase)) { throw '私有配置目录必须位于运行目录之外。' }
+    [pscustomobject]@{ runtimeRoot = $runtime; dataDirectory = $privateDirectory; health = $health; task = $task; ownershipNeedsElevation = $ownershipNeedsElevation }
+}

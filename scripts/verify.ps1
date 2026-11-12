@@ -10,6 +10,8 @@ try {
     & $dotnetPath run --project bridge\WallpaperBridge.Tests\WallpaperBridge.Tests.csproj
     if($LASTEXITCODE -ne 0){throw 'Bridge verification failed'}
     & (Join-Path $repoRoot 'tests\release-check.ps1')
+    & (Join-Path $repoRoot 'tests\installer-check.ps1')
+    & (Join-Path $repoRoot 'tests\installer-package-check.ps1')
     if($ReleaseRuntime){& (Join-Path $repoRoot 'tests\bridge-release-check.ps1')}
     if($Browser){
         if(-not $Python){$Python=(Get-Command python -ErrorAction Stop).Source}
