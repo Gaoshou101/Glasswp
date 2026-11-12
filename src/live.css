@@ -9,28 +9,22 @@
 .account-meta{display:flex;align-items:center;justify-content:space-between;gap:calc(8 * var(--u));margin-top:calc(7 * var(--u))}
 .account-meta .plan{min-width:0;max-width:100%;line-height:1.4}
 .quota-card .plan{font-size:calc(17 * var(--u));color:#e0c9f6}
-.quota-card .windows{grid-template-columns:minmax(0,1fr);align-content:start;gap:calc(20 * var(--u));margin-top:calc(18 * var(--u))}
+.quota-card{--window-gap:20;--window-top:18;--window-title:18;--window-value:31;--window-reset:17;--window-track:7;--window-track-gap:8}
+.quota-card .windows{grid-template-columns:minmax(0,1fr);align-content:start;gap:calc(var(--window-gap) * var(--u));margin-top:calc(var(--window-top) * var(--u))}
 .quota-card .quota-window{padding:0;border-radius:0;background:none;box-shadow:none}
-.quota-card .window-title{font-size:calc(18 * var(--u))}
-.quota-card .remaining{font-size:calc(31 * var(--u));line-height:1.2}
+.quota-card .window-title{font-size:calc(var(--window-title) * var(--u));line-height:1.3}
+.quota-card .remaining{font-size:calc(var(--window-value) * var(--u));line-height:1.2}
 .quota-card .remaining small{font-size:calc(14 * var(--u));margin-right:calc(4 * var(--u))}
-.quota-card .track{height:calc(6 * var(--u));margin:calc(8 * var(--u)) 0}
-.quota-card .reset{font-size:calc(17 * var(--u));line-height:1.3}
+.quota-card .track{height:calc(var(--window-track) * var(--u));margin:calc(var(--window-track-gap) * var(--u)) 0}
+.quota-card .reset{font-size:calc(var(--window-reset) * var(--u));line-height:1.3;overflow:hidden;text-overflow:ellipsis}
 .quota-card .window-meta{display:none}
 /* Reserve real line boxes; flex shrinking used to crop the account metadata. */
 .quota-card>.account-heading,.quota-card>.account-meta,.quota-card>.windows{flex-shrink:0}
-.quota-card[data-dense=true] .windows{font-size:calc(16 * var(--u));line-height:1.4;gap:calc(4 * var(--u));margin-top:calc(8 * var(--u))}
-.quota-card[data-dense=true] .window-title{font-size:calc(16 * var(--u))}
-.quota-card[data-dense=true] .remaining{font-size:calc(19 * var(--u));line-height:1.3}
+/* Step down by the actual row count; three windows still have room for a full-size reading. */
+.quota-card[data-window-count="3"]{--window-gap:10;--window-top:14;--window-value:27;--window-reset:15;--window-track:6;--window-track-gap:5}
+.quota-card[data-window-count="4"]{--window-gap:4;--window-top:10;--window-title:16;--window-value:22;--window-reset:13;--window-track:5;--window-track-gap:3}
+.quota-card[data-window-count="5"]{--window-gap:3;--window-top:8;--window-title:15;--window-value:18;--window-reset:12;--window-track:4;--window-track-gap:1}
 .quota-card[data-dense=true] .remaining small{display:none}
-.quota-card[data-dense=true] .track{height:calc(3 * var(--u));margin:calc(2 * var(--u)) 0}
-.quota-card[data-dense=true] .reset{font-size:calc(13 * var(--u));line-height:1.5;overflow:hidden;text-overflow:ellipsis}
-/* Five rows fit the same card: title/balance, thin bar, then reset time. */
-.quota-card[data-window-count="5"] .windows{gap:calc(5 * var(--u));margin-top:calc(8 * var(--u))}
-.quota-card[data-window-count="5"] .window-title{font-size:calc(15 * var(--u))}
-.quota-card[data-window-count="5"] .remaining{font-size:calc(16 * var(--u))}
-.quota-card[data-window-count="5"] .reset{font-size:calc(12 * var(--u));line-height:1.25}
-.quota-card[data-window-count="5"] .track{height:calc(2 * var(--u));margin:calc(1 * var(--u)) 0}
 .quota-single .quota-account[data-dense=true] .windows{gap:calc(14 * var(--u))}
 .quota-single .quota-account[data-dense=true] .quota-window{padding:calc(12 * var(--u))}
 .quota-single .quota-account[data-dense=true] .window-meta{display:none}
