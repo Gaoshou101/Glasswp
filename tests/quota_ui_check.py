@@ -18,7 +18,7 @@ window = dict(id='short', label='5 小时窗口', remainingPercent=45, usedValue
               resetAt=iso(3600), durationSeconds=18000, mode='fixed', accuracy='exact', observedAt=iso(), stale=False)
 accounts = [dict(id=str(i), alias=f'example-account-{i+1}@example.com', provider='codex' if i < 3 else 'antigravity', plan='Plus' if i < 3 else 'Antigravity',
                  windows=[dict(window, id=str(j), label=['Claude/GPT · 5 小时', 'Gemini · 5 小时', 'Claude/GPT · 周额度', 'Gemini · 周额度', 'Gemini 4 Argon · 周额度'][j] if i >= 3 else ['5 小时窗口', '周窗口', '日窗口 · 绘图（Premium）', '周窗口 · 基础模型'][j], remainingPercent=63 if j == 4 else 100 if i >= 3 else 80-j*10,
-                               observedAt=iso(), stale=False) for j in range(count)]) for i, count in enumerate([4, 2, 1, 5, 4, 4, 2])]
+                               observedAt=iso(), stale=False) for j in range(count)]) for i, count in enumerate([4, 2, 1, 5, 4, 4, 3])]
 snapshot = dict(schemaVersion=1, generatedAt=iso(), quota=dict(status='stale', fetchedAt=iso(), message='', accounts=accounts),
                 hardware=dict(status='ok', observedAt=iso(), cpu=device, gpu=device, vram=device, ram=device, message=''),
                 weather=dict(status='ok', fetchedAt=iso(), observedAt=iso(), city='示例城市', temperature=23, low=19, high=26, code=2, isDay=True, message=''))
