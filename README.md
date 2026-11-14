@@ -26,6 +26,16 @@ Glasswp 是一套面向 Wallpaper Engine 的竖屏 Web 壁纸。玻璃卡片承�
 
 日期与时钟可独立运行。天气、AI 余量和硬件数据需要单独安装 Windows 本机桥接；桥接同时提供设置页，集中管理来源、账号和传感器。
 
+## 订阅创意工坊壁纸
+
+| 主题 | 订阅链接 |
+|---|---|
+| Purple | [Glasswp-Purple](https://steamcommunity.com/sharedfiles/filedetails/?id=3839343241) |
+| Angel | [Glasswp-Angel](https://steamcommunity.com/sharedfiles/filedetails/?id=3839324841) |
+| Corgi | [Glasswp-Corgi](https://steamcommunity.com/sharedfiles/filedetails/?id=3839334518) |
+
+订阅后在 Wallpaper Engine 中选择对应壁纸。日期与时钟可独立运行；天气、AI 余量和硬件数据请继续按下面的步骤安装本机桥接。
+
 ## 快速安装
 
 **运行环境：Windows x64、Wallpaper Engine。** 自包含桥接包运行时无需另装 Node.js 或 .NET。
